@@ -1,0 +1,17 @@
+# Role meta data
+
+---
+
+galaxy_info:
+  description: "foundata.postfix run role"
+  license: "GPL-3.0-or-later" # See https://spdx.org/licenses/ for valid IDs and syntax.
+  author: "Andreas Haerter <ah@foundata.com>"
+  company: "foundata GmbH"
+
+  standalone: false # This role is part of a collection (useful hint for ansible-lint)
+  min_ansible_version: "2.16.0"
+
+
+# Roles that this role requires to be installed.
+dependencies:
+  [] # Remove the "[]" when adding values to this list.

@@ -1,0 +1,98 @@
+# Default variables and values for this role.
+#
+# These variables are designed to be easily overridden (as they have a low
+# precedence) and typically allow users to customize the role's behavior.
+# Each variable should have a clear comment above it, describing its purpose
+# and how it fits into the role's functionality.
+
+---
+
+# String. Determines whether the managed resources should be "present" or
+# "absent". Defaults to "present". Possible values:
+#
+# - "present": Ensures that required components, such as software packages,
+#   are installed and configured.
+# - "absent": Reverts changes as much as possible, such as removing packages,
+#   deleting created users, stopping services, restoring modified settings, …
+run_postfix_state: "present"
+
+
+# Boolean. If set to true, all managed packages will be upgraded during each
+# Ansible run (e.g., when the package provider detects a newer version than
+# the currently installed one). Defaults to false.
+run_postfix_autoupgrade: false
+
+
+# String. Defines the status of the service(s). Defaults to "enabled".
+# Possible values:
+#
+# - "enabled": Service is running and will start automatically at boot.
+# - "disabled": Service is stopped and will not start automatically at boot.
+# - "running": Service is running but will not start automatically at boot.
+#   This can be used to start a service on the first Ansible run without
+#   enabling it for boot.
+# - "unmanaged": Service will not start at boot, and Ansible will not
+#   manage its running state. This is primarily useful when services are
+#   monitored and managed by systems other than Ansible.
+#
+# The singular form ("service") is used for simplicity. However, the defined
+# status applies to all services if multiple are being managed by this role.
+run_postfix_service_state: "enabled"
+
+
+# Postfix configuration values (additional ones or to overwrite defaults).
+#
+# Use standard Postfix option names as keys with their corresponding values.
+#
+# Structure:
+# - Keys: Standard Postfix option names (as defined in postconf documentation)
+# - Values: Corresponding configuration values
+#
+# Common options include:
+# - myhostname: FQDN of the mail system
+# - mydomain: Domain part of the FQDN
+# - myorigin: Domain to append to locally posted mail
+# - inet_interfaces: Network interfaces to listen on
+# - inet_protocols: IP protocols to use (ipv4, ipv6, all)
+# - mynetworks: Trusted SMTP clients for relay
+# - relay_domains: Domains to relay mail for
+#
+# Reference commands:
+# - postconf: print all current active values
+# - postconf -n: print all active, explicitly set options
+# - postconf -d: print all options with their default
+#
+# For a complete list of options, see https://www.postfix.org/postconf.5.html
+run_postfix_maincf_settings:
+  {} # see __run_postfix_maincf_settings_defaults in vars/main.yml for the defaults
+
+
+# Additional configuration for Postfix master process (master.cf). For details
+# on the syntax of the fields/values, see the master(5) manual page (command:
+# "man 5 master" or online: http://www.postfix.org/master.5.html).
+#
+# Dictionary structure:
+#
+# - Key: service name (e.g., smtp, submission, 127.0.0.1:smtp, 12345)
+# - Values: configuration parameters for that service
+#
+# Example:
+#
+#   smtp: # Service for standard SMTP (Port 25)
+#     type: "inet" # Network socket type
+#     private: "n" # Private service
+#     unpriv: "-" # Unprivileged service
+#     chroot: "n" # Run in chroot, usually n for Postfix > v3.0.0
+#     wakeup: "-" # Wakeup time
+#     maxproc: "-" # Max processes
+#     command_args: "smtpd" # Command and arguments
+#   submission: # Service for submission (Port 587)
+#     type: "inet"
+#     private: "n"
+#     unpriv: "-"
+#     chroot: "n"
+#     wakeup: "-"
+#     maxproc: "-"
+#     command_args: "smtpd"
+run_postfix_mastercf_settings:
+  {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults

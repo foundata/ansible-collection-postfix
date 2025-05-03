@@ -1,0 +1,29 @@
+# FIXME Desc header comment
+
+---
+
+- name: "Setup | Install | Debian | Pre-configure packages"
+  ansible.builtin.debconf:
+    name: "{{ item['package'] }}"
+    question: "{{ item['question'] }}"
+    value: "{{ item['value'] }}"
+    vtype: "{{ item['vtype'] }}"
+  loop:
+    # hint for maintainers: debconf-show postfix
+    - { package: "{{ __run_postfix_debian_debconf_postfixpkgname }}",
+        question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/main_mailer_type",
+        value: "Internet with smarthost",
+        vtype: "string" }
+    - { package: "{{ __run_postfix_debian_debconf_postfixpkgname }}",
+        question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/mailname",
+        value: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}",
+        vtype: "string" }
+    - { package: "{{ __run_postfix_debian_debconf_postfixpkgname }}",
+        question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/relayhost",
+        value: "{{ __run_postfix_merged_maincf_settings.get('relayhost', '') }}",
+        vtype: "string" }
+  when:
+    - __run_postfix_debian_debconf_postfixpkgname is defined
+    - (__run_postfix_debian_debconf_postfixpkgname | length) > 0
+  notify:
+    - "run_postfix: restart postfix.service"

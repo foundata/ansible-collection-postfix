@@ -1,0 +1,86 @@
+# Main entry point for the role.
+
+---
+
+- name: "Main | Include role initialization tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/init.yml"
+    apply:
+      tags:
+        - "always"
+        - "run_postfix_always"
+  tags:
+    - "always"
+    - "run_postfix_always"
+
+
+- name: "Main | Include setup tasks (install): best platform matches (if any), then default"
+  ansible.builtin.include_tasks:
+    file: "{{ __run_postfix_task_file }}"
+    apply:
+      tags:
+        - "run_postfix_setup"
+  vars:
+    __run_postfix_task_file: "{{ role_path }}/tasks/setup/install/{{ __run_postfix_loop_item }}"
+  when:
+    - run_postfix_state == 'present'
+    - __run_postfix_task_file is file
+  loop: "{{ __run_postfix_platform_filenames_most_specific_first + ['default.yml'] }}"
+  loop_control:
+    loop_var: "__run_postfix_loop_item"
+  tags:
+    - "run_postfix_setup"
+
+
+- name: "Main | Include configuration tasks: best platform matches (if any), then default"
+  ansible.builtin.include_tasks:
+    file: "{{ __run_postfix_task_file }}"
+    apply:
+      tags:
+        - "run_postfix_config"
+  vars:
+    __run_postfix_task_file: "{{ role_path }}/tasks/config/{{ __run_postfix_loop_item }}"
+  when:
+    - run_postfix_state == 'present'
+    - __run_postfix_task_file is file
+  loop: "{{ __run_postfix_platform_filenames_most_specific_first + ['default.yml'] }}"
+  loop_control:
+    loop_var: "__run_postfix_loop_item"
+  tags:
+    - "run_postfix_config"
+
+
+- name: "Main | Include service or daemon management tasks: best platform matches (if any), then default"
+  ansible.builtin.include_tasks:
+    file: "{{ __run_postfix_task_file }}"
+    apply:
+      tags:
+        - "run_postfix_service"
+  vars:
+    __run_postfix_task_file: "{{ role_path }}/tasks/service/{{ __run_postfix_loop_item }}"
+  when:
+    - run_postfix_state == 'present'
+    - __run_postfix_task_file is file
+  loop: "{{ __run_postfix_platform_filenames_most_specific_first + ['default.yml'] }}"
+  loop_control:
+    loop_var: "__run_postfix_loop_item"
+  tags:
+    - "run_postfix_service"
+
+
+- name: "Main | Include setup tasks (uninstall): best platform matches (if any), then default"
+  ansible.builtin.include_tasks:
+    file: "{{ __run_postfix_task_file }}"
+    apply:
+      tags:
+        - "run_postfix_setup"
+  vars:
+    __run_postfix_task_file: "{{ role_path }}/tasks/setup/uninstall/{{ __run_postfix_loop_item }}"
+  when:
+    - run_postfix_state == 'absent'
+    - __run_postfix_task_file is file
+  loop: "{{ __run_postfix_platform_filenames_most_specific_first + ['default.yml'] }}"
+  loop_control:
+    loop_var: "__run_postfix_loop_item"
+  tags:
+    - "run_postfix_setup"

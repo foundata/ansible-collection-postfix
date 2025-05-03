@@ -1,0 +1,116 @@
+# Configuration: Manage settings, like adapting or creating config files.
+
+---
+
+# May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
+- name: "Config | Default | Check if mailname file exists: {{ __run_postfix_mailname_file }}"
+  ansible.builtin.stat:
+    path: "/etc/mailname"
+  register: __run_postfix_mailname_stat_result
+
+
+- name: "Config | Default | Update mailname file: {{ __run_postfix_mailname_file }}"
+  ansible.builtin.copy:
+    content: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
+    dest: "{{ __run_postfix_mailname_file }}"
+    owner: "{{ __run_postfix_mailname_owner }}"
+    group: "{{ __run_postfix_mailname_group }}"
+    mode: "{{ __run_postfix_mailname_mode }}"
+  when:
+    - __run_postfix_mailname_stat_result.stat.exists
+  notify:
+    - "run_postfix: restart postfix.service"
+
+
+- name: "Config | Default | Set permissions on Postfix configuration files"
+  ansible.builtin.file:
+    path: "{{ item['file'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  loop:
+    - {
+        file: "{{ __run_postfix_maincf_file }}",
+        owner: "{{ __run_postfix_maincf_owner }}",
+        group: "{{ __run_postfix_maincf_group }}",
+        mode: "{{ __run_postfix_maincf_mode }}"
+      }
+    - {
+        file: "{{ __run_postfix_mastercf_file }}",
+        owner: "{{ __run_postfix_mastercf_owner }}",
+        group: "{{ __run_postfix_mastercf_group }}",
+        mode: "{{ __run_postfix_mastercf_mode }}"
+      }
+
+
+# Prevent harmless but annoying 'overriding earlier entry' warnings
+- name: "Config | Default | main.cf, comment out managed but pre-defined values"
+  ansible.builtin.replace:
+    path: "{{ __run_postfix_maincf_file }}"
+    regexp: '^(([\t ]+)?({{ item["key"] }})([\t ]+)?=(.*))'
+    replace: '#\1'
+    before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
+  loop: "{{ __run_postfix_merged_maincf_settings | dict2items | list }}"
+  when:
+    - __run_postfix_merged_maincf_settings is defined
+    - __run_postfix_merged_maincf_settings
+
+
+# Notes on the main.cf handling:
+#
+# * Sadly, it is not possible to import other config files into main.cf.
+#   So one has to edit the existing file.
+#
+# * From https://www.postfix.org/postconf.5.html:
+#
+#   > When the same parameter is defined multiple times, only the last
+#   > instance is remembered. Otherwise, the order of main.cf parameter
+#   > definitions does not matter.
+#
+#   Because of this behavior and the fact that the main.cf the distributions
+#   ships vary a lot (e.g. Debian is minimalistic while Red Hat-like
+#   contain nearly every setting commented out beside inline documentation),
+#   we decided to maintain an Ansible managed settings block at the end of the
+#   file. Additionally, it makes no sense to just map a subset of settings to a
+#   list. Therefore we simply pass a dict.
+- name: "Config | Default | main.cf"
+  ansible.builtin.blockinfile:
+    path: "{{ __run_postfix_maincf_file }}"
+    marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
+    # The config does not quote strings and allows multiline values, so the loop is simple
+    block: |
+      {% for key, value in __run_postfix_merged_maincf_settings.items() %}
+      {{ key }} = {{ value }}
+      {% endfor %}
+  when:
+    - __run_postfix_merged_maincf_settings is defined
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+    - "run_postfix: reload postfix.service"
+
+
+# Notes on the master.cf handling:
+#
+# * For details on the format of the file, see the master(5) manual page
+#   (command: "man 5 master" or on-line: http://www.postfix.org/master.5.html).
+#
+# * Sadly, it is not possible to import other config files into master.cf.
+#   So one has to edit the existing file.
+#
+# * When multiple lines specify the same service name and type, only the last
+#   one is remembered. There are no 'overriding earlier entry' warnings so
+#   adding an Ansible managed settings block at the end of the file works well.
+- name: "Config | Default | master.cf"
+  ansible.builtin.blockinfile:
+    path: "{{ __run_postfix_mastercf_file }}"
+    marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
+    # The config does not quote strings and allows multiline values, so the loop is simple
+    block: |
+      {% for service, fields in __run_postfix_merged_mastercf_settings.items() %}
+      {{ service }} {{ fields['type'] }} {{ fields['private'] }} {{ fields['unpriv'] }} {{ fields['chroot'] }} {{ fields['wakeup'] }} {{ fields['maxproc'] }} {{ fields['command_args'] }}
+      {% endfor %}
+  when:
+    - __run_postfix_merged_mastercf_settings is defined
+  notify:
+    - "run_postfix: reload postfix.service"

@@ -1,0 +1,168 @@
+# Internal role variables and values that must NOT be overridden by the user.
+#
+# Variables defined here usually override earlier definitions due to the high
+# precedence of this file. Each variable should have a concise comment above
+# it, describing its purpose and how it fits into the role's functionality.
+
+---
+
+# List of facts used by the role (gathered on a best-effort basis if needed).
+#
+# To identify which subset a fact belongs to during development, you can use
+# the following snippet:
+#
+# - ansible.builtin.setup:
+#     gather_subset:
+#       - '!min'
+#       - '<subset_name, see parameter doc for details>'
+__run_postfix_used_facts:
+  # from subset "distribution"
+  - "distribution"
+  - "distribution_major_version"
+  - "distribution_version"
+  - "os_family"
+  # from subset "platform"
+  - "platform" # needed for hostname
+
+
+# List of platforms this role supports and was designed for.
+#
+# A warning will be issued if the list contains values and the role is executed
+# on an unknown (not listed) platform, but execution will continue. Example:
+#
+# - name: "Fedora" # A ansible_facts value ('distribution' or 'os_family')
+#   versions: # A ansible_facts value ('distribution_major_version' or
+#     - "all" # 'distribution_version') or "all"
+# - name: "Ubuntu"
+#   versions:
+#     - "22.04"
+#     - "24.04"
+# - name: "RedHat"
+#   versions:
+#     - "all"
+# - name: "Debian"
+#   versions:
+#     - "all"
+__run_postfix_supported_platforms:
+  - name: "Debian"
+    versions:
+      - "11"
+      - "12"
+  - name: "Fedora"
+    versions:
+      - "42"
+      - "41"
+  - name: "openSUSE Leap"
+    versions:
+      - "15.6"
+  - name: "RedHat" # includes AlmaLinux, Rocky and CentOS Stream
+    versions:
+      - "9"
+      - "10"
+  - name: "Ubuntu"
+    versions:
+      - "24.04"
+      - "22.04"
+
+
+# List of package names to be installed when run_postfix_state is
+# set to "present".
+__run_postfix_packages_install:
+  # We maintain this package list separately from the platform-specific
+  # variables in this directory because these packages likely have the same
+  # names across both supported platforms and unsupported, best-effort
+  # platforms.
+  - "postfix"
+
+
+# List of package names to be uninstalled when run_postfix_state is
+# set to "absent". This variable is useful when __run_postfix_packages_install
+# contains packages that are required for the managed software to function but
+# should not be removed during uninstallation, as doing so could break other
+# software. This is usually the case if there are common dependencies like
+# "curl" or "openssl" which typically should remain installed even after
+# uninstalling the software managed by this role.
+__run_postfix_packages_uninstall: "{{ run_postfix_packages_install }}"
+
+
+# List of package names to be removed unconditionally before installation
+# (e.g., to prevent conflicts or resolve incompatibilities).
+__run_postfix_packages_removal:
+  [] # Remove the "[]" when adding values to this list.
+
+
+# FIXME Postfix master process configuration file.
+#__run_postfix_mastercf_settings_defaults:
+
+
+# Additional default configuration for Postfix daemon.
+#
+# Use standard Postfix option names as keys with their corresponding values.
+# Special cases:
+# - FIXME
+__run_postfix_maincf_settings_defaults:
+  myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
+  inet_interfaces: "all"
+  inet_protocols: "all"
+  ## virtual
+  # http://www.postfix.org/VIRTUAL_README.html#mailing_lists
+  # https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
+  virtual_alias_maps: "hash:/etc/postfix/virtual"
+
+
+# Additional configuration for Postfix master process (master.cf)
+#
+# See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
+# description.
+__run_postfix_mastercf_settings_defaults:
+  smtp: # Service for standard SMTP (Port 25)
+    type: "inet"
+    private: "n"
+    unpriv: "-"
+    chroot: "n"
+    wakeup: "-"
+    maxproc: "-"
+    command_args: "smtpd"
+  submission: # Service for submission (Port 587)
+    type: "inet"
+    private: "n"
+    unpriv: "-"
+    chroot: "n"
+    wakeup: "-"
+    maxproc: "-"
+    command_args: "smtpd"
+  smtps: # Service for secure SMTP (Port 465)
+    type: "inet"
+    private: "n"
+    unpriv: "-"
+    chroot: "n"
+    wakeup: "-"
+    maxproc: "-"
+    command_args: "smtpd"
+
+
+# Configuration file paths, ownership, and permissions for the SSH daemon.
+# These variables define the different locations of configuration files, the
+# include directory, and the Ansible-managed configuration file, ensuring
+# consistent file handling across distributions.
+__run_postfix_maincf_file: "/etc/postfix/main.cf"
+__run_postfix_maincf_owner: "root"
+__run_postfix_maincf_group: "root"
+__run_postfix_maincf_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_mastercf_file: "/etc/postfix/master.cf"
+__run_postfix_mastercf_owner: "root"
+__run_postfix_mastercf_group: "root"
+__run_postfix_mastercf_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_mailname_file: "/etc/mailname" # May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
+__run_postfix_mailname_owner: "root"
+__run_postfix_mailname_group: "root"
+__run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
+
+
+# Postfix daemon service name and executable path.
+# These variables define the systemd service name for Postfix daemon
+# and the path to the Postfix executable for service management and validation.
+__run_postfix_servicename: "postfix.service"
+__run_postfix_executable: "/usr/sbin/postfix"

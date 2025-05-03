@@ -1,0 +1,20 @@
+# Setup: Manage basic resource installation, such as packages or service users.
+
+---
+
+- name: "Setup | Install | Default | Remove unwanted packages (e.g., to prevent conflicts or resolve incompatibilities)"
+  ansible.builtin.package:
+    name: "{{ __run_postfix_packages_removal }}"
+    state: "absent"
+  when:
+    - __run_postfix_packages_removal is defined
+    - (__run_postfix_packages_removal | length) > 0
+
+
+- name: "Setup | Install | Default | Install or upgrade packages"
+  ansible.builtin.package:
+    name: "{{ __run_postfix_packages_install }}"
+    state: "{{ 'latest' if run_postfix_autoupgrade else 'present' }}"
+  when:
+    - __run_postfix_packages_install is defined
+    - (__run_postfix_packages_install | length) > 0
