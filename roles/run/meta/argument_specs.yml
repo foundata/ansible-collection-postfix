@@ -40,3 +40,33 @@ argument_specs:
       run_postfix_mastercf_settings:
         type: "dict"
         required: true
+
+      run_postfix_handle_relay_domains:
+        type: "bool"
+        required: true
+
+      run_postfix_relay_domains:
+        type: "list"
+        elements: "str"
+        required: true
+
+      run_postfix_handle_transport_maps:
+        type: "bool"
+        required: true
+
+      run_postfix_transport_maps:
+        type: "dict"
+        required: true
+
+      run_postfix_handle_virtual_alias:
+        type: "bool"
+        required: true
+
+      run_postfix_virtual_alias_domains:
+        type: "list"
+        elements: "str"
+        required: true
+
+      run_postfix_virtual_alias_maps:
+        type: "dict"
+        required: true
