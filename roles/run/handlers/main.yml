@@ -28,8 +28,8 @@
     - __run_postfix_merged_maincf_settings is defined
       # item['key'] != 'alias_maps' [...]: exclude files where "newaliases" or "postalias" has to be used
     - ((item['key'] == 'relay_domains') or
-        (item['key'] | regex_search('_map$')) or
-        (item['value'] | regex_search('^(hash|btree|dbm):/.+'))) and
+       (item['key'] | regex_search('_map$')) or
+       (item['value'] | regex_search('^(hash|btree|dbm):/.+'))) and
       (item['key'] != 'alias_maps') and
       (item['key'] != 'alias_database')
   changed_when:
