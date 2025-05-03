@@ -98,15 +98,47 @@ run_postfix_mastercf_settings:
   {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
 
 
-### virtual(5)
-
 # FIXME Desc
 run_postfix_handle_relay_domains: true
+
+# Relay domains for Postfix. This list of relay domains for which Postfix will
+# accept mail for relaying to their final destinations.
+#
+# Example:
+#   - "example.com"
+#   - "example.net"
+#   - "example.org"
+#   - "foo.example.org"
+#
+# will be ignored if run_postfix_handle_relay_domains is set to false.
+run_postfix_relay_domains:
+  [] # see __run_postfix_relay_domains_defaults in vars/main.yml for the defaults
 
 # FIXME Desc
 run_postfix_handle_transport_maps: true
 
 
+# Domain transport mapping for Postfix. This defines where to send emails To
+# for the listed domainsin a structured format.
+#
+# Attention: Do not forget to use square brackets to force DNS A record instead
+#            of MX record lookups
+#
+# Dictionary structure:
+#
+# - Keys: criterions, usually an email address
+# - Values: Lists of destinations, usually email addresses
+#
+# Example:
+#
+#   "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
+#   "example.net": "lmtp:127.0.0.1:24"
+#   "example.org": "[192.168.0.1]"
+#   "foo.example.org": "[mailrelay.foo.example.org:123"
+#
+# will be ignored if run_postfix_handle_transport_maps is set to false.
+run_postfix_transport_maps:
+  {} # see __run_postfix_transport_maps_defaults in vars/main.yml for the defaults
 
 
 ### virtual(5)
@@ -131,11 +163,7 @@ run_postfix_virtual_alias_domains:
 # Virtual aliases mappings for Postfix. This defines email forwarding
 # rules in a structured format.
 #
-# Attention: This is only used if
-#            run_postfix_maincf_settings['virtual_alias_maps'] is set to
-#            "hash:/etc/postfix/virtual" (which is the default configuration).
-#
-# Attentions: do not forget to list handled domains in
+# Attention: do not forget to list handled domains in
 #             run_postfix_virtual_alias_domains
 #
 # Dictionary structure:

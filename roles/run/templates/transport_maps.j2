@@ -1,0 +1,25 @@
+# {{ ansible_managed }}
+
+# This file defines the mail transport routes for Postfix, mapping domains
+# or email addresses to specific mail delivery methods and destinations.
+
+# Transport maps override normal routing for specific recipients or domains,
+# allowing mail to be routed through non-default transport mechanisms and
+# ignoring MX records. This is especially needed for the domains managed by
+# by Postfix itself to prevent "Mail loops back to myself" errors. The format
+# is typically domain or email address patterns followed by their
+# transport:nexthop destination.
+{% if run_postfix_handle_relay_domains %}
+# The accepted (relayed) domains are defined in the following file:
+# {{ __run_postfix_relaydomains_file }}
+#
+{% endif %}
+#
+# See the following resources for more information:
+#
+# - https://www.postfix.org/transport.5.html
+# - https://www.postfix.org/postconf.5.html#transport_maps
+
+{% for domain, transport in __run_postfix_merged_transport_maps.items() %}
+{{ domain }}    {{ transport }}
+{% endfor %}

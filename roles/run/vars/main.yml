@@ -143,6 +143,22 @@ __run_postfix_mastercf_settings_defaults:
 
 # FIXME
 #
+# See in run_postfix_relay_domains in defaults/main.yml for a detailled
+# description.
+__run_postfix_relay_domains_defaults:
+  []
+
+
+# FIXME
+#
+# See in run_postfix_transport_maps in defaults/main.yml for a detailled
+# description.
+__run_postfix_transport_maps_defaults:
+  {}
+
+
+# FIXME
+#
 # See in run_postfix_virtual_domains in defaults/main.yml for a detailled
 # description.
 __run_postfix_virtual_alias_domains_defaults:
@@ -195,6 +211,18 @@ __run_postfix_virtualaliasmaps_file: "/etc/postfix/virtual_maps"
 __run_postfix_virtualaliasmaps_owner: "root"
 __run_postfix_virtualaliasmaps_group: "root"
 __run_postfix_virtualaliasmaps_mode: "u=rw,g=r,o=r" # 0644
+
+# FIXME relay_domains: "hash:/etc/postfix/relay_domains"
+__run_postfix_relaydomains_file: "/etc/postfix/relay_domains"
+__run_postfix_relaydomains_owner: "root"
+__run_postfix_relaydomains_group: "root"
+__run_postfix_relaydomains_mode: "u=rw,g=r,o=r" # 0644
+
+# FIXME transport_maps: "hash:/etc/postfix/transport_maps"
+__run_postfix_transportmaps_file: "/etc/postfix/transport_maps"
+__run_postfix_transportmaps_owner: "root"
+__run_postfix_transportmaps_group: "root"
+__run_postfix_transportmaps_mode: "u=rw,g=r,o=r" # 0644
 
 
 # Postfix daemon service name and executable path.

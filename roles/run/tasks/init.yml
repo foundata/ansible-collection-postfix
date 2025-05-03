@@ -88,5 +88,7 @@
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: "{{ __run_postfix_maincf_settings_defaults | ansible.builtin.combine(run_postfix_maincf_settings) }}"
     __run_postfix_merged_mastercf_settings: "{{ __run_postfix_mastercf_settings_defaults | ansible.builtin.combine(run_postfix_mastercf_settings) }}"
+    __run_postfix_merged_relay_domains: "{{ (__run_postfix_relay_domains_defaults + run_postfix_relay_domains) | ansible.builtin.unique }}"
+    __run_postfix_merged_transport_maps: "{{ __run_postfix_transport_maps_defaults | ansible.builtin.combine(run_postfix_transport_maps) }}"
     __run_postfix_merged_virtual_alias_domains: "{{ (__run_postfix_virtual_alias_domains_defaults + run_postfix_virtual_alias_domains) | ansible.builtin.unique }}"
     __run_postfix_merged_virtual_alias_maps: "{{ __run_postfix_virtual_alias_maps_defaults | ansible.builtin.combine(run_postfix_virtual_alias_maps) }}"

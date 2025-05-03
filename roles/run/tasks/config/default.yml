@@ -69,6 +69,20 @@
       run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
 
 
+- name: "Config | Default | Virtual: Handle domains configuration"
+  ansible.builtin.template:
+    src: "virtual_domains.j2"
+    dest: "{{ __run_postfix_virtualaliasdomains_file }}"
+    owner: "{{ __run_postfix_virtualaliasdomains_owner }}"
+    group: "{{ __run_postfix_virtualaliasdomains_group }}"
+    mode: "{{ __run_postfix_virtualaliasdomains_mode }}"
+  when:
+    - run_postfix_handle_virtual_alias is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
 - name: "Config | Default | Virtual: Inform if 'virtual_alias_maps' setting will be overwritten"
   ansible.builtin.debug:
     msg: |
@@ -95,7 +109,7 @@
       run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
 
 
-- name: "Config | Default | Virtual: Handle mappings (redirections and aliasses)"
+- name: "Config | Default | Virtual: Handle mapping (redirections and aliasses) configuration"
   ansible.builtin.template:
     src: "virtual_maps.j2"
     dest: "{{ __run_postfix_virtualaliasmaps_file }}"
@@ -104,6 +118,86 @@
     mode: "{{ __run_postfix_virtualaliasmaps_mode }}"
   when:
     - run_postfix_handle_virtual_alias is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
+- name: "Config | Default | Relay domains: Inform if 'relay_domains' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['relay_domains']
+      value '{{ run_postfix_maincf_settings['relay_domains'] }}' with
+      'hash:{{ __run_postfix_relaydomains_file }}' as
+       run_postfix_handle_relay_domains is true
+  when:
+    - run_postfix_handle_relay_domains is true
+    - run_postfix_maincf_settings['relay_domains'] is defined
+    - run_postfix_maincf_settings['relay_domains'] | length > 0
+    - run_postfix_maincf_settings['relay_domains'] != ('hash:' ~ __run_postfix_relaydomains_file)
+
+
+- name: "Config | Default | Relay domains: Set 'relay_domains' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'relay_domains': ('hash:' ~ __run_postfix_relaydomains_file) }
+       ) }}
+  when:
+    - run_postfix_handle_relay_domains is true
+    - run_postfix_maincf_settings['relay_domains'] is not defined or
+      run_postfix_maincf_settings['relay_domains'] != ('hash:' ~ __run_postfix_relaydomains_file)
+
+
+- name: "Config | Default | Relay domains: Handle relay domains configuration"
+  ansible.builtin.template:
+    src: "relay_domains.j2"
+    dest: "{{ __run_postfix_relaydomains_file }}"
+    owner: "{{ __run_postfix_relaydomains_owner }}"
+    group: "{{ __run_postfix_relaydomains_group }}"
+    mode: "{{ __run_postfix_relaydomains_mode }}"
+  when:
+    - run_postfix_handle_relay_domains is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
+- name: "Config | Default | Virtual: Inform if 'transport_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['transport_maps']
+      value '{{ run_postfix_maincf_settings['transport_maps'] }}' with
+      'hash:{{ __run_postfix_transportmaps_file }}' as
+       run_postfix_handle_transport_maps is true
+  when:
+    - run_postfix_handle_transport_maps is true
+    - run_postfix_maincf_settings['transport_maps'] is defined
+    - run_postfix_maincf_settings['transport_maps'] | length > 0
+    - run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
+
+
+- name: "Config | Default | Virtual: Set 'transport_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'transport_maps': ('hash:' ~ __run_postfix_transportmaps_file) }
+       ) }}
+  when:
+    - run_postfix_handle_transport_maps is true
+    - run_postfix_maincf_settings['transport_maps'] is not defined or
+      run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
+
+
+- name: "Config | Default | Transport maps: Handle transport mapping configuration"
+  ansible.builtin.template:
+    src: "transport_maps.j2"
+    dest: "{{ __run_postfix_transportmaps_file }}"
+    owner: "{{ __run_postfix_transportmaps_owner }}"
+    group: "{{ __run_postfix_transportmaps_group }}"
+    mode: "{{ __run_postfix_transportmaps_mode }}"
+  when:
+    - run_postfix_handle_transport_maps is true
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
@@ -191,16 +285,3 @@
     - __run_postfix_merged_mastercf_settings is defined
   notify:
     - "run_postfix: reload postfix.service"
-
-- name: "Config | Default | Virtual: Handle domains"
-  ansible.builtin.template:
-    src: "virtual_domains.j2"
-    dest: "{{ __run_postfix_virtualaliasdomains_file }}"
-    owner: "{{ __run_postfix_virtualaliasdomains_owner }}"
-    group: "{{ __run_postfix_virtualaliasdomains_group }}"
-    mode: "{{ __run_postfix_virtualaliasdomains_mode }}"
-  when:
-    - run_postfix_handle_virtual_alias is true
-  notify:
-    - "run_postfix: update lookup tables"
-    - "run_postfix: update aliases"
