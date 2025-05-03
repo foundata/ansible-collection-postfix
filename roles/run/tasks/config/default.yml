@@ -43,8 +43,74 @@
       }
 
 
+- name: "Config | Default | Virtual: Inform if 'virtual_alias_domains' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['virtual_alias_domains']
+      value '{{ run_postfix_maincf_settings['virtual_alias_domains'] }}' with
+      'hash:{{ __run_postfix_virtualaliasdomains_file }}' as
+       run_postfix_handle_virtual_alias is true
+  when:
+    - run_postfix_handle_virtual_alias is true
+    - run_postfix_maincf_settings['virtual_alias_domains'] is defined
+    - run_postfix_maincf_settings['virtual_alias_domains'] | length > 0
+    - run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
+
+
+- name: "Config | Default | Virtual: Set 'virtual_alias_domains' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'virtual_alias_domains': ('hash:' ~ __run_postfix_virtualaliasdomains_file) }
+       ) }}
+  when:
+    - run_postfix_handle_virtual_alias is true
+    - run_postfix_maincf_settings['virtual_alias_domains'] is not defined or
+      run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
+
+
+- name: "Config | Default | Virtual: Inform if 'virtual_alias_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['virtual_alias_maps']
+      value '{{ run_postfix_maincf_settings['virtual_alias_maps'] }}' with
+      'hash:{{ __run_postfix_virtualaliasmaps_file }}' as
+       run_postfix_handle_virtual_alias is true
+  when:
+    - run_postfix_handle_virtual_alias is true
+    - run_postfix_maincf_settings['virtual_alias_maps'] is defined
+    - run_postfix_maincf_settings['virtual_alias_maps'] | length > 0
+    - run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
+
+
+- name: "Config | Default | Virtual: Set 'virtual_alias_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'virtual_alias_maps': ('hash:' ~ __run_postfix_virtualaliasmaps_file) }
+       ) }}
+  when:
+    - run_postfix_handle_virtual_alias is true
+    - run_postfix_maincf_settings['virtual_alias_maps'] is not defined or
+      run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
+
+
+- name: "Config | Default | Virtual: Handle mappings (redirections and aliasses)"
+  ansible.builtin.template:
+    src: "virtual_maps.j2"
+    dest: "{{ __run_postfix_virtualaliasmaps_file }}"
+    owner: "{{ __run_postfix_virtualaliasmaps_owner }}"
+    group: "{{ __run_postfix_virtualaliasmaps_group }}"
+    mode: "{{ __run_postfix_virtualaliasmaps_mode }}"
+  when:
+    - run_postfix_handle_virtual_alias is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
 # Prevent harmless but annoying 'overriding earlier entry' warnings
-- name: "Config | Default | main.cf, comment out managed but pre-defined values"
+- name: "Config | Default | main.cf: Comment out managed but pre-defined values"
   ansible.builtin.replace:
     path: "{{ __run_postfix_maincf_file }}"
     regexp: '^(([\t ]+)?({{ item["key"] }})([\t ]+)?=(.*))'
@@ -54,7 +120,6 @@
   when:
     - __run_postfix_merged_maincf_settings is defined
     - __run_postfix_merged_maincf_settings
-
 
 # Notes on the main.cf handling:
 #
@@ -73,7 +138,7 @@
 #   we decided to maintain an Ansible managed settings block at the end of the
 #   file. Additionally, it makes no sense to just map a subset of settings to a
 #   list. Therefore we simply pass a dict.
-- name: "Config | Default | main.cf"
+- name: "Config | Default | main.cf: Update settings"
   ansible.builtin.blockinfile:
     path: "{{ __run_postfix_maincf_file }}"
     marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
@@ -90,6 +155,19 @@
     - "run_postfix: reload postfix.service"
 
 
+# Prevent harmless but annoying 'warning: duplicate master.cf entry for service' warnings
+- name: "Config | Default | master.cf: Comment out managed but pre-defined values"
+  ansible.builtin.replace:
+    path: "{{ __run_postfix_mastercf_file }}"
+    regexp: '^(([\t ]+)?({{ item["key"] }})([\t ]+)(.*){{ item["value"]["type"] }})'
+    replace: '#\1'
+    before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
+  loop: "{{ __run_postfix_merged_mastercf_settings | dict2items }}"
+  when:
+    - __run_postfix_merged_mastercf_settings is defined
+    - __run_postfix_merged_mastercf_settings
+
+
 # Notes on the master.cf handling:
 #
 # * For details on the format of the file, see the master(5) manual page
@@ -99,9 +177,8 @@
 #   So one has to edit the existing file.
 #
 # * When multiple lines specify the same service name and type, only the last
-#   one is remembered. There are no 'overriding earlier entry' warnings so
-#   adding an Ansible managed settings block at the end of the file works well.
-- name: "Config | Default | master.cf"
+#   one is remembered.
+- name: "Config | Default | master.cf: Update settings"
   ansible.builtin.blockinfile:
     path: "{{ __run_postfix_mastercf_file }}"
     marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
@@ -114,3 +191,16 @@
     - __run_postfix_merged_mastercf_settings is defined
   notify:
     - "run_postfix: reload postfix.service"
+
+- name: "Config | Default | Virtual: Handle domains"
+  ansible.builtin.template:
+    src: "virtual_domains.j2"
+    dest: "{{ __run_postfix_virtualaliasdomains_file }}"
+    owner: "{{ __run_postfix_virtualaliasdomains_owner }}"
+    group: "{{ __run_postfix_virtualaliasdomains_group }}"
+    mode: "{{ __run_postfix_virtualaliasdomains_mode }}"
+  when:
+    - run_postfix_handle_virtual_alias is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"

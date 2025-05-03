@@ -23,9 +23,9 @@
 - name: "Handlers | Update Postfix databases / lookup tables: (hash|btree|dbm) ... "
   ansible.builtin.command:
     cmd: "{{ __run_postmap_executable }} {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\\1') }}"
-  loop: "{{ __run_postfix_maincf_file | dict2items }}"
+  loop: "{{ __run_postfix_merged_maincf_settings | dict2items }}"
   when:
-    - __run_postfix_maincf_file is defined
+    - __run_postfix_merged_maincf_settings is defined
       # item['key'] != 'alias_maps' [...]: exclude files where "newaliases" or "postalias" has to be used
     - ((item['key'] == 'relay_domains') or
         (item['key'] | regex_search('_map$')) or

@@ -96,3 +96,67 @@ run_postfix_maincf_settings:
 #     command_args: "smtpd"
 run_postfix_mastercf_settings:
   {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
+
+
+### virtual(5)
+
+# FIXME Desc
+run_postfix_handle_relay_domains: true
+
+# FIXME Desc
+run_postfix_handle_transport_maps: true
+
+
+
+
+### virtual(5)
+
+# FIXME Desc the role should manage redirects and virtual domains and mail addresses
+run_postfix_handle_virtual_alias: true
+
+
+# Virtual aliases domains for Postfix. This tells Postfix to accept incoming
+# emails for a list of virtual domains. Mappings for them are defined via
+# run_postfix_virtual_alias_maps
+#
+# Example:
+#   - "example.com"
+#   - "example.net"
+#
+# will be ignored if run_postfix_handle_virtual is set to false.
+run_postfix_virtual_alias_domains:
+  [] # see __run_postfix_virtual_alias_domains_defaults in vars/main.yml for the defaults
+
+
+# Virtual aliases mappings for Postfix. This defines email forwarding
+# rules in a structured format.
+#
+# Attention: This is only used if
+#            run_postfix_maincf_settings['virtual_alias_maps'] is set to
+#            "hash:/etc/postfix/virtual" (which is the default configuration).
+#
+# Attentions: do not forget to list handled domains in
+#             run_postfix_virtual_alias_domains
+#
+# Dictionary structure:
+#
+# - Keys: criterions, usually an email address
+# - Values: Lists of destinations, usually email addresses
+#
+# Example:
+#
+#   "admin@example.com":
+#     - "admin@actual-destination.example.com"
+#   "distribution@example.com":
+#     - "user1@actual-destination.example.com"
+#     - "user2@actual-destination.example.com"
+#     - "user3@actual-destination.example.com"
+#     - "user3@actual-destination.example.com"
+#   "@example.com": # catch-all for example.com
+#     - "office@example.com"
+#   "@example.net": # catch-all for example.net, rewrite all to @example.com
+#     - "example.com"
+#
+# will be ignored if run_postfix_handle_virtual is set to false.
+run_postfix_virtual_alias_maps:
+  {} # see __run_postfix_virtual_alias_maps_defaults in vars/main.yml for the defaults
