@@ -94,22 +94,6 @@ __run_postfix_packages_removal:
 # FIXME Postfix master process configuration file.
 #__run_postfix_mastercf_settings_defaults:
 
-
-# Additional default configuration for Postfix daemon.
-#
-# Use standard Postfix option names as keys with their corresponding values.
-# Special cases:
-# - FIXME
-__run_postfix_maincf_settings_defaults:
-  myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
-  inet_interfaces: "all"
-  inet_protocols: "all"
-  ## virtual
-  # http://www.postfix.org/VIRTUAL_README.html#mailing_lists
-  # https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
-  virtual_alias_maps: "hash:/etc/postfix/virtual"
-
-
 # Additional configuration for Postfix master process (master.cf)
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
@@ -140,6 +124,14 @@ __run_postfix_mastercf_settings_defaults:
     maxproc: "-"
     command_args: "smtpd"
 
+# Virtual aliases configuration for Postfix. This defines email forwarding
+# rules in a structured format.
+#
+# See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
+# description.
+__run_postfix_virtual_aliases_defaults:
+  {}
+
 
 # Configuration file paths, ownership, and permissions for the SSH daemon.
 # These variables define the different locations of configuration files, the
@@ -161,8 +153,18 @@ __run_postfix_mailname_group: "root"
 __run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
 
 
+# FIXME desc only used if  virtual_alias_maps: "hash:/etc/postfix/virtual"
+__run_postfix_virtualalias_file: "/etc/postfix/virtual"
+__run_postfix_virtualalias_owner: "root"
+__run_postfix_virtualalias_group: "root"
+__run_postfix_virtualalias_mode: "u=rw,g=r,o=r" # 0644
+
+
 # Postfix daemon service name and executable path.
 # These variables define the systemd service name for Postfix daemon
 # and the path to the Postfix executable for service management and validation.
 __run_postfix_servicename: "postfix.service"
 __run_postfix_executable: "/usr/sbin/postfix"
+__run_postmap_executable: "/usr/sbin/postmap"
+__run_newaliases_executable: "/usr/bin/newaliases" # or "postalias /etc/aliases"
+
