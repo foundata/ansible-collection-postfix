@@ -40,27 +40,31 @@ run_postfix_autoupgrade: false
 run_postfix_service_state: "enabled"
 
 
-# Postfix configuration values (additional ones or to overwrite defaults).
+# Additional configuration for Postfix daemon (additional config values or to
+# overwrite defaults).
 #
 # Use standard Postfix option names as keys with their corresponding values.
 #
-# Structure:
-# - Keys: Standard Postfix option names (as defined in postconf documentation)
-# - Values: Corresponding configuration values
+# Dictionary structure:
 #
-# Common options include:
-# - myhostname: FQDN of the mail system
-# - mydomain: Domain part of the FQDN
-# - myorigin: Domain to append to locally posted mail
-# - inet_interfaces: Network interfaces to listen on
-# - inet_protocols: IP protocols to use (ipv4, ipv6, all)
-# - mynetworks: Trusted SMTP clients for relay
-# - relay_domains: Domains to relay mail for
+# - Keys: Standard Postfix option names (as defined in postconf documentation)
+# - Values: Corresponding configuration values.Common options include:
+#   myhostname: FQDN of the mail system
+#   mydomain: Domain part of the FQDN
+#   myorigin: Domain to append to locally posted mail
+#   inet_interfaces: Network interfaces to listen on
+#   inet_protocols: IP protocols to use (ipv4, ipv6, all)
+#   mynetworks: Trusted SMTP clients for relay
 #
 # Reference commands:
 # - postconf: print all current active values
 # - postconf -n: print all active, explicitly set options
 # - postconf -d: print all options with their default
+#
+# Please not that you do not need own handler for postmap when using "hash:"
+# somewhere. The role's handler is intelligent enough to scan the config for
+# hash:/path values. Just notify "run_postfix: update lookup tables" on changes
+# when writing additional, own tasks.
 #
 # For a complete list of options, see https://www.postfix.org/postconf.5.html
 run_postfix_maincf_settings:
@@ -73,7 +77,7 @@ run_postfix_maincf_settings:
 #
 # Dictionary structure:
 #
-# - Key: service name (e.g., smtp, submission, 127.0.0.1:smtp, 12345)
+# - Keys: service names (e.g., smtp, submission, 127.0.0.1:smtp, 12345)
 # - Values: configuration parameters for that service
 #
 # Example:
@@ -98,8 +102,19 @@ run_postfix_mastercf_settings:
   {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
 
 
-# FIXME Desc
+# Switch to control if relay domains settings are handled by this role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a hash file for relay domains using the
+#    run_postfix_relay_domains variable for the contents
+# 2. Set (or override) main.cf settings for the relay_domains option
+#    accordingly.
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
 run_postfix_handle_relay_domains: true
+
 
 # Relay domains for Postfix. This list of relay domains for which Postfix will
 # accept mail for relaying to their final destinations.
@@ -110,11 +125,22 @@ run_postfix_handle_relay_domains: true
 #   - "example.org"
 #   - "foo.example.org"
 #
-# will be ignored if run_postfix_handle_relay_domains is set to false.
+# Will be ignored if run_postfix_handle_relay_domains is set to false.
 run_postfix_relay_domains:
   [] # see __run_postfix_relay_domains_defaults in vars/main.yml for the defaults
 
-# FIXME Desc
+
+# Switch to control if transport mappings settings are handled by this role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a hash file for relay domains using the
+#    run_postfix_transport_maps variable for the contents
+# 2. Set (or override) main.cf settings for the transport_maps option
+#    accordingly.
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
 run_postfix_handle_transport_maps: true
 
 
@@ -141,9 +167,20 @@ run_postfix_transport_maps:
   {} # see __run_postfix_transport_maps_defaults in vars/main.yml for the defaults
 
 
-### virtual(5)
-
-# FIXME Desc the role should manage redirects and virtual domains and mail addresses
+# Switch to control if virtual alias domains and mappings are handled by this
+# role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a hash file for virtual domains using the
+#    run_postfix_virtual_alias_domains variable for the contents
+# 2. Create and manage a hash file for virtual mappings using the
+#    run_postfix_virtual_alias_maps  variable for the contents
+# 3. Set (or override) main.cf settings for the virtual_alias_domains and
+#    virtual_alias_maps options accordingly
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
 run_postfix_handle_virtual_alias: true
 
 

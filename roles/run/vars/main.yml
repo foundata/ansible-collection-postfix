@@ -91,29 +91,21 @@ __run_postfix_packages_removal:
   [] # Remove the "[]" when adding values to this list.
 
 
-# FIXME Postfix master process configuration file.
-#__run_postfix_mastercf_settings_defaults:
-
-
-# Additional default configuration for Postfix daemon.
+# Additional default configuration for Postfix daemon. Use standard Postfix
+# option names as keys with their corresponding values.
 #
-# Use standard Postfix option names as keys with their corresponding values.
-# Special cases:
-# - FIXME
+# See run_postfix_maincf_settings in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
 __run_postfix_maincf_settings_defaults:
   myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
   inet_interfaces: "all"
   inet_protocols: "all"
-  ## virtual
-  # http://www.postfix.org/VIRTUAL_README.html#mailing_lists
-  # https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
-  virtual_alias_maps: "hash:/etc/postfix/virtual"
 
 
-# Additional configuration for Postfix master process (master.cf)
+# Additional default configuration for Postfix master process (master.cf)
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
-# description.
+# description of the structure (as this variable is using the same).
 __run_postfix_mastercf_settings_defaults:
   smtp: # Service for standard SMTP (Port 25)
     type: "inet"
@@ -141,39 +133,39 @@ __run_postfix_mastercf_settings_defaults:
     command_args: "smtpd"
 
 
-# FIXME
+# Default relay domains for Postfix.
 #
 # See in run_postfix_relay_domains in defaults/main.yml for a detailled
-# description.
+# description of the structure (as this variable is using the same).
 __run_postfix_relay_domains_defaults:
   []
 
 
-# FIXME
+# Default domain transport mapping for Postfix.
 #
 # See in run_postfix_transport_maps in defaults/main.yml for a detailled
-# description.
+# description of the structure (as this variable is using the same).
 __run_postfix_transport_maps_defaults:
   {}
 
 
-# FIXME
+# Default virtual aliases domains for Postfix.
 #
-# See in run_postfix_virtual_domains in defaults/main.yml for a detailled
-# description.
+# See in run_postfix_virtual_alias_domains in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
 __run_postfix_virtual_alias_domains_defaults:
   []
 
-# Virtual aliases configuration for Postfix. This defines email forwarding
-# rules in a structured format.
+
+# Default virtual aliases mappings for Postfix.
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
-# description.
+# description of the structure (as this variable is using the same).
 __run_postfix_virtual_alias_maps_defaults:
   {}
 
 
-# Configuration file paths, ownership, and permissions for the SSH daemon.
+# Configuration file paths, ownership, and permissions for the Postfix daemon.
 # These variables define the different locations of configuration files, the
 # include directory, and the Ansible-managed configuration file, ensuring
 # consistent file handling across distributions.
@@ -192,33 +184,21 @@ __run_postfix_mailname_owner: "root"
 __run_postfix_mailname_group: "root"
 __run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
 
-
-# FIXME desc only used if  virtual_alias_maps: "hash:/etc/postfix/virtual"
-
-# http://www.postfix.org/VIRTUAL_README.html#mailing_lists
-# https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
-
-
-# File to tell Postfix to accept incoming emails for virtual domains
-# FIXME virtual_alias_domains: "hash:/etc/postfix/virtual_domains"
 __run_postfix_virtualaliasdomains_file: "/etc/postfix/virtual_domains"
 __run_postfix_virtualaliasdomains_owner: "root"
 __run_postfix_virtualaliasdomains_group: "root"
 __run_postfix_virtualaliasdomains_mode: "u=rw,g=r,o=r" # 0644
 
-# FIXME virtual_alias_maps: "hash:/etc/postfix/virtual_maps"
 __run_postfix_virtualaliasmaps_file: "/etc/postfix/virtual_maps"
 __run_postfix_virtualaliasmaps_owner: "root"
 __run_postfix_virtualaliasmaps_group: "root"
 __run_postfix_virtualaliasmaps_mode: "u=rw,g=r,o=r" # 0644
 
-# FIXME relay_domains: "hash:/etc/postfix/relay_domains"
 __run_postfix_relaydomains_file: "/etc/postfix/relay_domains"
 __run_postfix_relaydomains_owner: "root"
 __run_postfix_relaydomains_group: "root"
 __run_postfix_relaydomains_mode: "u=rw,g=r,o=r" # 0644
 
-# FIXME transport_maps: "hash:/etc/postfix/transport_maps"
 __run_postfix_transportmaps_file: "/etc/postfix/transport_maps"
 __run_postfix_transportmaps_owner: "root"
 __run_postfix_transportmaps_group: "root"

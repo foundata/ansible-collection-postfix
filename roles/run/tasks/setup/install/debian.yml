@@ -1,4 +1,8 @@
-# FIXME Desc header comment
+# Setup: Tasks specific to: Debian (os_family or distribution)
+#
+# Only tasks specific to the platform and its functionality should be included
+# here. Tasks in this file will be executed before those defined in
+# install/default.yml.
 
 ---
 

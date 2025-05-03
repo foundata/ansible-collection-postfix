@@ -2,7 +2,7 @@
 
 The `foundata.postfix.run` Ansible role (part if the `foundata.postfix` Ansible collection).
 
-It provides automated configuration management of Postfix across major platforms. It does not explain how to create a good Postfix configuration that suits your requirements; that task remains for you to accomplish.
+It provides automated configuration management of Postfix across major platforms. It does not explain how to create a good Postfix configuration that suits your requirements; that task remains for you to accomplish. However, the [examples playbooks](#examples) may help you a bit with that.
 
 
 
@@ -45,6 +45,76 @@ Installation with automatic upgrade:
       vars:
         run_postfix_autoupgrade: true
 ```
+
+Install and do some basic and common configuration:
+
+```yaml
+---
+
+- name: "Initialize the foundata.postfix.run role"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+
+    - name: "Trigger invocation of the foundata.postfix.run role"
+      ansible.builtin.include_role:
+        name: "foundata.postfix.run"
+      vars:
+        run_postfix_autoupgrade: true
+        run_postfix_maincf_settings:
+          myhostname: "smtp.example.com"
+          mydomain: "example.com"
+          inet_interfaces: "all"
+          inet_protocols: "all"
+          smtp_tls_security_level: "may"
+          smtpd_tls_security_level: "may"
+          smtp_tls_note_starttls_offer: "yes"
+          smtpd_tls_cert_file: "/etc/ssl/certs/smtp.example.com/fullchain.cer"
+          smtpd_tls_key_file: "/etc/ssl/private/smtp.example.com/cert.key"
+          smtpd_tls_dh1024_param_file: "/etc/ssl/certs/dhparam_ffdhe2048.pem" # see https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
+          message_size_limit: 52428800 # 50 MiB; max size of a incoming email
+          mailbox_size_limit: 0 # 0 == unlimited; max mailbox size should be controlled by the mailserver
+          relayhost: "[relay.example.org]:25"
+          header_size_limit: 4096000
+        run_postfix_mastercf_settings:
+          smtps:
+            type: "inet"
+            private: "n"
+            unpriv: "-"
+            chroot: "n"
+            wakeup: "-"
+            maxproc: "-"
+            command_args: "smtpd"
+        run_postfix_handle_relay_domains: true
+        run_postfix_relay_domains:
+          - "example.com"
+        run_postfix_handle_transport_maps: true
+        run_postfix_transport_maps:
+          "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
+          "example.net": "lmtp:127.0.0.1:24"
+          "example.org": "[192.168.0.1]"
+          "foo.example.org": "[mailrelay.foo.example.org]:123"
+        run_postfix_handle_virtual_alias: true
+        run_postfix_virtual_alias_domains:
+          - "example.com"
+          - "example.net"
+          - "example.org"
+        run_postfix_virtual_alias_maps:
+          "admin@example.com":
+            - "admin@actual-destination.example.com"
+          "distribution@example.com":
+            - "user1@example.com"
+            - "user2@example.com"
+            - "user3@example.com"
+            - "user3@@example.com"
+          "@example.com": # catch-all for example.com
+            - "office@example.com"
+          "@example.net": # catch-all for example.net, rewrite all to @example.com
+            - "example.com"
+```
+
+
+
 
 Uninstall:
 
