@@ -1,0 +1,18 @@
+# Configuration: Tasks specific to: Debian (os_family or distribution)
+#
+# Only tasks specific to the platform and its functionality should be included
+# here. Tasks in this file will be executed before those defined in
+# config/default.yml.
+
+---
+
+# May be used for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
+- name: "Config | Debian | Update mailname file: {{ __run_postfix_mailname_file }}"
+  ansible.builtin.copy:
+    content: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
+    dest: "{{ __run_postfix_mailname_file }}"
+    owner: "{{ __run_postfix_mailname_owner }}"
+    group: "{{ __run_postfix_mailname_group }}"
+    mode: "{{ __run_postfix_mailname_mode }}"
+  notify:
+    - "run_postfix: restart postfix.service"

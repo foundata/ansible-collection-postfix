@@ -22,6 +22,9 @@
     - "run_postfix: restart postfix.service"
 
 
+# FIXME move to setup?
+# FIXME handle the other files created by this role? Or is this all done
+#       with templates?
 - name: "Config | Default | Set permissions on Postfix configuration files"
   ansible.builtin.file:
     path: "{{ item['file'] }}"
@@ -214,6 +217,7 @@
   when:
     - __run_postfix_merged_maincf_settings is defined
     - __run_postfix_merged_maincf_settings
+
 
 # Notes on the main.cf handling:
 #
