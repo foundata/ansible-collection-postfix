@@ -58,7 +58,7 @@ argument_specs:
         type: "dict"
         required: true
 
-      run_postfix_handle_virtual_alias:
+      run_postfix_handle_virtual:
         type: "bool"
         required: true
 

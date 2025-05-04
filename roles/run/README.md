@@ -94,7 +94,7 @@ Install and do some basic and common configuration:
           "example.net": "lmtp:127.0.0.1:24"
           "example.org": "[192.168.0.1]"
           "foo.example.org": "[mailrelay.foo.example.org]:123"
-        run_postfix_handle_virtual_alias: true
+        run_postfix_handle_virtual: true
         run_postfix_virtual_alias_domains:
           - "example.com"
           - "example.net"

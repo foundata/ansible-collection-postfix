@@ -2,72 +2,31 @@
 
 ---
 
-# May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
-- name: "Config | Default | Check if mailname file exists: {{ __run_postfix_mailname_file }}"
-  ansible.builtin.stat:
-    path: "/etc/mailname"
-  register: __run_postfix_mailname_stat_result
 
+### Virtual mail
 
-- name: "Config | Default | Update mailname file: {{ __run_postfix_mailname_file }}"
-  ansible.builtin.copy:
-    content: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
-    dest: "{{ __run_postfix_mailname_file }}"
-    owner: "{{ __run_postfix_mailname_owner }}"
-    group: "{{ __run_postfix_mailname_group }}"
-    mode: "{{ __run_postfix_mailname_mode }}"
-  when:
-    - __run_postfix_mailname_stat_result.stat.exists
-  notify:
-    - "run_postfix: restart postfix.service"
-
-
-# FIXME move to setup?
-# FIXME handle the other files created by this role? Or is this all done
-#       with templates?
-- name: "Config | Default | Set permissions on Postfix configuration files"
-  ansible.builtin.file:
-    path: "{{ item['file'] }}"
-    owner: "{{ item['owner'] }}"
-    group: "{{ item['group'] }}"
-    mode: "{{ item['mode'] }}"
-  loop:
-    - {
-        file: "{{ __run_postfix_maincf_file }}",
-        owner: "{{ __run_postfix_maincf_owner }}",
-        group: "{{ __run_postfix_maincf_group }}",
-        mode: "{{ __run_postfix_maincf_mode }}"
-      }
-    - {
-        file: "{{ __run_postfix_mastercf_file }}",
-        owner: "{{ __run_postfix_mastercf_owner }}",
-        group: "{{ __run_postfix_mastercf_group }}",
-        mode: "{{ __run_postfix_mastercf_mode }}"
-      }
-
-
-- name: "Config | Default | Virtual: Inform if 'virtual_alias_domains' setting will be overwritten"
+- name: "Config | Default | Virtual: Inform if 'virtual_alias_domains' config value will be overwritten"
   ansible.builtin.debug:
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_domains']
       value '{{ run_postfix_maincf_settings['virtual_alias_domains'] }}' with
       'hash:{{ __run_postfix_virtualaliasdomains_file }}' as
-       run_postfix_handle_virtual_alias is true
+       run_postfix_handle_virtual is true
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is defined
     - run_postfix_maincf_settings['virtual_alias_domains'] | length > 0
     - run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
 
 
-- name: "Config | Default | Virtual: Set 'virtual_alias_domains' setting"
+- name: "Config | Default | Virtual: Set 'virtual_alias_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
         { 'virtual_alias_domains': ('hash:' ~ __run_postfix_virtualaliasdomains_file) }
        ) }}
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is not defined or
       run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
 
@@ -80,21 +39,21 @@
     group: "{{ __run_postfix_virtualaliasdomains_group }}"
     mode: "{{ __run_postfix_virtualaliasdomains_mode }}"
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
 
 
-- name: "Config | Default | Virtual: Inform if 'virtual_alias_maps' setting will be overwritten"
+- name: "Config | Default | Virtual: Inform if 'virtual_alias_maps' config value will be overwritten"
   ansible.builtin.debug:
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_maps']
       value '{{ run_postfix_maincf_settings['virtual_alias_maps'] }}' with
       'hash:{{ __run_postfix_virtualaliasmaps_file }}' as
-       run_postfix_handle_virtual_alias is true
+       run_postfix_handle_virtual is true
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is defined
     - run_postfix_maincf_settings['virtual_alias_maps'] | length > 0
     - run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
@@ -107,7 +66,7 @@
         { 'virtual_alias_maps': ('hash:' ~ __run_postfix_virtualaliasmaps_file) }
        ) }}
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is not defined or
       run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
 
@@ -120,13 +79,25 @@
     group: "{{ __run_postfix_virtualaliasmaps_group }}"
     mode: "{{ __run_postfix_virtualaliasmaps_mode }}"
   when:
-    - run_postfix_handle_virtual_alias is true
+    - run_postfix_handle_virtual is true
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
 
 
-- name: "Config | Default | Relay domains: Inform if 'relay_domains' setting will be overwritten"
+- name: "Config | Default | Virtual: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "absent"
+  when:
+    - run_postfix_handle_virtual is true
+  loop:
+    - "/etc/postfix/virtual" # File exists by default at least on Red Hat, SUSE
+
+
+### Relay domains
+
+- name: "Config | Default | Relay domains: Inform if 'relay_domains' config value will be overwritten"
   ansible.builtin.debug:
     msg: |
       Overwriting original run_postfix_maincf_settings['relay_domains']
@@ -140,7 +111,7 @@
     - run_postfix_maincf_settings['relay_domains'] != ('hash:' ~ __run_postfix_relaydomains_file)
 
 
-- name: "Config | Default | Relay domains: Set 'relay_domains' setting"
+- name: "Config | Default | Relay domains: Set 'relay_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
@@ -166,7 +137,19 @@
     - "run_postfix: update aliases"
 
 
-- name: "Config | Default | Virtual: Inform if 'transport_maps' setting will be overwritten"
+- name: "Config | Default | Relay domains: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "absent"
+  when:
+    - run_postfix_handle_relay_domains is true
+  loop:
+    - "/etc/postfix/relay" # File exists by default at least on SUSE
+
+
+### Transport maps
+
+- name: "Config | Default | Transport: Inform if 'transport_maps' setting will be overwritten"
   ansible.builtin.debug:
     msg: |
       Overwriting original run_postfix_maincf_settings['transport_maps']
@@ -180,7 +163,7 @@
     - run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
 
 
-- name: "Config | Default | Virtual: Set 'transport_maps' setting"
+- name: "Config | Default | Transport: Set 'transport_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
@@ -192,7 +175,7 @@
       run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
 
 
-- name: "Config | Default | Transport maps: Handle transport mapping configuration"
+- name: "Config | Default | Transport: Handle transport mapping configuration"
   ansible.builtin.template:
     src: "transport_maps.j2"
     dest: "{{ __run_postfix_transportmaps_file }}"
@@ -204,6 +187,51 @@
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
+
+
+- name: "Config | Default | Transport: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "absent"
+  when:
+    - run_postfix_handle_transport_maps is true
+  loop:
+    - "/etc/postfix/transport" # File exists by default at least on Red Hat, SUSE
+
+
+# FIXME: Implement: Handle relocated addresses (bounced mail for undeliverable recipients
+#        that include the new address of the moved account)
+#        - "/etc/postfix/relocated" # File exists by default at least on Red Hat, SUSE
+
+# FIXME: Implement: Handle sasl_passwd
+#        - "/etc/postfix/sasl"  # Directory exists by default at least on Debian
+
+# FIXME: Implement: Handle canonical mapping (rewrites email addresses in envelope and headers
+#        for both local and non-local addresses)
+#        - "/etc/postfix/canonical" # File exists by default at least on Red Hat, SUSE
+
+
+### Main configuration files
+
+- name: "Config | Default | Set permissions of main Postfix configuration files"
+  ansible.builtin.file:
+    path: "{{ item['file'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  loop:
+    - {
+        file: "{{ __run_postfix_maincf_file }}",
+        owner: "{{ __run_postfix_maincf_owner }}",
+        group: "{{ __run_postfix_maincf_group }}",
+        mode: "{{ __run_postfix_maincf_mode }}"
+      }
+    - {
+        file: "{{ __run_postfix_mastercf_file }}",
+        owner: "{{ __run_postfix_mastercf_owner }}",
+        group: "{{ __run_postfix_mastercf_group }}",
+        mode: "{{ __run_postfix_mastercf_mode }}"
+      }
 
 
 # Prevent harmless but annoying 'overriding earlier entry' warnings

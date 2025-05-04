@@ -6,6 +6,7 @@
 
 ---
 
+# FIXME changed when? Run re-configure?
 - name: "Setup | Install | Debian | Pre-configure packages"
   ansible.builtin.debconf:
     name: "{{ item['package'] }}"

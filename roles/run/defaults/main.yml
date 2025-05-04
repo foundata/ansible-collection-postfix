@@ -181,7 +181,7 @@ run_postfix_transport_maps:
 #
 # When false, you'll need to configure these settings manually through
 # run_postfix_maincf_settings or through other means.
-run_postfix_handle_virtual_alias: true
+run_postfix_handle_virtual: true
 
 
 # Virtual aliases domains for Postfix. This tells Postfix to accept incoming

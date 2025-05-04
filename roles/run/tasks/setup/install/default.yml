@@ -18,3 +18,13 @@
   when:
     - __run_postfix_packages_install is defined
     - (__run_postfix_packages_install | length) > 0
+
+
+- name: "Setup | Install | Default | Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "absent"
+  when:
+    - __run_postfix_paths_removal is defined
+    - (__run_postfix_paths_removal | length) > 0
+  loop: "{{ __run_postfix_paths_removal }}"

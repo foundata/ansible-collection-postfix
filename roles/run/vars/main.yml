@@ -91,6 +91,21 @@ __run_postfix_packages_removal:
   [] # Remove the "[]" when adding values to this list.
 
 
+# List of paths of files and directories to be removed unconditionally after
+# installation. This is useful for removing default configuration resources
+# that would otherwise create confusion or conflict with custom configurations
+# managed by this role.
+__run_postfix_paths_removal:
+  # Note: Some files may be installed by default on certain platforms,
+  #       but this role does not remove them unconditionally and therefore not
+  #       listed here. They are only removed if the corresponding configuration
+  #       is actually managed. For example, /etc/postfix/virtual is removed
+  #       only if run_postfix_handle_virtual is true.
+  #- "/etc/postfix/canonical"
+  #- "/etc/postfix/relocated" # SUSE FIXME
+  [] # Remove the "[]" when adding values to this list.
+
+
 # Additional default configuration for Postfix daemon. Use standard Postfix
 # option names as keys with their corresponding values.
 #
@@ -205,10 +220,16 @@ __run_postfix_transportmaps_group: "root"
 __run_postfix_transportmaps_mode: "u=rw,g=r,o=r" # 0644
 
 
-# Postfix daemon service name and executable path.
+# Postfix daemon service name and executable paths.
 # These variables define the systemd service name for Postfix daemon
-# and the path to the Postfix executable for service management and validation.
-__run_postfix_servicename: "postfix.service"
-__run_postfix_executable: "/usr/sbin/postfix"
-__run_postmap_executable: "/usr/sbin/postmap"
-__run_newaliases_executable: "/usr/bin/newaliases" # or "postalias /etc/aliases"
+# and the paths the Postfix executables for service management and validation.
+__run_postfix_postfix_servicename: "postfix.service"
+__run_postfix_postfix_executable: "/usr/sbin/postfix"
+__run_postfix_postmap_executable: "/usr/sbin/postmap"
+__run_postfix_postalias_executable: "/usr/sbin/postalias"
+__run_postfix_newaliases_executable: "/usr/bin/newaliases" # or "postalias /etc/aliases"
+
+
+### Override defaults of dependencies used by this role (if any).
+
+# nothing right now

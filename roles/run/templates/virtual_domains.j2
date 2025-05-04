@@ -2,7 +2,8 @@
 
 # This file defines a list of virtual alias domains Postfix is the final
 # destination for. Virtual domains are those for which all addresses are
-# aliased to addresses in other local or remote domains through mappings.
+# aliased to addresses in other local or remote domains through mappings
+# and do not map to a local user account on the system.
 #
 # These mappings are defined in the following file:
 # {{ __run_postfix_virtualaliasmaps_file }}
