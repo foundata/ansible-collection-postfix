@@ -225,9 +225,15 @@ __run_postfix_transportmaps_mode: "u=rw,g=r,o=r" # 0644
 # and the paths the Postfix executables for service management and validation.
 __run_postfix_postfix_servicename: "postfix.service"
 __run_postfix_postfix_executable: "/usr/sbin/postfix"
+__run_postfix_postconf_executable: "/usr/bin/postconf"
 __run_postfix_postmap_executable: "/usr/sbin/postmap"
 __run_postfix_postalias_executable: "/usr/sbin/postalias"
 __run_postfix_newaliases_executable: "/usr/bin/newaliases" # or "postalias /etc/aliases"
+
+
+
+# Paths of other executables and resources.
+__run_postfix_sha1sum_executable: "/usr/bin/sha1sum"
 
 
 ### Override defaults of dependencies used by this role (if any).
