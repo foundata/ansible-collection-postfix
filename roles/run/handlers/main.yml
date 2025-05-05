@@ -21,8 +21,19 @@
 
 
 - name: "Handlers | Update Postfix databases / lookup tables: (hash|btree|dbm) ... "
+  # The command or shell module is used here. This approach is justified:
+  #
+  # - No built-in Ansible module provides a direct way to interact with the
+  #   used command.
+  # - Inline templating allows for safe and efficient parameter handling,
+  #   avoiding the need for multiple additional tasks with little to no benefit.
+  #
+  # Notes on the command or script itself:
+  #
+  # See the official documentation for a explanation of the parameters:
+  # https://www.postfix.org/postmap.1.html
   ansible.builtin.command:
-    cmd: "{{ __run_postfix_postmap_executable }} {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\\1') }}"
+    cmd: "{{ __run_postfix_postmap_executable }} {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\\1') | ansible.builtin.quote }}"
   loop: "{{ __run_postfix_merged_maincf_settings | dict2items }}"
   when:
     - __run_postfix_merged_maincf_settings is defined
@@ -44,6 +55,17 @@
 
 
 - name: "Handlers | Update aliases for smtpd"
+  # The command or shell module is used here. This approach is justified:
+  #
+  # - No built-in Ansible module provides a direct way to interact with the
+  #   used command.
+  # - Inline templating allows for safe and efficient parameter handling,
+  #   avoiding the need for multiple additional tasks with little to no benefit.
+  #
+  # Notes on the command or script itself:
+  #
+  # See the official documentation for a explanation of the parameters:
+  # https://www.postfix.org/aliases.5.html
   ansible.builtin.command:
     cmd: "{{ __run_postfix_newaliases_executable }}"
   changed_when:

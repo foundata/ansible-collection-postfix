@@ -254,7 +254,9 @@
   # The command or shell module is used here. This approach is justified:
   #
   # - No built-in Ansible module provides a direct way to interact with the
-  #   Postfix configuration
+  #   used command.
+  # - Inline templating allows for safe and efficient parameter handling,
+  #   avoiding the need for multiple additional tasks with little to no benefit.
   # - We first uses [lineinfile|blockinfile], but it had major downsides:
   #   1. The need to comment out already-defined values to prevent warnings.
   #   2. The great variation on different platforms may trigger high maintenance
@@ -270,7 +272,7 @@
       set -u # fail on unset vars
       set -o pipefail # fail if any pipe cmd fails
 
-      __run_postfix_checksum_before="$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})"
+      __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})
 
       set -e # exit on any error (incl. in if/while/tests)
       {% for key, value in __run_postfix_merged_maincf_settings.items() %}
@@ -278,10 +280,10 @@
       {% endfor %}
       set +e # no exit on any error (if/while/tests needed in the following)
 
-      __run_postfix_checksum_after="$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})"
+      __run_postfix_checksum_after=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})
       if [ "${__run_postfix_checksum_before}" != "${__run_postfix_checksum_after}" ]
       then
-        printf 'Changed config file: {{ __run_postfix_maincf_file }}'
+        printf 'Changed config file: %s' {{ __run_postfix_maincf_file | ansible.builtin.quote }}
       fi
 
       exit 0
@@ -317,7 +319,9 @@
   # The command or shell module is used here. This approach is justified:
   #
   # - No built-in Ansible module provides a direct way to interact with the
-  #   Postfix configuration
+  #   used command.
+  # - Inline templating allows for safe and efficient parameter handling,
+  #   avoiding the need for multiple additional tasks with little to no benefit.
   # - We first uses [lineinfile|blockinfile], but it had major downsides:
   #   1. The need to comment out already-defined values to prevent warnings.
   #   2. The great variation on different platforms may trigger high maintenance
@@ -333,7 +337,7 @@
       set -u # fail on unset vars
       set -o pipefail # fail if any pipe cmd fails
 
-      __run_postfix_checksum_before="$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})"
+      __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})
 
       set -e # exit on any error (incl. in if/while/tests)
       {% for service, fields in __run_postfix_merged_mastercf_settings.items() %}
@@ -351,10 +355,10 @@
       {% endfor %}
       set +e # no exit on any error (if/while/tests needed in the following)
 
-      __run_postfix_checksum_after="$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})"
+      __run_postfix_checksum_after=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})
       if [ "${__run_postfix_checksum_before}" != "${__run_postfix_checksum_after}" ]
       then
-        printf 'Changed config file: {{ __run_postfix_mastercf_file }}'
+        printf 'Changed config file: %s' {{ __run_postfix_mastercf_file | ansible.builtin.quote }}
       fi
 
       exit 0
