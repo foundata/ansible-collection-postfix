@@ -136,8 +136,3 @@
     mode: "u=rw,g=r,o=r" # 0644
 
 # FIXME SELinux
-
-
-
-
-pexpect
