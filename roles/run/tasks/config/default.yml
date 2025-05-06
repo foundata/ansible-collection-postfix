@@ -198,13 +198,12 @@
   loop:
     - "/etc/postfix/transport" # File exists by default at least on Red Hat, SUSE
 
+# FIXME: Implement: Handle sasl_passwd
+#        - "/etc/postfix/sasl"  # Directory exists by default at least on Debian
 
 # FIXME: Implement: Handle relocated addresses (bounced mail for undeliverable recipients
 #        that include the new address of the moved account)
 #        - "/etc/postfix/relocated" # File exists by default at least on Red Hat, SUSE
-
-# FIXME: Implement: Handle sasl_passwd
-#        - "/etc/postfix/sasl"  # Directory exists by default at least on Debian
 
 # FIXME: Implement: Handle canonical mapping (rewrites email addresses in envelope and headers
 #        for both local and non-local addresses)
