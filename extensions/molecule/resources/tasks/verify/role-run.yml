@@ -1,0 +1,26 @@
+# Tasks for the Molecule verify stage: Check collection role "run" outcomes.
+
+- name: "Molecule | Verify | Initialize the foundata.postfix.run role (without actually running it; get and expose variables)"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+    tasks_from: "init"
+    public: true
+
+
+- name: "Molecule | Verify | Gather service facts"
+  ansible.builtin.service_facts:
+
+
+- name: "Molecule | Verify | Show service facts"
+  ansible.builtin.debug:
+    var: ansible_facts['services']
+    verbosity: 3
+
+
+- name: "Molecule | Verify | Assert Postfix service is running"
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['services'][__run_postfix_postfix_servicename] is defined
+      - ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running'
+    fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
+    success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
