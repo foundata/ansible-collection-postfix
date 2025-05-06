@@ -1,0 +1,143 @@
+
+# Tasks for the Molecule prepare stage: Add resources needed for later steps
+# (e.g. verify) on all driver-created instances.
+
+
+- name: "Molecule | Prepare | Install needed packages"
+  ansible.builtin.package:
+    name:
+      - "openssl" # Create certificates, test STARTTLS
+      - "telnet" # Test SMTP
+      - "python3-pexpect" # Ansible (ansible.builtin.expect)
+    state: "present"
+
+
+- name: "Molecule | Prepare | Certificates: Set base directory path"
+  ansible.builtin.set_fact:
+    __testing_certs_base_dir: "/etc/ssl/certs"
+  when:
+    - (ansible_facts['os_family'] | lower) != 'redhat'
+
+
+- name: "Molecule | Prepare | Certificates: Set base directory path (Red Hat)"
+  ansible.builtin.set_fact:
+    __testing_certs_base_dir: "/etc/pki/tls/certs"
+  when:
+    - (ansible_facts['os_family'] | lower) == 'redhat'
+
+
+- name: "Molecule | Prepare | Certificates: Set dummy cert file (PEM) path"
+  ansible.builtin.set_fact:
+    __testing_certs_dummycert_pem: "{{ __testing_certs_base_dir }}/dummy-cert.pem"
+
+
+# Prepare different Diffie-Hellman parameter files. DH parameters are not a secret.
+# The defaults might be quite good on many systems, but using predefined values
+# recommended by the IETF in RFC 7919 are more sane. These groups are audited and
+# may be more resistant to attacks than ones randomly generated.
+- name: "Certificates: prepare different Diffie-Hellman parameter files"
+  ansible.builtin.copy:
+    dest: "{{ __testing_certs_base_dir }}/{{ item['file'] }}"
+    content: "{{ item['content'] }}"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r" # 0644
+  loop:
+    - file: "dhparam_ffdhe4096"
+      content: |
+        -----BEGIN DH PARAMETERS-----
+        MIICCAKCAgEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
+        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+        ssbzSibBsu/6iGtCOGEfz9zeNVs7ZRkDW7w09N75nAI4YbRvydbmyQd62R0mkff3
+        7lmMsPrBhtkcrv4TCYUTknC0EwyTvEN5RPT9RFLi103TZPLiHnH1S/9croKrnJ32
+        nuhtK8UiNjoNq8Uhl5sN6todv5pC1cRITgq80Gv6U93vPBsg7j/VnXwl5B0rZp4e
+        8W5vUsMWTfT7eTDp5OWIV7asfV9C1p9tGHdjzx1VA0AEh/VbpX4xzHpxNciG77Qx
+        iu1qHgEtnmgyqQdgCpGBMMRtx3j5ca0AOAkpmaMzy4t6Gh25PXFAADwqTs6p+Y0K
+        zAqCkc3OyX3Pjsm1Wn+IpGtNtahR9EGC4caKAH5eZV9q//////////8CAQI=
+        -----END DH PARAMETERS-----
+    - file: "dhparam_ffdhe3072"
+      content: |
+        -----BEGIN DH PARAMETERS-----
+        MIIBiAKCAYEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
+        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+        ssbzSibBsu/6iGtCOGEfz9zeNVs7ZRkDW7w09N75nAI4YbRvydbmyQd62R0mkff3
+        7lmMsPrBhtkcrv4TCYUTknC0EwyTvEN5RPT9RFLi103TZPLiHnH1S/9croKrnJ32
+        nuhtK8UiNjoNq8Uhl5sN6todv5pC1cRITgq80Gv6U93vPBsg7j/VnXwl5B0rZsYu
+        N///////////AgEC
+        -----END DH PARAMETERS-----
+    - file: "dhparam_ffdhe2048"
+      content: |
+        -----BEGIN DH PARAMETERS-----
+        MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
+        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+        ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
+        -----END DH PARAMETERS-----
+
+
+- name: "Molecule | Prepare | Certificates: Get info about dummy cert file"
+  ansible.builtin.stat:
+    path: "{{ __testing_certs_dummycert_pem }}"
+    get_checksum: false
+  register: __testing_dummycert_stat_result
+
+
+- name: "Molecule | Prepare | Certificates: Create dummy cert"
+  ansible.builtin.shell:
+    # Inline script is based on /etc/pki/tls/make-dummy-cert from RHEL 7
+    cmd: |
+      set -u # Fail on unset vars
+      set -o pipefail # Fail if any pipe cmd fails
+
+      answers() {
+        echo --
+        echo "SomeState"
+        echo "SomeCity"
+        echo "SomeOrganization"
+        echo "SomeOrganizationalUnit"
+        echo "$(hostname -f)"
+        echo "root@$(hostname -d)"
+      }
+
+      target="{{ __testing_certs_dummycert_pem }}"
+      mkdir -p "$(dirname "${target}")"
+      pem1="$(/bin/mktemp /tmp/openssl.XXXXXX)"
+      pem2="$(/bin/mktemp /tmp/openssl.XXXXXX)"
+      answers | /usr/bin/openssl req -newkey rsa:4096 -keyout "${pem1}" -nodes -x509 -days 3650 -out "${pem2}" 2> /dev/null
+      cat "${pem1}"  > "${target}"
+      echo ""       >> "${target}"
+      cat "${pem2}" >> "${target}"
+      rm -f "${pem1}" "${pem2}"
+      unset pem1 pem2
+
+      exit 0
+    executable: "/bin/bash" # Support for other shells untested (so far)
+  register: __testing_dummycert_create_result
+  changed_when:
+    - __testing_dummycert_create_result['rc'] == 0
+  when:
+    - __testing_dummycert_stat_result is defined
+    - not __testing_dummycert_stat_result['stat']['exists']
+
+
+- name: "Molecule | Prepare | Certificates: Set file permissions for dummy cert"
+  ansible.builtin.file:
+    path: "{{ __testing_certs_dummycert_pem }}"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r" # 0644
+
+# FIXME SELinux
+
+
+
+
+pexpect

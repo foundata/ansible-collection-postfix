@@ -1,10 +1,30 @@
 # Tasks for the Molecule verify stage: Check collection role "run" outcomes.
 
+- name: "Molecule | Verify | Set some expected configuration data "
+  ansible.builtin.set_fact:
+    # values habe to be in sync with the config set in ../converge/run-role.yml
+    __testing_maincf:
+      myhostname: "smtp.example.com"
+    __testing_mastercf:
+      port_smtp: 25
+      port_submission: 587
+      port_smtp_unusual: 2525
+
+
 - name: "Molecule | Verify | Initialize the foundata.postfix.run role (without actually running it; get and expose variables)"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
     tasks_from: "init"
     public: true
+
+
+- name: "Molecule | Verify | Gather playbook-specific facts"
+  ansible.builtin.setup:
+    gather_subset:
+      - "distribution"
+  when:
+    - ansible_facts['distribution'] is not defined or
+      ansible_facts['os_family'] is not defined
 
 
 - name: "Molecule | Verify | Gather service facts"
@@ -20,7 +40,62 @@
 - name: "Molecule | Verify | Assert Postfix service is running"
   ansible.builtin.assert:
     that:
-      - ansible_facts['services'][__run_postfix_postfix_servicename] is defined
-      - ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running'
+      # SysVinit is still used for Postfix on Debian ≤ 12 and Ubuntu ≤ 24.04.
+      # In these cases, the systemd service state may show as "active (exited)",
+      # and ansible_facts['services'] will include both SysV and systemd entries,
+      # which can be misleading. Example:
+      #   "postfix": {
+      #       "name": "postfix",
+      #       "source": "sysv",
+      #       "state": "running"
+      #   },
+      #   "postfix.service": {
+      #       "name": "postfix.service",
+      #       "source": "systemd",
+      #       "state": "stopped",
+      #       "status": "enabled"
+      #   },
+      - (ansible_facts['services'][__run_postfix_postfix_servicename] is defined and
+         ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running')
+        or
+        (ansible_facts['services'][__run_postfix_postfix_servicename | regex_replace('\.service$', '')] is defined and
+         ansible_facts['services'][__run_postfix_postfix_servicename | regex_replace('\.service$', '')].state == 'running')
     fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
+
+
+- name: "Molecule | Verify | Run SMTP tests: basic"
+  ansible.builtin.include_tasks:
+    file: "../tasks/verify/checks/smtp-basic.yml"
+  vars:
+    __testing_hostdata: "{{ item }}"
+  when:
+    __testing_hostdata is defined
+  loop:
+    - host: "127.0.0.1"
+      port: "{{ __testing_mastercf['port_smtp'] }}"
+      smtp_hostname: "{{ __testing_maincf['myhostname'] }}"
+    - host: "127.0.0.1"
+      port: "{{ __testing_mastercf['port_submission'] }}"
+      smtp_hostname: "{{ __testing_maincf['myhostname'] }}"
+    - host: "127.0.0.1"
+      port: "{{ __testing_mastercf['port_smtp_unusual'] }}"
+      smtp_hostname: "{{ __testing_maincf['myhostname'] }}"
+
+
+- name: "Molecule | Verify | Run SMTP tests: STARTTLS"
+  ansible.builtin.include_tasks:
+    file: "../tasks/verify/checks/smtp-starttls.yml"
+  vars:
+    __testing_hostdata: "{{ item }}"
+  when:
+    __testing_hostdata is defined
+  loop:
+    - host: "127.0.0.1"
+      port: "{{ __testing_mastercf['port_submission'] }}"
+      smtp_hostname: "{{ __testing_maincf['myhostname'] }}"
+
+
+## FIXME TODO to be implemented, ideas
+# - Send a test email and check if it ends up in any queue
+# - Send a test email and check if it is rejected because of an unauthorized domain

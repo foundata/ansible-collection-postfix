@@ -1,0 +1,27 @@
+# Include where useful: SMTP dialog (basic)
+
+- name: "Molecule | Verify | SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.expect:
+    command: |
+      /usr/bin/telnet {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
+    responses:
+      # Wait for initial banner that ends with a newline
+      '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
+      # Wait for response to EHLO command
+      '(?i)250.*\r?\n': "QUIT"
+      # Wait for response to QUIT
+      '(?i)221.*\r?\n': ""
+    timeout: 5
+  register: __testing_run_postfix_smtp_basic_result
+  ignore_errors: true
+  changed_when: false
+
+
+- name: "Molecule | Verify | Assert correct answers are returned: SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.assert:
+    that:
+      - __testing_run_postfix_smtp_basic_result is succeeded
+      - ('220 ' ~ __testing_hostdata['smtp_hostname'] ~ ' ESMTP Postfix') in __testing_run_postfix_smtp_basic_result['stdout']
+      - ('250 ') in __testing_run_postfix_smtp_basic_result['stdout']
+      - ('221 ') in __testing_run_postfix_smtp_basic_result['stdout']
+    fail_msg: "SMTP basic check failed: Expected proper responses to SMTP commands"

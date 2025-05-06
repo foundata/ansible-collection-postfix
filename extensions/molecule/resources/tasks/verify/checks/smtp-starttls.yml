@@ -1,0 +1,33 @@
+# Include where useful: SMTP dialog (STARTTLS)
+
+- name: "Molecule | Verify | SMTP (STARTTLS) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.expect:
+    command: |
+      /usr/bin/telnet {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
+    responses:
+      # Wait for initial banner that ends with a newline
+      '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
+      # Wait for response to EHLO command
+      '(?i)250.*\r?\n': "STARTTLS"
+      # Wait for response to STARTTLS command
+      '(?i)220.*TLS.*\r?\n': "QUIT"
+      # There will be no response to QUIT as a TLS handshake was expected,
+      # the communication should end now.
+    timeout: 5
+  register: __testing_run_postfix_smtp_starttls_result
+  ignore_errors: true
+  changed_when: false
+
+
+- name: "Molecule | Verify | Assert correct answers are returned: SMTP (STARTTLS) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.assert:
+    that:
+      - __testing_run_postfix_smtp_starttls_result is succeeded
+      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP Postfix') in __testing_run_postfix_smtp_starttls_result['stdout']
+      - ('250 ') in __testing_run_postfix_smtp_starttls_result['stdout']
+      - ('220 2.0.0 Ready to start TLS') in __testing_run_postfix_smtp_starttls_result['stdout']
+    fail_msg: "SMTP STARTTLS check failed: Expected proper responses to SMTP commands"
+
+
+## FIXME TODO to be implemented, ideas
+# - Add real handshake with openssl

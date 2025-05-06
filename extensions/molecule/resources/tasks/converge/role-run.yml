@@ -1,6 +1,20 @@
 # Tasks for the Molecule converge stage: Execute the collection role "run"
 # against all driver-created instances.
 
+
+# This prevents testing whether the role itself verifies these facts'
+# availability but it avoids fragile workarounds (like parsing container
+# names) if additional platform specific preparations are needed.
+# No problem as our roles using the subset do proper availability checks.
+- name: "Molecule | Converge | Gather playbook-specific facts"
+  ansible.builtin.setup:
+    gather_subset:
+      - "distribution"
+  when:
+    - ansible_facts['distribution'] is not defined or
+      ansible_facts['os_family'] is not defined
+
+
 - name: "Molecule | Converge | Include the foundata.postfix.run role"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
@@ -14,16 +28,16 @@
       smtp_tls_security_level: "may"
       smtpd_tls_security_level: "may"
       smtp_tls_note_starttls_offer: "yes"
-      smtpd_tls_cert_file: "/etc/ssl/certs/smtp.example.com/fullchain.cer"
-      smtpd_tls_key_file: "/etc/ssl/private/smtp.example.com/cert.key"
-      smtpd_tls_dh1024_param_file: "/etc/ssl/certs/dhparam_ffdhe2048.pem" # see https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
+      smtpd_tls_cert_file: "{{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem"
+      smtpd_tls_key_file: "{{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem"
+      smtpd_tls_dh1024_param_file: "{{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | lower) == 'redhat' else '/etc/ssl/certs' }}/dhparam_ffdhe2048" # see https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
       message_size_limit: 52428800 # 50 MiB; max size of a incoming email
       mailbox_size_limit: 0 # 0 == unlimited; max mailbox size should be controlled by the mailserver
       relayhost: "[relay.example.org]:25"
       header_size_limit: 4096000
-      virtual_alias_maps: "hash:/etc/postfix/should_get_overwritten" # run_postfix_handle_relay_domains: true should overwrite this
+      virtual_alias_maps: "btree:/etc/postfix/this_value_should_get_overwritten" # setting "run_postfix_handle_relay_domains: true" should overwrite this
     run_postfix_mastercf_settings:
-      smtps:
+      smtp:
         type: "inet"
         private: "n"
         unpriv: "-"
@@ -31,7 +45,15 @@
         wakeup: "-"
         maxproc: "-"
         command_args: "smtpd"
-      555:
+      submission:
+        type: "inet"
+        private: "n"
+        unpriv: "-"
+        chroot: "n"
+        wakeup: "-"
+        maxproc: "-"
+        command_args: "smtpd"
+      2525: # Test if a unusual port works
         type: "inet"
         private: "n"
         unpriv: "-"
@@ -65,5 +87,5 @@
         - "user3@actual-destination.example.com"
       "@example.com": # catch-all for example.com
         - "office@example.com"
-      "@example.net": # catch-all for example.net, rewrite all to @example.com
+      "@example.net": # catch-all for example.net, rewrite all @example.net addresses to @example.com
         - "example.com"
