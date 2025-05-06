@@ -61,10 +61,10 @@ run_postfix_service_state: "enabled"
 # - postconf -n: print all active, explicitly set options
 # - postconf -d: print all options with their default
 #
-# Please not that you do not need own handler for postmap when using "hash:"
-# somewhere. The role's handler is intelligent enough to scan the config for
-# hash:/path values. Just notify "run_postfix: update lookup tables" on changes
-# when writing additional, own tasks.
+# Please note that you do not need own handler for postmap when using
+# "hash|btree|dbm:" somewhere. The role's handler is intelligent enough to scan
+# the config for hash|btree|dbm:/path values. Just notify "run_postfix: update
+# lookup tables" on changes when writing additional, own tasks.
 #
 # For a complete list of options, see https://www.postfix.org/postconf.5.html
 run_postfix_maincf_settings:

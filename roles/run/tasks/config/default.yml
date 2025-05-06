@@ -10,25 +10,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_domains']
       value '{{ run_postfix_maincf_settings['virtual_alias_domains'] }}' with
-      'hash:{{ __run_postfix_virtualaliasdomains_file }}' as
+      'btree:{{ __run_postfix_virtualaliasdomains_file }}' as
        run_postfix_handle_virtual is true
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is defined
     - run_postfix_maincf_settings['virtual_alias_domains'] | length > 0
-    - run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
+    - run_postfix_maincf_settings['virtual_alias_domains'] != ('btree:' ~ __run_postfix_virtualaliasdomains_file)
 
 
 - name: "Config | Default | Virtual: Set 'virtual_alias_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'virtual_alias_domains': ('hash:' ~ __run_postfix_virtualaliasdomains_file) }
+        { 'virtual_alias_domains': ('btree:' ~ __run_postfix_virtualaliasdomains_file) }
        ) }}
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is not defined or
-      run_postfix_maincf_settings['virtual_alias_domains'] != ('hash:' ~ __run_postfix_virtualaliasdomains_file)
+      run_postfix_maincf_settings['virtual_alias_domains'] != ('btree:' ~ __run_postfix_virtualaliasdomains_file)
 
 
 - name: "Config | Default | Virtual: Handle domains configuration"
@@ -50,25 +50,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_maps']
       value '{{ run_postfix_maincf_settings['virtual_alias_maps'] }}' with
-      'hash:{{ __run_postfix_virtualaliasmaps_file }}' as
+      'btree:{{ __run_postfix_virtualaliasmaps_file }}' as
        run_postfix_handle_virtual is true
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is defined
     - run_postfix_maincf_settings['virtual_alias_maps'] | length > 0
-    - run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
+    - run_postfix_maincf_settings['virtual_alias_maps'] != ('btree:' ~ __run_postfix_virtualaliasmaps_file)
 
 
 - name: "Config | Default | Virtual: Set 'virtual_alias_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'virtual_alias_maps': ('hash:' ~ __run_postfix_virtualaliasmaps_file) }
+        { 'virtual_alias_maps': ('btree:' ~ __run_postfix_virtualaliasmaps_file) }
        ) }}
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is not defined or
-      run_postfix_maincf_settings['virtual_alias_maps'] != ('hash:' ~ __run_postfix_virtualaliasmaps_file)
+      run_postfix_maincf_settings['virtual_alias_maps'] != ('btree:' ~ __run_postfix_virtualaliasmaps_file)
 
 
 - name: "Config | Default | Virtual: Handle mapping (redirections and aliasses) configuration"
@@ -102,25 +102,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['relay_domains']
       value '{{ run_postfix_maincf_settings['relay_domains'] }}' with
-      'hash:{{ __run_postfix_relaydomains_file }}' as
+      'btree:{{ __run_postfix_relaydomains_file }}' as
        run_postfix_handle_relay_domains is true
   when:
     - run_postfix_handle_relay_domains is true
     - run_postfix_maincf_settings['relay_domains'] is defined
     - run_postfix_maincf_settings['relay_domains'] | length > 0
-    - run_postfix_maincf_settings['relay_domains'] != ('hash:' ~ __run_postfix_relaydomains_file)
+    - run_postfix_maincf_settings['relay_domains'] != ('btree:' ~ __run_postfix_relaydomains_file)
 
 
 - name: "Config | Default | Relay domains: Set 'relay_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'relay_domains': ('hash:' ~ __run_postfix_relaydomains_file) }
+        { 'relay_domains': ('btree:' ~ __run_postfix_relaydomains_file) }
        ) }}
   when:
     - run_postfix_handle_relay_domains is true
     - run_postfix_maincf_settings['relay_domains'] is not defined or
-      run_postfix_maincf_settings['relay_domains'] != ('hash:' ~ __run_postfix_relaydomains_file)
+      run_postfix_maincf_settings['relay_domains'] != ('btree:' ~ __run_postfix_relaydomains_file)
 
 
 - name: "Config | Default | Relay domains: Handle relay domains configuration"
@@ -154,25 +154,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['transport_maps']
       value '{{ run_postfix_maincf_settings['transport_maps'] }}' with
-      'hash:{{ __run_postfix_transportmaps_file }}' as
+      'btree:{{ __run_postfix_transportmaps_file }}' as
        run_postfix_handle_transport_maps is true
   when:
     - run_postfix_handle_transport_maps is true
     - run_postfix_maincf_settings['transport_maps'] is defined
     - run_postfix_maincf_settings['transport_maps'] | length > 0
-    - run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
+    - run_postfix_maincf_settings['transport_maps'] != ('btree:' ~ __run_postfix_transportmaps_file)
 
 
 - name: "Config | Default | Transport: Set 'transport_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'transport_maps': ('hash:' ~ __run_postfix_transportmaps_file) }
+        { 'transport_maps': ('btree:' ~ __run_postfix_transportmaps_file) }
        ) }}
   when:
     - run_postfix_handle_transport_maps is true
     - run_postfix_maincf_settings['transport_maps'] is not defined or
-      run_postfix_maincf_settings['transport_maps'] != ('hash:' ~ __run_postfix_transportmaps_file)
+      run_postfix_maincf_settings['transport_maps'] != ('btree:' ~ __run_postfix_transportmaps_file)
 
 
 - name: "Config | Default | Transport: Handle transport mapping configuration"
@@ -198,6 +198,7 @@
   loop:
     - "/etc/postfix/transport" # File exists by default at least on Red Hat, SUSE
 
+
 # FIXME: Implement: Handle sasl_passwd
 #        - "/etc/postfix/sasl"  # Directory exists by default at least on Debian
 
@@ -219,18 +220,15 @@
     group: "{{ item['group'] }}"
     mode: "{{ item['mode'] }}"
   loop:
-    - {
-        file: "{{ __run_postfix_maincf_file }}",
-        owner: "{{ __run_postfix_maincf_owner }}",
-        group: "{{ __run_postfix_maincf_group }}",
-        mode: "{{ __run_postfix_maincf_mode }}"
-      }
-    - {
-        file: "{{ __run_postfix_mastercf_file }}",
-        owner: "{{ __run_postfix_mastercf_owner }}",
-        group: "{{ __run_postfix_mastercf_group }}",
-        mode: "{{ __run_postfix_mastercf_mode }}"
-      }
+    - file: "{{ __run_postfix_maincf_file }}"
+      owner: "{{ __run_postfix_maincf_owner }}"
+      group: "{{ __run_postfix_maincf_group }}"
+      mode: "{{ __run_postfix_maincf_mode }}"
+    - file: "{{ __run_postfix_mastercf_file }}"
+      owner: "{{ __run_postfix_mastercf_owner }}"
+      group: "{{ __run_postfix_mastercf_group }}"
+      mode: "{{ __run_postfix_mastercf_mode }}"
+
 
 # Notes on the main.cf handling:
 #
@@ -268,8 +266,8 @@
   # https://www.postfix.org/postconf.1.html
   ansible.builtin.shell:
     cmd: |
-      set -u # fail on unset vars
-      set -o pipefail # fail if any pipe cmd fails
+      set -u # Fail on unset vars
+      set -o pipefail # Fail if any pipe cmd fails
 
       __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})
 
@@ -286,7 +284,7 @@
       fi
 
       exit 0
-    executable: "/bin/bash" # this inline script was only tested with Bash yet, so hardcode the shell
+    executable: "/bin/bash" # Support for other shells untested (so far)
   when:
     - __run_postfix_merged_maincf_settings is defined
   changed_when:
@@ -333,8 +331,8 @@
   # https://www.postfix.org/postconf.1.html
   ansible.builtin.shell:
     cmd: |
-      set -u # fail on unset vars
-      set -o pipefail # fail if any pipe cmd fails
+      set -u # Fail on unset vars
+      set -o pipefail # Fail if any pipe cmd fails
 
       __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})
 
@@ -361,7 +359,7 @@
       fi
 
       exit 0
-    executable: "/bin/bash" # this inline script was only tested with Bash yet, so hardcode the shell
+    executable: "/bin/bash" # Support for other shells untested (so far)
   when:
     - __run_postfix_merged_mastercf_settings is defined
   changed_when:
