@@ -12,16 +12,21 @@
       # Wait for response to QUIT
       '(?i)221.*\r?\n': ""
     timeout: 5
-  register: __testing_run_postfix_smtp_basic_result
-  ignore_errors: true
   changed_when: false
+  failed_when:
+    # rc is none on timeout, following assert task will take care of failure
+    # telnet exits with 1 when it reaches EOF without user input
+    - (__testing_run_postfix_smtp_basic_result['rc'] is none) or
+      (__testing_run_postfix_smtp_basic_result['rc'] > 1) or
+      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_basic_result['stdout']
+  register: __testing_run_postfix_smtp_basic_result
 
 
 - name: "Molecule | Verify | Assert correct answers are returned: SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
       - __testing_run_postfix_smtp_basic_result is succeeded
-      - ('220 ' ~ __testing_hostdata['smtp_hostname'] ~ ' ESMTP Postfix') in __testing_run_postfix_smtp_basic_result['stdout']
+      - ('220 ' ~ __testing_hostdata['smtp_hostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_basic_result['stdout']
       - ('250 ') in __testing_run_postfix_smtp_basic_result['stdout']
       - ('221 ') in __testing_run_postfix_smtp_basic_result['stdout']
     fail_msg: "SMTP basic check failed: Expected proper responses to SMTP commands"

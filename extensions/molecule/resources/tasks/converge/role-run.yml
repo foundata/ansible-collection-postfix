@@ -89,3 +89,9 @@
         - "office@example.com"
       "@example.net": # catch-all for example.net, rewrite all @example.net addresses to @example.com
         - "example.com"
+    run_postfix_handle_canonical: true
+    run_postfix_canonical_recipient:
+      "old.name@example.com": "new.name@example.com"
+      "@example.com": "@example.net"
+    run_postfix_canonical_sender:
+      "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses

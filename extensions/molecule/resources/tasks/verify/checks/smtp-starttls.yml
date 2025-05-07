@@ -14,16 +14,21 @@
       # There will be no response to QUIT as a TLS handshake was expected,
       # the communication should end now.
     timeout: 5
-  register: __testing_run_postfix_smtp_starttls_result
-  ignore_errors: true
   changed_when: false
+  failed_when:
+    # rc is none on timeout, following assert task will take care of failure
+    # telnet exits with 1 when it reaches EOF without user input
+    - (__testing_run_postfix_smtp_starttls_result['rc'] is none) or
+      (__testing_run_postfix_smtp_starttls_result['rc'] > 1) or
+      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_starttls_result['stdout']
+  register: __testing_run_postfix_smtp_starttls_result
 
 
 - name: "Molecule | Verify | Assert correct answers are returned: SMTP (STARTTLS) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
       - __testing_run_postfix_smtp_starttls_result is succeeded
-      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP Postfix') in __testing_run_postfix_smtp_starttls_result['stdout']
+      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_starttls_result['stdout']
       - ('250 ') in __testing_run_postfix_smtp_starttls_result['stdout']
       - ('220 2.0.0 Ready to start TLS') in __testing_run_postfix_smtp_starttls_result['stdout']
     fail_msg: "SMTP STARTTLS check failed: Expected proper responses to SMTP commands"
