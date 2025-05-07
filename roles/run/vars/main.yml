@@ -115,6 +115,7 @@ __run_postfix_maincf_settings_defaults:
   myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
   inet_interfaces: "all"
   inet_protocols: "all"
+  #canonical_classes: "envelope_sender, envelope_recipient, header_sender, header_recipient"
 
 
 # Additional default configuration for Postfix master process (master.cf)
@@ -180,6 +181,22 @@ __run_postfix_virtual_alias_maps_defaults:
   {}
 
 
+# Default canonical recipient mappings for Postfix.
+#
+# See in run_postfix_canonical_recipient in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_canonical_recipient_defaults:
+  {}
+
+
+# Default canonical sender mappings for Postfix.
+#
+# See in run_postfix_canonical_sender in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_canonical_sender_defaults:
+  {}
+
+
 # Configuration file paths, ownership, and permissions for the Postfix daemon.
 # These variables define the different locations of configuration files, the
 # include directory, and the Ansible-managed configuration file, ensuring
@@ -219,6 +236,15 @@ __run_postfix_transportmaps_owner: "root"
 __run_postfix_transportmaps_group: "root"
 __run_postfix_transportmaps_mode: "u=rw,g=r,o=r" # 0644
 
+__run_postfix_canonicalrecipient_file: "/etc/postfix/canonical_recipient"
+__run_postfix_canonicalrecipient_owner: "root"
+__run_postfix_canonicalrecipient_group: "root"
+__run_postfix_canonicalrecipient_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_canonicalsender_file: "/etc/postfix/canonical_sender"
+__run_postfix_canonicalsender_owner: "root"
+__run_postfix_canonicalsender_group: "root"
+__run_postfix_canonicalsender_mode: "u=rw,g=r,o=r" # 0644
 
 # Postfix daemon service name and executable paths.
 # These variables define the systemd service name for Postfix daemon

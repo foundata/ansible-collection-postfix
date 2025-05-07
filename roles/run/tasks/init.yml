@@ -95,3 +95,5 @@
     __run_postfix_merged_transport_maps: "{{ __run_postfix_transport_maps_defaults | ansible.builtin.combine(run_postfix_transport_maps) }}"
     __run_postfix_merged_virtual_alias_domains: "{{ (__run_postfix_virtual_alias_domains_defaults + run_postfix_virtual_alias_domains) | ansible.builtin.unique }}" # noqa: yaml[line-length]
     __run_postfix_merged_virtual_alias_maps: "{{ __run_postfix_virtual_alias_maps_defaults | ansible.builtin.combine(run_postfix_virtual_alias_maps) }}"
+    __run_postfix_merged_canonical_recipient: "{{ run_postfix_canonical_recipient | ansible.builtin.combine(__run_postfix_canonical_recipient_defaults) }}"
+    __run_postfix_merged_canonical_sender: "{{ run_postfix_canonical_sender | ansible.builtin.combine(__run_postfix_canonical_sender_defaults) }}"

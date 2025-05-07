@@ -70,3 +70,15 @@ argument_specs:
       run_postfix_virtual_alias_maps:
         type: "dict"
         required: true
+
+      run_postfix_handle_canonical:
+        type: "bool"
+        required: true
+
+      run_postfix_canonical_recipient:
+        type: "dict"
+        required: true
+
+      run_postfix_canonical_sender:
+        type: "dict"
+        required: true

@@ -106,7 +106,7 @@ run_postfix_mastercf_settings:
 #
 # When set to true (which is the default), the role will:
 #
-# 1. Create and manage a hash file for relay domains using the
+# 1. Create and manage a config file for relay domains using the
 #    run_postfix_relay_domains variable for the contents
 # 2. Set (or override) main.cf settings for the relay_domains option
 #    accordingly.
@@ -134,7 +134,7 @@ run_postfix_relay_domains:
 #
 # When set to true (which is the default), the role will:
 #
-# 1. Create and manage a hash file for relay domains using the
+# 1. Create and manage a config file for relay domains using the
 #    run_postfix_transport_maps variable for the contents
 # 2. Set (or override) main.cf settings for the transport_maps option
 #    accordingly.
@@ -172,10 +172,10 @@ run_postfix_transport_maps:
 #
 # When set to true (which is the default), the role will:
 #
-# 1. Create and manage a hash file for virtual domains using the
+# 1. Create and manage a config file for virtual domains using the
 #    run_postfix_virtual_alias_domains variable for the contents
-# 2. Create and manage a hash file for virtual mappings using the
-#    run_postfix_virtual_alias_maps  variable for the contents
+# 2. Create and manage a config file for virtual mappings using the
+#    run_postfix_virtual_alias_maps variable for the contents
 # 3. Set (or override) main.cf settings for the virtual_alias_domains and
 #    virtual_alias_maps options accordingly
 #
@@ -225,3 +225,42 @@ run_postfix_virtual_alias_domains:
 # will be ignored if run_postfix_handle_virtual is set to false.
 run_postfix_virtual_alias_maps:
   {} # see __run_postfix_virtual_alias_maps_defaults in vars/main.yml for the defaults
+
+
+# Switch to control whether canonical address rewriting is handled by this role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a config file for canonical mappings using the
+#    run_postfix_canonical variable for the contents.
+# 2. Set (or override) main.cf settings for the sender_canonical_maps and
+#    recipient_canonical_maps options accordingly.
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
+run_postfix_handle_canonical: true
+
+
+# Canonical recipient address mappings / rewrite rules for Postfix.
+#
+# Example:
+#   "old.name@example.com": "new.name@example.com"
+#   "root": "user123@example.com"
+#   "@example.com": "@example.net"
+#
+# will be ignored if run_postfix_handle_canonical is set to false.
+run_postfix_canonical_recipient:
+  {} # see __run_postfix_canonical_recipient_defaults in vars/main.yml for the defaults
+
+
+# Canonical sender address mappings / rewrite rules for Postfix.
+#
+# Examples:
+#   "old.name@example.com": "new.name@example.com"
+#   "root": "user123@example.com"
+#   "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
+#   "@example.com": "@example.net"
+#
+# will be ignored if run_postfix_handle_canonical is set to false.
+run_postfix_canonical_sender:
+  {} # see __run_postfix_canonical_sender_defaults in vars/main.yml for the defaults
