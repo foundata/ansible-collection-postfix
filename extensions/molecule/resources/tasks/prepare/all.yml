@@ -6,9 +6,10 @@
 - name: "Molecule | Prepare | Install needed packages"
   ansible.builtin.package:
     name:
+      - "ca-certificates" # Certificate management tools
       - "openssl" # Create certificates, test STARTTLS
-      - "telnet" # Test SMTP
       - "python3-pexpect" # Ansible (ansible.builtin.expect)
+      - "telnet" # Test SMTP
     state: "present"
 
 
@@ -45,10 +46,14 @@
     - (ansible_facts['distribution_major_version'] | int) == 15
 
 
+# Helpful overview regarding certificate paths and tools on different OS:
+# https://github.com/millermatt/osca
+
+
 - name: "Molecule | Prepare | Certificates: Set paths (Debian)"
   ansible.builtin.set_fact:
     __testing_certs_base_dir: "/etc/ssl/certs"
-    __testing_certs_trustanchors_dir: "/usr/local/share/ca-certificates/"
+    __testing_certs_trustanchors_dir: "/usr/local/share/ca-certificates"
   when:
     - (ansible_facts['os_family'] | lower) == 'debian'
 
@@ -194,7 +199,7 @@
   ansible.builtin.command:
     cmd: "/usr/sbin/update-ca-certificates"
   when:
-    - (ansible_facts['os_family'] | lower) != 'debian'
+    - (ansible_facts['os_family'] | lower) == 'debian'
 
 
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Red Hat)"
