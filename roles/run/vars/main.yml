@@ -101,7 +101,6 @@ __run_postfix_paths_removal:
   #       listed here. They are only removed if the corresponding configuration
   #       is actually managed. For example, /etc/postfix/virtual is removed
   #       only if run_postfix_handle_virtual is true.
-  #- "/etc/postfix/canonical"
   #- "/etc/postfix/relocated" # SUSE FIXME
   [] # Remove the "[]" when adding values to this list.
 
@@ -197,6 +196,14 @@ __run_postfix_canonical_sender_defaults:
   {}
 
 
+# Default domain relocated mapping for Postfix.
+#
+# See in run_postfix_relocated_maps in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_relocated_maps_defaults:
+  {}
+
+
 # Configuration file paths, ownership, and permissions for the Postfix daemon.
 # These variables define the different locations of configuration files, the
 # include directory, and the Ansible-managed configuration file, ensuring
@@ -245,6 +252,11 @@ __run_postfix_canonicalsender_file: "/etc/postfix/canonical_sender"
 __run_postfix_canonicalsender_owner: "root"
 __run_postfix_canonicalsender_group: "root"
 __run_postfix_canonicalsender_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_relocatedmaps_file: "/etc/postfix/relocated_maps"
+__run_postfix_relocatedmaps_owner: "root"
+__run_postfix_relocatedmaps_group: "root"
+__run_postfix_relocatedmaps_mode: "u=rw,g=r,o=r" # 0644
 
 # Postfix daemon service name and executable paths.
 # These variables define the systemd service name for Postfix daemon

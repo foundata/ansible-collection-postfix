@@ -291,12 +291,62 @@
     - "/etc/postfix/canonical" # File exists by default at least on Red Hat, SUSE
 
 
+### Relocated maps
+
+- name: "Config | Default | Relocated: Inform if 'relocated_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['relocated_maps']
+      value '{{ run_postfix_maincf_settings['relocated_maps'] }}' with
+      'btree:{{ __run_postfix_relocatedmaps_file }}' as
+       run_postfix_handle_relocated_maps is true
+  when:
+    - run_postfix_handle_relocated_maps is true
+    - run_postfix_maincf_settings['relocated_maps'] is defined
+    - run_postfix_maincf_settings['relocated_maps'] | length > 0
+    - run_postfix_maincf_settings['relocated_maps'] != ('btree:' ~ __run_postfix_relocatedmaps_file)
+
+
+- name: "Config | Default | Relocated: Set 'relocated_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'relocated_maps': ('btree:' ~ __run_postfix_relocatedmaps_file) }
+       ) }}
+  when:
+    - run_postfix_handle_relocated_maps is true
+    - run_postfix_maincf_settings['relocated_maps'] is not defined or
+      run_postfix_maincf_settings['relocated_maps'] != ('btree:' ~ __run_postfix_relocatedmaps_file)
+
+
+- name: "Config | Default | Relocated: Handle relocated mapping configuration"
+  ansible.builtin.template:
+    src: "relocated.j2"
+    dest: "{{ __run_postfix_relocatedmaps_file }}"
+    owner: "{{ __run_postfix_relocatedmaps_owner }}"
+    group: "{{ __run_postfix_relocatedmaps_group }}"
+    mode: "{{ __run_postfix_relocatedmaps_mode }}"
+  when:
+    - run_postfix_handle_relocated_maps is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
+# - name: "Config | Default | Relocated: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: "absent"
+#   when:
+#     - run_postfix_handle_relocated_maps is true
+#   loop:
+#     - "/etc/postfix/relocated" # File exists by default at least on Red Hat, SUSE
+
+
+
 # FIXME: Implement: Handle sasl_passwd
 #        - "/etc/postfix/sasl"  # Directory exists by default at least on Debian
 
-# FIXME: Implement: Handle relocated addresses (bounced mail for undeliverable recipients
-#        that include the new address of the moved account)
-#        - "/etc/postfix/relocated" # File exists by default at least on Red Hat, SUSE
 
 ### Main configuration files
 

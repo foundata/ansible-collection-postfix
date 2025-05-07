@@ -95,3 +95,7 @@
       "@example.com": "@example.net"
     run_postfix_canonical_sender:
       "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
+    run_postfix_handle_relocated_maps: true
+    run_postfix_relocated_maps:
+      "user124@example.com": "user123@example.net"
+      "user345@example.com": "user345 has left, please contact him at ACME now."

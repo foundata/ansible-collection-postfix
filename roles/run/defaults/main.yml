@@ -144,15 +144,15 @@ run_postfix_relay_domains:
 run_postfix_handle_transport_maps: true
 
 
-# Domain transport mapping for Postfix. This defines where to send emails To
-# for the listed domainsin a structured format.
+# Domain transport mapping for Postfix. This defines where to send emails to
+# for the listed domains in a structured format.
 #
 # Attention: Do not forget to use square brackets to force DNS A record instead
 #            of MX record lookups
 #
 # Dictionary structure:
 #
-# - Keys: criterions, usually an email address
+# - Keys: criterions / pattern, usually an email address
 # - Values: Lists of destinations, usually email addresses
 #
 # Example:
@@ -205,7 +205,7 @@ run_postfix_virtual_alias_domains:
 #
 # Dictionary structure:
 #
-# - Keys: criterions, usually an email address
+# - Keys: criterions / pattern, usually an email address
 # - Values: Lists of destinations, usually email addresses
 #
 # Example:
@@ -264,3 +264,38 @@ run_postfix_canonical_recipient:
 # will be ignored if run_postfix_handle_canonical is set to false.
 run_postfix_canonical_sender:
   {} # see __run_postfix_canonical_sender_defaults in vars/main.yml for the defaults
+
+
+# Switch to control if relocated mappings settings are handled by this role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a config file for relocated mappings using the
+#    run_postfix_relocated_maps variable for the contents
+# 2. Set (or override) main.cf settings for the relocated_maps option
+#    accordingly.
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
+run_postfix_handle_relocated_maps: true
+
+
+# Relocated adress mapping for Postfix. It is used to tell senders that a
+# recipient's address has changed. If someone tries to send email to an old
+# address listed here, Postfix will generate a non-delivery report (NDR)
+# with the new address ("user has moved to <new_location>" bounce messages).
+#
+# Dictionary structure:
+#
+# - Keys: criterion / pattern, usually an email address
+# - Values: The new location, usually email addresses (or phone or other
+#           address or location strings)
+#
+# Example:
+#
+#   "user@example.com": "new@example.net"
+#   "@example.com": "Sorry, all mail has to be sent to example.net"
+#
+# will be ignored if run_postfix_handle_relocated_maps is set to false.
+run_postfix_relocated_maps:
+  {} # see __run_postfix_relocated_maps_defaults in vars/main.yml for the defaults
