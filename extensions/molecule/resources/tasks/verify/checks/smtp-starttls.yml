@@ -1,6 +1,6 @@
 # Include where useful: SMTP dialog (STARTTLS)
 
-- name: "Molecule | Verify | SMTP (STARTTLS) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+- name: "Molecule | Verify | SMTP (STARTTLS, Telnet) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:
     command: |
       /usr/bin/telnet {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
@@ -18,21 +18,43 @@
   failed_when:
     # rc is none/null on timeout
     # telnet exits with 1 when it reaches EOF without user input
-    - (__testing_run_postfix_smtp_starttls_result['rc'] is none) or
-      (__testing_run_postfix_smtp_starttls_result['rc'] > 1) or
-      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_starttls_result['stdout']
-  register: __testing_run_postfix_smtp_starttls_result
+    - (__testing_run_postfix_smtp_starttlstelnet_result['rc'] is none) or
+      (__testing_run_postfix_smtp_starttlstelnet_result['rc'] > 1) or
+      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
+  register: __testing_run_postfix_smtp_starttlstelnet_result
 
 
-- name: "Molecule | Verify | Assert correct answers are returned: SMTP (STARTTLS) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+- name: "Molecule | Verify | Assert correct answers: SMTP (STARTTLS, Telnet) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
-      - __testing_run_postfix_smtp_starttls_result is succeeded
-      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_starttls_result['stdout']
-      - ('250 ') in __testing_run_postfix_smtp_starttls_result['stdout']
-      - ('220 2.0.0 Ready to start TLS') in __testing_run_postfix_smtp_starttls_result['stdout']
+      - __testing_run_postfix_smtp_starttlstelnet_result is succeeded
+      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
+      - ('250 ') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
+      - ('220 2.0.0 Ready to start TLS') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
     fail_msg: "SMTP STARTTLS check failed: Expected proper responses to SMTP commands"
 
 
-## FIXME TODO to be implemented, ideas
-# - Add real handshake with openssl
+- name: "Molecule | Verify | SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.expect:
+    command: >
+        /usr/bin/openssl
+          s_client -starttls smtp -crlf -quiet
+          -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port']  | ansible.builtin.quote }}
+    responses:
+      # Wait for response
+      '(?i)250.*\r?\n': "QUIT"
+      # Wait for response to QUIT
+      '(?i)221.*\r?\n': ""
+    timeout: 5
+  changed_when: false
+  register: __testing_run_postfix_smtp_starttlsopenssl_result
+
+
+- name: "Molecule | Verify | Assert correct answers: SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+  ansible.builtin.assert:
+    that:
+      - __testing_run_postfix_smtp_starttlsopenssl_result is succeeded
+      - ('verify return:') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
+      - ('250 ') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
+      - ('221 2.0.0 Bye') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
+    fail_msg: "SMTP STARTTLS check failed: Expected proper responses to SMTP commands"

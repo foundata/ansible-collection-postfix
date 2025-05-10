@@ -22,7 +22,7 @@
   register: __testing_run_postfix_smtp_basic_result
 
 
-- name: "Molecule | Verify | Assert correct answers are returned: SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
+- name: "Molecule | Verify | Assert correct answers: SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
       - __testing_run_postfix_smtp_basic_result is succeeded
