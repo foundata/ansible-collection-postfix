@@ -161,6 +161,8 @@ run_postfix_handle_transport_maps: true
 #   "example.net": "lmtp:127.0.0.1:24"
 #   "example.org": "[192.168.0.1]"
 #   "foo.example.org": "[mailrelay.foo.example.org:123"
+#   # dedicated relay for Microsoft
+#   "/.*@(outlook|hotmail|live|msn)\..*/i": "[relay.example.com]:587"
 #
 # will be ignored if run_postfix_handle_transport_maps is set to false.
 run_postfix_transport_maps:

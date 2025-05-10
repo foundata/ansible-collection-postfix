@@ -111,10 +111,40 @@ __run_postfix_paths_removal:
 # See run_postfix_maincf_settings in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
 __run_postfix_maincf_settings_defaults:
+  compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
   myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
-  inet_interfaces: "all"
+  mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
+  message_size_limit: 52430000 # (50 MiB); default is 10240000 (~ 10 MiB)
+  mailbox_size_limit: 0 # 0 == unlimited (makes sense if size is controlled by a mailserver like Dovecot); Default is 51200000 (~ 48 MiB)
+  readme_directory: "no"
+  biff: "no" # biff is a local service to send "new mail" notifications to users
+  smtp_dns_support_level: "enabled" # DNS MX RR lookups for nexthop destination domains not enclosed in "[]".
+  smtpd_client_connection_count_limit: 20 # 0 == unlimited; default is 50
+  smtpd_client_auth_rate_limit: 30 # 0 == unlimited; default is 0
+  smtpd_soft_error_limit: 5 # default is 10
+  smtpd_error_sleep_time: "2s" # default is 1s; http://www.postfix.org/TUNING_README.html#speedup
+  smtpd_hard_error_limit: "${stress?{1}:{15}}" # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
+  # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
+  # here because they are either particularly important or may differ due to
+  # distribution-specific modifications.
+  inet_interfaces: "allow"
   inet_protocols: "all"
-  #canonical_classes: "envelope_sender, envelope_recipient, header_sender, header_recipient"
+  mydestination: "$myhostname, localhost.$mydomain, localhost"
+  append_dot_mydomain: "no"
+  broken_sasl_auth_clients: "no"
+  body_checks_size_limit: 51200 # = 50 KiB
+  bounce_size_limit: 50000 # ~ 49 KiB
+  header_size_limit: 102400 # = 100 KiB
+  canonical_classes: "envelope_sender, envelope_recipient, header_sender, header_recipient"
+  recipient_canonical_classes: "envelope_recipient, header_recipient"
+  sender_canonical_classes: "envelope_sender, header_sender"
+  smtpd_banner: "$myhostname ESMTP $mail_name"
+  smtp_host_lookup: "dns"
+  anvil_rate_time_unit: "60s"
+  anvil_status_update_time: "600s"
+  smtpd_client_event_limit_exceptions: "${smtpd_client_connection_limit_exceptions:$mynetworks}"
+  smtpd_forbid_bare_newline: "normalize" # https://www.postfix.org/smtp-smuggling.html
+  smtpd_forbid_bare_newline_exclusions: "$mynetworks"
 
 
 # Additional default configuration for Postfix master process (master.cf)
@@ -130,14 +160,6 @@ __run_postfix_mastercf_settings_defaults:
     wakeup: "-"
     maxproc: "-"
     command_args: "smtpd"
-  submission: # Service for submission (Port 587)
-    type: "inet"
-    private: "n"
-    unpriv: "-"
-    chroot: "n"
-    wakeup: "-"
-    maxproc: "-"
-    command_args: "smtpd"
   smtps: # Service for secure SMTP (Port 465)
     type: "inet"
     private: "n"
@@ -146,6 +168,22 @@ __run_postfix_mastercf_settings_defaults:
     wakeup: "-"
     maxproc: "-"
     command_args: "smtpd"
+  submission: # Service for submission (Port 587)
+    type: "inet"
+    private: "n"
+    unpriv: "-"
+    chroot: "n"
+    wakeup: "-"
+    maxproc: "-"
+    command_args: "smtpd"
+  anvil: # Postfix service for session count and request rate control
+    type: "unix"
+    private: "-"
+    unpriv: "-"
+    chroot: "y"
+    wakeup: "-"
+    maxproc: "1"
+    command_args: "anvil"
 
 
 # Default relay domains for Postfix.
@@ -257,6 +295,7 @@ __run_postfix_relocatedmaps_file: "/etc/postfix/relocated_maps"
 __run_postfix_relocatedmaps_owner: "root"
 __run_postfix_relocatedmaps_group: "root"
 __run_postfix_relocatedmaps_mode: "u=rw,g=r,o=r" # 0644
+
 
 # Postfix daemon service name and executable paths.
 # These variables define the systemd service name for Postfix daemon
