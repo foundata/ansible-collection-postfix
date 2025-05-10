@@ -2,24 +2,6 @@
 
 ---
 
-- name: "Handlers | postfix.service restart"
-  ansible.builtin.systemd_service:
-    name: "{{ __run_postfix_postfix_servicename }}"
-    state: "restarted"
-  listen: "run_postfix: restart postfix.service"
-  when:
-    - run_postfix_service_state != 'unmanaged'
-
-
-- name: "Handlers | postfix.service reload"
-  ansible.builtin.systemd_service:
-    name: "{{ __run_postfix_postfix_servicename }}"
-    state: "reloaded"
-  listen: "run_postfix: reload postfix.service"
-  when:
-    - run_postfix_service_state != 'unmanaged'
-
-
 - name: "Handlers | Update Postfix databases / lookup tables: (hash|btree|dbm) ... "
   # The command or shell module is used here. This approach is justified:
   #
@@ -33,11 +15,13 @@
   # See the official documentation for a explanation of the parameters:
   # https://www.postfix.org/postmap.1.html
   ansible.builtin.command:
-    cmd: "{{ __run_postfix_postmap_executable }} {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\\1') | ansible.builtin.quote }}"
+    cmd: >
+      {{ __run_postfix_postmap_executable }}
+      {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\1') | ansible.builtin.quote }}
   loop: "{{ __run_postfix_merged_maincf_settings | dict2items }}"
   when:
     - __run_postfix_merged_maincf_settings is defined
-      # item['key'] != 'alias_maps' [...]: exclude files where "newaliases" or "postalias" has to be used
+    # note: files where "newaliases" or "postalias" has to be used are excluded
     - ((item['key'] == 'relay_domains') or
        (item['key'] | regex_search('_map$')) or
        (item['value'] | regex_search('^(hash|btree|dbm):/.+'))) and
@@ -67,7 +51,13 @@
   # See the official documentation for a explanation of the parameters:
   # https://www.postfix.org/aliases.5.html
   ansible.builtin.command:
-    cmd: "{{ __run_postfix_newaliases_executable }}"
+    # The "newaliases" executable usually comes without support for lmdb, so use
+    # "postalias <file>" instead.
+    cmd: >
+      {{ __run_postfix_postalias_executable }}
+      {{ __run_postfix_merged_maincf_settings['alias_database'] |
+         default(__run_postfix_default_lookuptabletype ~ ':/etc/aliases') |
+         regex_replace('^[^:]+:(.*)$', '\1') | ansible.builtin.quote }}
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
@@ -77,3 +67,21 @@
     - __run_postfix_newaliases_result['rc'] == 0
   register: __run_postfix_newaliases_result
   listen: "run_postfix: update aliases"
+
+
+- name: "Handlers | postfix.service restart"
+  ansible.builtin.systemd_service:
+    name: "{{ __run_postfix_postfix_servicename }}"
+    state: "restarted"
+  listen: "run_postfix: restart postfix.service"
+  when:
+    - run_postfix_service_state != 'unmanaged'
+
+
+- name: "Handlers | postfix.service reload"
+  ansible.builtin.systemd_service:
+    name: "{{ __run_postfix_postfix_servicename }}"
+    state: "reloaded"
+  listen: "run_postfix: reload postfix.service"
+  when:
+    - run_postfix_service_state != 'unmanaged'
