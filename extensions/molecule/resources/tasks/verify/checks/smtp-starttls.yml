@@ -1,39 +1,5 @@
 # Include where useful: SMTP dialog (STARTTLS)
 
-- name: "Molecule | Verify | SMTP (STARTTLS, Telnet) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
-  ansible.builtin.expect:
-    command: |
-      /usr/bin/telnet {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
-    responses:
-      # Wait for initial banner that ends with a newline
-      '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
-      # Wait for response to EHLO command
-      '(?i)250.*\r?\n': "STARTTLS"
-      # Wait for response to STARTTLS command
-      '(?i)220.*TLS.*\r?\n': "QUIT"
-      # There will be no response to QUIT as a TLS handshake was expected,
-      # the communication should end now.
-    timeout: 5
-  changed_when: false
-  failed_when:
-    # rc is none/null on timeout
-    # telnet exits with 1 when it reaches EOF without user input
-    - (__testing_run_postfix_smtp_starttlstelnet_result['rc'] is none) or
-      (__testing_run_postfix_smtp_starttlstelnet_result['rc'] > 1) or
-      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
-  register: __testing_run_postfix_smtp_starttlstelnet_result
-
-
-- name: "Molecule | Verify | Assert correct answers: SMTP (STARTTLS, Telnet) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
-  ansible.builtin.assert:
-    that:
-      - __testing_run_postfix_smtp_starttlstelnet_result is succeeded
-      - ('220 ' ~ __testing_maincf['myhostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
-      - ('250 ') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
-      - ('220 2.0.0 Ready to start TLS') in __testing_run_postfix_smtp_starttlstelnet_result['stdout']
-    fail_msg: "SMTP STARTTLS check failed: Expected proper responses to SMTP commands"
-
-
 - name: "Molecule | Verify | SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:
     command: >
