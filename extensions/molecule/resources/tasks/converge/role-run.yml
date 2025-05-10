@@ -81,3 +81,8 @@
     run_postfix_relocated_maps:
       "user124@example.com": "user123@example.net"
       "user345@example.com": "user345 has left, please contact him at ACME now."
+    run_postfix_handle_smtp_sasl_password_maps: true
+    run_postfix_smtp_sasl_password_maps:
+      "[mailrelay.foo.example.org]:123": "user123:password_1.2.3"
+      "[mailrelay.foo.example.org]:25": "john:passwor_111"
+      "[relay.example.net]:587": "jane:123456__"

@@ -130,6 +130,46 @@
     __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')
 
 
+# - name: "Molecule | Verify | Create test email for local root delivery"
+#   ansible.builtin.copy:
+#     dest: "/tmp/test_email.txt"
+#     content: |
+#       From: test@{{ __testing_maincf['myhostname'] }}
+#       To: root@localhost
+#       Subject: Test Email To Root
+
+#       This is a test email to verify local delivery.
+#     mode: '0644'
+
+
+# - name: "Molecule | Verify | Send test email to local root"
+#   ansible.builtin.command:
+#     cmd: |
+#       {{ __testing_sendmail_executable }} -t < /tmp/test_email.txt
+#   register: __testing_send_local_mail_result
+#   changed_when: false
+
+
+# - name: "Molecule | Verify | Wait briefly for mail delivery"
+#   ansible.builtin.pause:
+#     seconds: 5
+
+
+# - name: "Molecule | Verify | Check root mailbox for delivered mail"
+#   ansible.builtin.shell: |
+#     grep -l "Test Email To Root" /var/mail/root || grep -l "Test Email To Root" /var/spool/mail/root
+#   register: __testing_check_root_mail
+#   ignore_errors: true
+#   changed_when: false
+
+# - name: "Molecule | Verify | Assert email was delivered to root"
+#   ansible.builtin.assert:
+#     that:
+#       - __testing_check_root_mail is succeeded
+#     fail_msg: "Email was not delivered to root's mailbox"
+#     success_msg: "Email was successfully delivered to root's mailbox"
+
+
 - name: "Molecule | Verify | Check journal for warnings or errors (second time): Postfix"
   ansible.builtin.command:
     cmd: >

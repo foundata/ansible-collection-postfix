@@ -100,7 +100,7 @@ __run_postfix_paths_removal:
   #       is actually managed. For example, /etc/postfix/virtual is removed
   #       only if run_postfix_handle_virtual is true.
   - "/etc/postfix/main.cf.proto" # File exists by default at least on Debian, Red Hat
-  -
+  - "/etc/postfix/master.cf.proto" # File exists by default at least on Debian, Red Hat
 
 
 # Name of the default lookup table types to use if this role manages a resource.
@@ -137,7 +137,7 @@ __run_postfix_maincf_settings_defaults:
   # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
   # here because they are either particularly important or may differ due to
   # distribution-specific modifications.
-  inet_interfaces: "allow"
+  inet_interfaces: "all"
   inet_protocols: "all"
   mydestination: "$myhostname, localhost.$mydomain, localhost"
   append_dot_mydomain: "no"
@@ -253,6 +253,14 @@ __run_postfix_relocated_maps_defaults:
   {}
 
 
+# Default SMTP SASL password mapping for Postfix.
+#
+# See in run_postfix_smtp_sasl_password_maps in defaults/main.yml for a
+# detailled description of the structure (as this variable is using the same).
+__run_postfix_smtp_sasl_password_maps_defaults:
+  {}
+
+
 # Configuration file paths, ownership, and permissions for the Postfix daemon.
 # These variables define the different locations of configuration files, the
 # include directory, and the Ansible-managed configuration file, ensuring
@@ -306,6 +314,11 @@ __run_postfix_relocatedmaps_file: "/etc/postfix/relocated_maps"
 __run_postfix_relocatedmaps_owner: "root"
 __run_postfix_relocatedmaps_group: "root"
 __run_postfix_relocatedmaps_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_smtpsaslpasswordmaps_file: "/etc/postfix/smtp_sasl_password" # May contain passwords!
+__run_postfix_smtpsaslpasswordmaps_owner: "root"
+__run_postfix_smtpsaslpasswordmaps_group: "root"
+__run_postfix_smtpsaslpasswordmaps_mode: "u=rw,g=r,o=" # 0640
 
 
 # Postfix daemon service name and executable paths.

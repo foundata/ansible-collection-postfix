@@ -134,7 +134,6 @@
     - run_postfix_handle_relay_domains is true
   notify:
     - "run_postfix: update lookup tables"
-    - "run_postfix: update aliases"
 
 
 - name: "Config | Default | Relay domains: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
@@ -186,7 +185,6 @@
     - run_postfix_handle_transport_maps is true
   notify:
     - "run_postfix: update lookup tables"
-    - "run_postfix: update aliases"
 
 
 - name: "Config | Default | Transport: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
@@ -343,6 +341,56 @@
 #   loop:
 #     - "/etc/postfix/relocated" # File exists by default at least on Red Hat
 
+
+### SMTP SASL password (credentials) maps
+
+- name: "Config | Default | SMTP SASL password (credentials): Inform if 'smtp_sasl_password_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['smtp_sasl_password_maps']
+      value '{{ run_postfix_maincf_settings['smtp_sasl_password_maps'] }}' with
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_smtpsaslpasswordmaps_file }}' as
+      run_postfix_handle_smtp_sasl_password_maps is true
+  when:
+    - run_postfix_handle_smtp_sasl_password_maps is true
+    - run_postfix_maincf_settings['smtp_sasl_password_maps'] is defined
+    - run_postfix_maincf_settings['smtp_sasl_password_maps'] | length > 0
+    - run_postfix_maincf_settings['smtp_sasl_password_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmaps_file)
+
+
+- name: "Config | Default | SMTP SASL password (credentials): Set 'smtp_sasl_password_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'smtp_sasl_password_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmaps_file) }
+       ) }}
+  when:
+    - run_postfix_handle_smtp_sasl_password_maps is true
+    - run_postfix_maincf_settings['smtp_sasl_password_maps'] is not defined or
+      run_postfix_maincf_settings['smtp_sasl_password_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmaps_file)
+
+
+- name: "Config | Default | SMTP SASL password (credentials): Handle mapping configuration"
+  ansible.builtin.template:
+    src: "smtp_sasl_password.j2"
+    dest: "{{ __run_postfix_smtpsaslpasswordmaps_file }}"
+    owner: "{{ __run_postfix_smtpsaslpasswordmaps_owner }}"
+    group: "{{ __run_postfix_smtpsaslpasswordmaps_group }}"
+    mode: "{{ __run_postfix_smtpsaslpasswordmaps_mode }}"
+  when:
+    - run_postfix_handle_smtp_sasl_password_maps is true
+  notify:
+    - "run_postfix: update lookup tables"
+
+
+# - name: "Config | Default | SMTP SASL password (credentials): Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: "absent"
+#   when:
+#     - run_postfix_handle_smtp_sasl_password_maps is true
+#   loop:
+#     - "/etc/postfix/FIXME"
 
 
 # FIXME: Implement: Handle sasl_passwd

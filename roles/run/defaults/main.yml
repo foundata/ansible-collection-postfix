@@ -273,7 +273,7 @@ run_postfix_canonical_sender:
 # When set to true (which is the default), the role will:
 #
 # 1. Create and manage a config file for relocated mappings using the
-#    run_postfix_relocated_maps variable for the contents
+#    run_postfix_relocated_maps variable for the contents.
 # 2. Set (or override) main.cf settings for the relocated_maps option
 #    accordingly.
 #
@@ -282,7 +282,7 @@ run_postfix_canonical_sender:
 run_postfix_handle_relocated_maps: true
 
 
-# Relocated adress mapping for Postfix. It is used to tell senders that a
+# Relocated address mapping for Postfix. It is used to tell senders that a
 # recipient's address has changed. If someone tries to send email to an old
 # address listed here, Postfix will generate a non-delivery report (NDR)
 # with the new address ("user has moved to <new_location>" bounce messages).
@@ -301,3 +301,45 @@ run_postfix_handle_relocated_maps: true
 # will be ignored if run_postfix_handle_relocated_maps is set to false.
 run_postfix_relocated_maps:
   {} # see __run_postfix_relocated_maps_defaults in vars/main.yml for the defaults
+
+
+# Switch to control if SMTP SASL password (credentials) mappings settings are handled by this role.
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage a config file for SMTP SASL password mappings using the
+#    run_postfix_smtp_sasl_password_maps variable for the contents.
+# 2. Set (or override) main.cf settings for the smtp_sasl_password_maps option
+#    accordingly.
+#
+# When false, you'll need to configure these settings manually through
+# run_postfix_maincf_settings or through other means.
+run_postfix_handle_smtp_sasl_password_maps: true
+
+
+# SMTP SASL authentication credentials for Postfix. It is used to authenticate
+# Postfix when sending emails through a relay server that requires
+# authentication. Each entry maps a remote SMTP server (and optionally a port)
+# to a username and password.
+#
+# See the following documentation for more details:
+# - https://www.postfix.org/SASL_README.html#client_sasl
+# - https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
+#
+# Dictionary structure:
+#
+# - Keys: criterion, the destination to specify credentials for. Attention: If
+#         you specify the "[" and "]" in the relayhost destination, then you
+#         must use the same form here.
+# - Values: The credentails, "username:password". Use
+#   smtp_sasl_password_result_delimiter (default ":") to specify an alternative
+#   separator between username and password.
+#
+# Example:
+#
+#   "[relay.example.com]": "user:password"
+#   "[relay.example.com]:587": "johndoe:password123!"
+#
+# will be ignored if run_postfix_handle_smtp_sasl_password_maps is set to false.
+run_postfix_smtp_sasl_password_maps:
+  {} # see __run_postfix_smtp_sasl_password_maps_defaults in vars/main.yml for the defaults

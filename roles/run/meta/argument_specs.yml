@@ -88,6 +88,13 @@ argument_specs:
         required: true
 
       run_postfix_relocated_maps:
-        type: "list"
-        elements: "str"
+        type: "dict"
+        required: true
+
+      run_postfix_handle_smtp_sasl_password_maps:
+        type: "bool"
+        required: true
+
+      run_postfix_smtp_sasl_password_maps:
+        type: "dict"
         required: true
