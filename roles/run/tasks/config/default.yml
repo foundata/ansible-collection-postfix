@@ -10,25 +10,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_domains']
       value '{{ run_postfix_maincf_settings['virtual_alias_domains'] }}' with
-      'btree:{{ __run_postfix_virtualaliasdomains_file }}' as
-       run_postfix_handle_virtual is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_virtualaliasdomains_file }}' as
+      run_postfix_handle_virtual is true
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is defined
     - run_postfix_maincf_settings['virtual_alias_domains'] | length > 0
-    - run_postfix_maincf_settings['virtual_alias_domains'] != ('btree:' ~ __run_postfix_virtualaliasdomains_file)
+    - run_postfix_maincf_settings['virtual_alias_domains'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasdomains_file)
 
 
 - name: "Config | Default | Virtual: Set 'virtual_alias_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'virtual_alias_domains': ('btree:' ~ __run_postfix_virtualaliasdomains_file) }
+        { 'virtual_alias_domains': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasdomains_file) }
        ) }}
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_domains'] is not defined or
-      run_postfix_maincf_settings['virtual_alias_domains'] != ('btree:' ~ __run_postfix_virtualaliasdomains_file)
+      run_postfix_maincf_settings['virtual_alias_domains'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasdomains_file)
 
 
 - name: "Config | Default | Virtual: Handle domains configuration"
@@ -50,25 +50,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['virtual_alias_maps']
       value '{{ run_postfix_maincf_settings['virtual_alias_maps'] }}' with
-      'btree:{{ __run_postfix_virtualaliasmaps_file }}' as
-       run_postfix_handle_virtual is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_virtualaliasmaps_file }}' as
+      run_postfix_handle_virtual is true
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is defined
     - run_postfix_maincf_settings['virtual_alias_maps'] | length > 0
-    - run_postfix_maincf_settings['virtual_alias_maps'] != ('btree:' ~ __run_postfix_virtualaliasmaps_file)
+    - run_postfix_maincf_settings['virtual_alias_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasmaps_file)
 
 
 - name: "Config | Default | Virtual: Set 'virtual_alias_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'virtual_alias_maps': ('btree:' ~ __run_postfix_virtualaliasmaps_file) }
+        { 'virtual_alias_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasmaps_file) }
        ) }}
   when:
     - run_postfix_handle_virtual is true
     - run_postfix_maincf_settings['virtual_alias_maps'] is not defined or
-      run_postfix_maincf_settings['virtual_alias_maps'] != ('btree:' ~ __run_postfix_virtualaliasmaps_file)
+      run_postfix_maincf_settings['virtual_alias_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_virtualaliasmaps_file)
 
 
 - name: "Config | Default | Virtual: Handle mapping (redirections and aliasses) configuration"
@@ -92,7 +92,7 @@
   when:
     - run_postfix_handle_virtual is true
   loop:
-    - "/etc/postfix/virtual" # File exists by default at least on Red Hat, SUSE
+    - "/etc/postfix/virtual" # File exists by default at least on Red Hat
 
 
 ### Relay domains
@@ -102,25 +102,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['relay_domains']
       value '{{ run_postfix_maincf_settings['relay_domains'] }}' with
-      'btree:{{ __run_postfix_relaydomains_file }}' as
-       run_postfix_handle_relay_domains is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_relaydomains_file }}' as
+      run_postfix_handle_relay_domains is true
   when:
     - run_postfix_handle_relay_domains is true
     - run_postfix_maincf_settings['relay_domains'] is defined
     - run_postfix_maincf_settings['relay_domains'] | length > 0
-    - run_postfix_maincf_settings['relay_domains'] != ('btree:' ~ __run_postfix_relaydomains_file)
+    - run_postfix_maincf_settings['relay_domains'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relaydomains_file)
 
 
 - name: "Config | Default | Relay domains: Set 'relay_domains' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'relay_domains': ('btree:' ~ __run_postfix_relaydomains_file) }
+        { 'relay_domains': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relaydomains_file) }
        ) }}
   when:
     - run_postfix_handle_relay_domains is true
     - run_postfix_maincf_settings['relay_domains'] is not defined or
-      run_postfix_maincf_settings['relay_domains'] != ('btree:' ~ __run_postfix_relaydomains_file)
+      run_postfix_maincf_settings['relay_domains'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relaydomains_file)
 
 
 - name: "Config | Default | Relay domains: Handle relay domains configuration"
@@ -144,7 +144,7 @@
   when:
     - run_postfix_handle_relay_domains is true
   loop:
-    - "/etc/postfix/relay" # File exists by default at least on SUSE
+    - "/etc/postfix/relay"
 
 
 ### Transport maps
@@ -154,25 +154,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['transport_maps']
       value '{{ run_postfix_maincf_settings['transport_maps'] }}' with
-      'btree:{{ __run_postfix_transportmaps_file }}' as
-       run_postfix_handle_transport_maps is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_transportmaps_file }}' as
+      run_postfix_handle_transport_maps is true
   when:
     - run_postfix_handle_transport_maps is true
     - run_postfix_maincf_settings['transport_maps'] is defined
     - run_postfix_maincf_settings['transport_maps'] | length > 0
-    - run_postfix_maincf_settings['transport_maps'] != ('btree:' ~ __run_postfix_transportmaps_file)
+    - run_postfix_maincf_settings['transport_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_transportmaps_file)
 
 
 - name: "Config | Default | Transport: Set 'transport_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'transport_maps': ('btree:' ~ __run_postfix_transportmaps_file) }
+        { 'transport_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_transportmaps_file) }
        ) }}
   when:
     - run_postfix_handle_transport_maps is true
     - run_postfix_maincf_settings['transport_maps'] is not defined or
-      run_postfix_maincf_settings['transport_maps'] != ('btree:' ~ __run_postfix_transportmaps_file)
+      run_postfix_maincf_settings['transport_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_transportmaps_file)
 
 
 - name: "Config | Default | Transport: Handle transport mapping configuration"
@@ -196,7 +196,7 @@
   when:
     - run_postfix_handle_transport_maps is true
   loop:
-    - "/etc/postfix/transport" # File exists by default at least on Red Hat, SUSE
+    - "/etc/postfix/transport" # File exists by default at least on Red Hat
 
 
 ### Canonical maps
@@ -206,25 +206,26 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['recipient_canonical_maps']
       value '{{ run_postfix_maincf_settings['recipient_canonical_maps'] }}' with
-      'btree:{{ __run_postfix_canonicalrecipient_file }}' as
-       run_postfix_handle_canonical is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_canonicalrecipient_file }}' as
+      run_postfix_handle_canonical is true
   when:
     - run_postfix_handle_canonical is true
     - run_postfix_maincf_settings['recipient_canonical_maps'] is defined
     - run_postfix_maincf_settings['recipient_canonical_maps'] | length > 0
-    - run_postfix_maincf_settings['recipient_canonical_maps'] != ('btree:' ~ __run_postfix_canonicalrecipient_file)
+    - run_postfix_maincf_settings['recipient_canonical_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalrecipient_file)
 
 
 - name: "Config | Default | Canonical: Set 'recipient_canonical_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'recipient_canonical_maps': ('btree:' ~ __run_postfix_canonicalrecipient_file) }
+        { 'recipient_canonical_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalrecipient_file) }
        ) }}
   when:
     - run_postfix_handle_canonical is true
     - run_postfix_maincf_settings['recipient_canonical_maps'] is not defined or
-      run_postfix_maincf_settings['recipient_canonical_maps'] != ('btree:' ~ __run_postfix_canonicalrecipient_file)
+      run_postfix_maincf_settings['recipient_canonical_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalrecipient_file)
+
 
 
 - name: "Config | Default | Canonical: Handle recipient mappings configuration"
@@ -246,25 +247,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['sender_canonical_maps']
       value '{{ run_postfix_maincf_settings['sender_canonical_maps'] }}' with
-      'btree:{{ __run_postfix_canonicalsender_file }}' as
-       run_postfix_handle_canonical is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_canonicalsender_file }}' as
+      run_postfix_handle_canonical is true
   when:
     - run_postfix_handle_canonical is true
     - run_postfix_maincf_settings['sender_canonical_maps'] is defined
     - run_postfix_maincf_settings['sender_canonical_maps'] | length > 0
-    - run_postfix_maincf_settings['sender_canonical_maps'] != ('btree:' ~ __run_postfix_canonicalsender_file)
+    - run_postfix_maincf_settings['sender_canonical_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalsender_file)
 
 
 - name: "Config | Default | Canonical: Set 'sender_canonical_maps' config value"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'sender_canonical_maps': ('btree:' ~ __run_postfix_canonicalsender_file) }
+        { 'sender_canonical_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalsender_file) }
        ) }}
   when:
     - run_postfix_handle_canonical is true
     - run_postfix_maincf_settings['sender_canonical_maps'] is not defined or
-      run_postfix_maincf_settings['sender_canonical_maps'] != ('btree:' ~ __run_postfix_canonicalsender_file)
+      run_postfix_maincf_settings['sender_canonical_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_canonicalsender_file)
 
 
 - name: "Config | Default | Canonical: Handle senders mappings configuration"
@@ -288,7 +289,7 @@
   when:
     - run_postfix_handle_canonical is true
   loop:
-    - "/etc/postfix/canonical" # File exists by default at least on Red Hat, SUSE
+    - "/etc/postfix/canonical" # File exists by default at least on Red Hat
 
 
 ### Relocated maps
@@ -298,25 +299,25 @@
     msg: |
       Overwriting original run_postfix_maincf_settings['relocated_maps']
       value '{{ run_postfix_maincf_settings['relocated_maps'] }}' with
-      'btree:{{ __run_postfix_relocatedmaps_file }}' as
-       run_postfix_handle_relocated_maps is true
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_relocatedmaps_file }}' as
+      run_postfix_handle_relocated_maps is true
   when:
     - run_postfix_handle_relocated_maps is true
     - run_postfix_maincf_settings['relocated_maps'] is defined
     - run_postfix_maincf_settings['relocated_maps'] | length > 0
-    - run_postfix_maincf_settings['relocated_maps'] != ('btree:' ~ __run_postfix_relocatedmaps_file)
+    - run_postfix_maincf_settings['relocated_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relocatedmaps_file)
 
 
 - name: "Config | Default | Relocated: Set 'relocated_maps' setting"
   ansible.builtin.set_fact:
     __run_postfix_merged_maincf_settings: |
       {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
-        { 'relocated_maps': ('btree:' ~ __run_postfix_relocatedmaps_file) }
+        { 'relocated_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relocatedmaps_file) }
        ) }}
   when:
     - run_postfix_handle_relocated_maps is true
     - run_postfix_maincf_settings['relocated_maps'] is not defined or
-      run_postfix_maincf_settings['relocated_maps'] != ('btree:' ~ __run_postfix_relocatedmaps_file)
+      run_postfix_maincf_settings['relocated_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_relocatedmaps_file)
 
 
 - name: "Config | Default | Relocated: Handle relocated mapping configuration"
@@ -340,7 +341,7 @@
 #   when:
 #     - run_postfix_handle_relocated_maps is true
 #   loop:
-#     - "/etc/postfix/relocated" # File exists by default at least on Red Hat, SUSE
+#     - "/etc/postfix/relocated" # File exists by default at least on Red Hat
 
 
 
@@ -349,23 +350,6 @@
 
 
 ### Main configuration files
-
-- name: "Config | Default | Set permissions of main Postfix configuration files"
-  ansible.builtin.file:
-    path: "{{ item['file'] }}"
-    owner: "{{ item['owner'] }}"
-    group: "{{ item['group'] }}"
-    mode: "{{ item['mode'] }}"
-  loop:
-    - file: "{{ __run_postfix_maincf_file }}"
-      owner: "{{ __run_postfix_maincf_owner }}"
-      group: "{{ __run_postfix_maincf_group }}"
-      mode: "{{ __run_postfix_maincf_mode }}"
-    - file: "{{ __run_postfix_mastercf_file }}"
-      owner: "{{ __run_postfix_mastercf_owner }}"
-      group: "{{ __run_postfix_mastercf_group }}"
-      mode: "{{ __run_postfix_mastercf_mode }}"
-
 
 # Notes on the main.cf handling:
 #
@@ -406,13 +390,29 @@
       set -u # Fail on unset vars
       set -o pipefail # Fail if any pipe cmd fails
 
+      # Ensure file existence
+      if ! [ -f {{ __run_postfix_maincf_file | ansible.builtin.quote }} ]
+      then
+        {{ __run_postfix_touch_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }}
+      fi
+
+      # Ensure file ownership
+       {{ __run_postfix_chown_executable }} -c \
+        {{ (__run_postfix_maincf_owner ~ ':' ~ __run_postfix_maincf_group) | ansible.builtin.quote }} \
+        {{ __run_postfix_maincf_file | ansible.builtin.quote }}
+
+      # Ensure file permissions
+      {{ __run_postfix_chmod_executable }} -c {{ __run_postfix_maincf_mode | ansible.builtin.quote }} \
+        {{ __run_postfix_maincf_file | ansible.builtin.quote }}
+
+      # Configure
       __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})
 
-      set -e # exit on any error (incl. in if/while/tests)
+      set -e # Exit on errors (incl. tests in if/while)
       {% for key, value in __run_postfix_merged_maincf_settings.items() %}
       {{ __run_postfix_postconf_executable }} -e {{ key | ansible.builtin.quote }}={{ value | ansible.builtin.quote }}
       {% endfor %}
-      set +e # no exit on any error (if/while/tests needed in the following)
+      set +e # No exit on errors (needed for following if/while/tests)
 
       __run_postfix_checksum_after=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_maincf_file | ansible.builtin.quote }})
       if [ "${__run_postfix_checksum_before}" != "${__run_postfix_checksum_after}" ]
@@ -425,14 +425,13 @@
   when:
     - __run_postfix_merged_maincf_settings is defined
   changed_when:
-    - __run_postfix_config_maincf_result.rc == 0
-    - "'Changed config file' in __run_postfix_config_maincf_result.stdout"
+    - __run_postfix_config_maincf_result['rc'] == 0
+    - __run_postfix_config_maincf_result['stdout'] | trim | length > 0
   register: __run_postfix_config_maincf_result
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
     - "run_postfix: reload postfix.service"
-
 
 
 # Notes on the master.cf handling:
@@ -471,9 +470,25 @@
       set -u # Fail on unset vars
       set -o pipefail # Fail if any pipe cmd fails
 
+      # Ensure file existence
+      if ! [ -f {{ __run_postfix_mastercf_file | ansible.builtin.quote }} ]
+      then
+        {{ __run_postfix_touch_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }}
+      fi
+
+      # Ensure file ownership
+       {{ __run_postfix_chown_executable }} -c \
+        {{ (__run_postfix_mastercf_owner ~ ':' ~ __run_postfix_mastercf_group) | ansible.builtin.quote }} \
+        {{ __run_postfix_mastercf_file | ansible.builtin.quote }}
+
+      # Ensure file permissions
+      {{ __run_postfix_chmod_executable }} -c {{ __run_postfix_mastercf_mode | ansible.builtin.quote }} \
+        {{ __run_postfix_mastercf_file | ansible.builtin.quote }}
+
+      # Configure
       __run_postfix_checksum_before=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})
 
-      set -e # exit on any error (incl. in if/while/tests)
+      set -e # Exit on errors (incl. tests in if/while)
       {% for service, fields in __run_postfix_merged_mastercf_settings.items() %}
       {{ __run_postfix_postconf_executable }} -M {{ service ~ '/' ~ fields['type'] | ansible.builtin.quote }}={{
         (
@@ -487,7 +502,7 @@
           fields['command_args']
         ) | ansible.builtin.quote }}
       {% endfor %}
-      set +e # no exit on any error (if/while/tests needed in the following)
+      set +e # No exit on errors (needed for following if/while/tests)
 
       __run_postfix_checksum_after=$({{ __run_postfix_sha1sum_executable }} {{ __run_postfix_mastercf_file | ansible.builtin.quote }})
       if [ "${__run_postfix_checksum_before}" != "${__run_postfix_checksum_after}" ]
@@ -500,8 +515,8 @@
   when:
     - __run_postfix_merged_mastercf_settings is defined
   changed_when:
-    - __run_postfix_config_mastercf_result.rc == 0
-    - "'Changed config file' in __run_postfix_config_mastercf_result.stdout"
+    - __run_postfix_config_mastercf_result['rc'] == 0
+    - __run_postfix_config_mastercf_result['stdout'] | trim | length > 0
   register: __run_postfix_config_mastercf_result
   notify:
     - "run_postfix: restart postfix.service"

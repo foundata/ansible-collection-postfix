@@ -1,4 +1,4 @@
-# Setup: Tasks specific to: Debian (os_family or distribution)
+# Install: Tasks specific to: Debian (os_family or distribution)
 #
 # Only tasks specific to the platform and its functionality should be included
 # here. Tasks in this file will be executed before those defined in
@@ -6,7 +6,6 @@
 
 ---
 
-# FIXME changed when? Run re-configure?
 - name: "Setup | Install | Debian | Pre-configure packages"
   ansible.builtin.debconf:
     name: "{{ item['package'] }}"
@@ -14,21 +13,20 @@
     value: "{{ item['value'] }}"
     vtype: "{{ item['vtype'] }}"
   loop:
-    # Hint for maintainers: debconf-show postfix
+    # Hint for maintainers:
+    # debconf-show postfix; apt install -y debconf-utils; debconf-get-selections postfix
     - package: "{{ __run_postfix_debian_debconf_postfixpkgname }}"
       question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/main_mailer_type"
-      value: "Internet with smarthost"
+      value: "No configuration"
       vtype: "string"
     - package: "{{ __run_postfix_debian_debconf_postfixpkgname }}"
       question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/mailname"
       value: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
-      vtype: "string"
-    - package: "{{ __run_postfix_debian_debconf_postfixpkgname }}"
-      question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/relayhost"
-      value: "{{ __run_postfix_merged_maincf_settings.get('relayhost', '') }}"
       vtype: "string"
   when:
     - __run_postfix_debian_debconf_postfixpkgname is defined
     - (__run_postfix_debian_debconf_postfixpkgname | length) > 0
   notify:
     - "run_postfix: restart postfix.service"
+    - "run_postfix: update aliases"
+    - "run_postfix: update lookup tables"

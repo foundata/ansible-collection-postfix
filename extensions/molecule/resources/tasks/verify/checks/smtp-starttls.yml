@@ -3,7 +3,7 @@
 - name: "Molecule | Verify | SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:
     command: >
-        /usr/bin/openssl
+        {{ __testing_openssl_executable }}
           s_client -starttls smtp -crlf -quiet
           -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port']  | ansible.builtin.quote }}
     responses:

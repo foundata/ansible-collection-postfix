@@ -71,13 +71,6 @@ platforms:
     image: "quay.io/foundata/fedora41-itt:latest"
     systemd: true
 
-  # openSUSE Leap 15.6
-  - name: "molecule-opensuseleap156"
-    image: "quay.io/foundata/opensuseleap156-itt:latest"
-    systemd: true
-  # openSUSE Leap 15.5
-  # Currently not supported by us and therefore not tested.
-
 
 # Ansible dependencies (collections, roles) of this Molecule scenario
 dependency:

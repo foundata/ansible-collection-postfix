@@ -52,9 +52,6 @@ __run_postfix_supported_platforms:
     versions:
       - "42"
       - "41"
-  - name: "openSUSE Leap"
-    versions:
-      - "15.6"
   - name: "RedHat" # includes AlmaLinux, Rocky and CentOS Stream
     versions:
       - "9"
@@ -73,6 +70,7 @@ __run_postfix_packages_install:
   # names across both supported platforms and unsupported, best-effort
   # platforms.
   - "postfix"
+  - "postfix-ldap"
 
 
 # List of package names to be uninstalled when run_postfix_state is
@@ -101,8 +99,19 @@ __run_postfix_paths_removal:
   #       listed here. They are only removed if the corresponding configuration
   #       is actually managed. For example, /etc/postfix/virtual is removed
   #       only if run_postfix_handle_virtual is true.
-  #- "/etc/postfix/relocated" # SUSE FIXME
-  [] # Remove the "[]" when adding values to this list.
+  - "/etc/postfix/main.cf.proto" # File exists by default at least on Debian, Red Hat
+  -
+
+
+# Name of the default lookup table types to use if this role manages a resource.
+#
+# "hash" and "btree" are available on systems with support for Berkeley DB
+# databases with "hash" as the default. Many distributions and builds dropped
+# support for Berkeley DB with Postfix ≥ 3.9 and switched to "lmdb".
+#
+# Hint for maintainers: "postconf -m" lists all supported lookup table types on
+# a system.
+__run_postfix_default_lookuptabletype: "lmdb"
 
 
 # Additional default configuration for Postfix daemon. Use standard Postfix
@@ -123,7 +132,8 @@ __run_postfix_maincf_settings_defaults:
   smtpd_client_auth_rate_limit: 30 # 0 == unlimited; default is 0
   smtpd_soft_error_limit: 5 # default is 10
   smtpd_error_sleep_time: "2s" # default is 1s; http://www.postfix.org/TUNING_README.html#speedup
-  smtpd_hard_error_limit: "${stress?{1}:{15}}" # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
+  smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
+  alias_maps: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
   # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
   # here because they are either particularly important or may differ due to
   # distribution-specific modifications.
@@ -131,6 +141,7 @@ __run_postfix_maincf_settings_defaults:
   inet_protocols: "all"
   mydestination: "$myhostname, localhost.$mydomain, localhost"
   append_dot_mydomain: "no"
+  alias_database: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
   broken_sasl_auth_clients: "no"
   body_checks_size_limit: 51200 # = 50 KiB
   bounce_size_limit: 50000 # ~ 49 KiB
@@ -305,11 +316,13 @@ __run_postfix_postfix_executable: "/usr/sbin/postfix"
 __run_postfix_postconf_executable: "/usr/sbin/postconf"
 __run_postfix_postmap_executable: "/usr/sbin/postmap"
 __run_postfix_postalias_executable: "/usr/sbin/postalias"
-__run_postfix_newaliases_executable: "/usr/bin/newaliases" # or "postalias /etc/aliases"
 
 
 # Paths of other executables and resources.
 __run_postfix_sha1sum_executable: "/usr/bin/sha1sum"
+__run_postfix_touch_executable: "/usr/bin/touch"
+__run_postfix_chmod_executable: "/usr/bin/chmod"
+__run_postfix_chown_executable: "/usr/bin/chown"
 
 
 ### Override defaults of dependencies used by this role (if any).

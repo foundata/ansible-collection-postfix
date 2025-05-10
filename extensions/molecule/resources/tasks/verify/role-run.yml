@@ -1,16 +1,5 @@
 # Tasks for the Molecule verify stage: Check collection role "run" outcomes.
 
-- name: "Molecule | Verify | Set some expected configuration data "
-  ansible.builtin.set_fact:
-    # values habe to be in sync with the config set in ../converge/run-role.yml
-    __testing_maincf:
-      myhostname: "smtp.example.com"
-    __testing_mastercf:
-      port_smtp: 25
-      port_submission: 587
-      port_smtp_unusual: 2525
-
-
 - name: "Molecule | Verify | Initialize the foundata.postfix.run role (without actually running it; get and expose variables)"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
@@ -25,6 +14,28 @@
   when:
     - ansible_facts['distribution'] is not defined or
       ansible_facts['os_family'] is not defined
+
+
+- name: "Molecule | Verify | Set some expected configuration data "
+  ansible.builtin.set_fact:
+    # values habe to be in sync with the config set in ../converge/run-role.yml
+    __testing_maincf:
+      myhostname: "smtp.example.com"
+    __testing_mastercf:
+      port_smtp: 25
+      port_submission: 587
+      port_smtp_unusual: 2525
+    __testing_postfix_servicename: "postfix.service"
+    # other testing specific values
+    __testing_telnet_executable: "/usr/bin/telnet"
+    __testing_openssl_executable: "/usr/bin/openssl"
+    __testing_sendmail_executable: "/usr/sbin/sendmail"
+    __testing_journalctl_executable: >-
+      {{
+        '/bin/journalctl'
+        if (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] | int == 11)
+        else '/usr/bin/journalctl'
+      }}
 
 
 - name: "Molecule | Verify | Gather service facts"
@@ -64,6 +75,18 @@
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
 
+- name: "Molecule | Verify | Clean up journal before running further tests: Postfix"
+  ansible.builtin.command:
+    cmd: >
+      {{ __testing_journalctl_executable }}
+        --vacuum-time=1s
+        --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+  changed_when:
+    - __testing_run_postfix_journalctlvacuum_result['rc'] == 0
+    - __testing_run_postfix_journalctlvacuum_result['stdout'] is search('Vacuuming done, freed ([1-9][0-9]*[a-zA-Z]{1,3})')
+  register: __testing_run_postfix_journalctlvacuum_result
+
+
 - name: "Molecule | Verify | Run SMTP tests: basic"
   ansible.builtin.include_tasks:
     file: "../tasks/verify/checks/smtp-basic.yml"
@@ -94,6 +117,28 @@
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_submission'] }}"
       smtp_hostname: "{{ __testing_maincf['myhostname'] }}"
+
+
+- name: "Molecule | Verify | Check journal for warnings or errors: Postfix"
+  ansible.builtin.command:
+    cmd: >
+      {{ __testing_journalctl_executable }}
+        --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+  register: __testing_run_postfix_journalctlcheck_result
+  changed_when: false
+  failed_when: >
+    __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')
+
+
+- name: "Molecule | Verify | Check journal for warnings or errors (second time): Postfix"
+  ansible.builtin.command:
+    cmd: >
+      {{ __testing_journalctl_executable }}
+        --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+  register: __testing_run_postfix_journalctlcheck_result
+  changed_when: false
+  failed_when: >
+    __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')
 
 
 ## FIXME TODO to be implemented, ideas

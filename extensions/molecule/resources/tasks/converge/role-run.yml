@@ -23,8 +23,6 @@
     run_postfix_maincf_settings:
       myhostname: "smtp.example.com"
       mydomain: "example.com"
-      inet_interfaces: "all"
-      inet_protocols: "all"
       smtp_tls_security_level: "may"
       smtpd_tls_security_level: "may"
       smtp_tls_note_starttls_offer: "yes"
@@ -37,22 +35,6 @@
       header_size_limit: 4096000
       virtual_alias_maps: "btree:/etc/postfix/this_value_should_get_overwritten" # setting "run_postfix_handle_relay_domains: true" should overwrite this
     run_postfix_mastercf_settings:
-      smtp:
-        type: "inet"
-        private: "n"
-        unpriv: "-"
-        chroot: "n"
-        wakeup: "-"
-        maxproc: "-"
-        command_args: "smtpd"
-      submission:
-        type: "inet"
-        private: "n"
-        unpriv: "-"
-        chroot: "n"
-        wakeup: "-"
-        maxproc: "-"
-        command_args: "smtpd"
       2525: # Test if a unusual port works
         type: "inet"
         private: "n"

@@ -3,7 +3,7 @@
 - name: "Molecule | Verify | SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:
     command: |
-      /usr/bin/telnet {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
+      {{ __testing_telnet_executable }} {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
       # Wait for initial banner that ends with a newline
       '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"

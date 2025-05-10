@@ -13,39 +13,6 @@
     state: "present"
 
 
-# For openSUSE Leap 15: Install required packages for all available Python
-# versions. This prevents "ModuleNotFoundError: No module named 'packaging'"
-# errors regardless of which Python interpreter is selected by Ansible.
-- name: "Molecule | Prepare | Install packages needed for pip (openSUSE Leap 15)"
-  ansible.builtin.package:
-    name:
-      - "python311-packaging"
-      - "python311-pip"
-      - "python312-packaging"
-      - "python312-pip"
-    state: "present"
-  when:
-    - ansible_facts is defined
-    - ansible_facts['distribution'] is defined
-    - ansible_facts['distribution_major_version'] is defined
-    - (ansible_facts['distribution'] | lower) == 'opensuse leap'
-    - (ansible_facts['distribution_major_version'] | int) == 15
-
-
-- name: "Molecule | Prepare | Install pexpect (openSUSE Leap 15)"
-  ansible.builtin.pip:
-    name:
-      - "pexpect"
-    state: "present"
-    break_system_packages: true
-  when:
-    - ansible_facts is defined
-    - ansible_facts['distribution'] is defined
-    - ansible_facts['distribution_major_version'] is defined
-    - (ansible_facts['distribution'] | lower) == 'opensuse leap'
-    - (ansible_facts['distribution_major_version'] | int) == 15
-
-
 # Helpful overview regarding certificate paths and tools on different OS:
 # https://github.com/millermatt/osca
 
@@ -64,15 +31,6 @@
     __testing_certs_trustanchors_dir: "/etc/pki/ca-trust/source/anchors"
   when:
     - (ansible_facts['os_family'] | lower) == 'redhat'
-
-
-- name: "Molecule | Prepare | Certificates: Set paths (SUSE)"
-  ansible.builtin.set_fact:
-    __testing_certs_base_dir: "/etc/ssl/certs"
-    __testing_certs_trustanchors_dir: "/etc/pki/trust/anchors"
-  when:
-    - (ansible_facts['os_family'] | lower) == 'suse'
-
 
 
 - name: "Molecule | Prepare | Certificates: Set dummy cert file (PEM) path"
@@ -207,10 +165,3 @@
     cmd: "/usr/bin/update-ca-trust"
   when:
     - (ansible_facts['os_family'] | lower) == 'redhat'
-
-
-- name: "Molecule | Prepare | Certificates: Update OS certificate store (SUSE)"
-  ansible.builtin.command:
-    cmd: "/usr/sbin/update-ca-certificates"
-  when:
-    - (ansible_facts['os_family'] | lower) == 'suse'
