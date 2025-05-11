@@ -30,6 +30,7 @@
     __testing_telnet_executable: "/usr/bin/telnet"
     __testing_openssl_executable: "/usr/bin/openssl"
     __testing_sendmail_executable: "/usr/sbin/sendmail"
+    __testing_date_executable: "/usr/bin/date"
     __testing_journalctl_executable: >-
       {{
         '/bin/journalctl'
@@ -75,16 +76,21 @@
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
 
-- name: "Molecule | Verify | Clean up journal before running further tests: Postfix"
+- name: "Molecule | Verify | Check journal for warnings or errors: Postfix"
   ansible.builtin.command:
     cmd: >
       {{ __testing_journalctl_executable }}
-        --vacuum-time=1s
         --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
-  changed_when:
-    - __testing_run_postfix_journalctlvacuum_result['rc'] == 0
-    - __testing_run_postfix_journalctlvacuum_result['stdout'] is search('Vacuuming done, freed ([1-9][0-9]*[a-zA-Z]{1,3})')
-  register: __testing_run_postfix_journalctlvacuum_result
+  register: __testing_run_postfix_journalctlcheck_result
+  changed_when: false
+  failed_when: >
+    (__testing_run_postfix_journalctlcheck_result.stdout | regex_search('(?i)\\b(warning|error):')) is not none
+
+
+- name: "Molecule | Verify | Capture start timestamp for journal filtering before running further tests"
+  ansible.builtin.set_fact:
+    __testing_postfix_verifystarttime: |-
+      @{{ lookup('ansible.builtin.pipe', __testing_date_executable ~ ' ' ~ ('+%s' | ansible.builtin.quote)) }}
 
 
 - name: "Molecule | Verify | Run SMTP tests: basic"
@@ -123,62 +129,13 @@
   ansible.builtin.command:
     cmd: >
       {{ __testing_journalctl_executable }}
+        --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
         --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
   register: __testing_run_postfix_journalctlcheck_result
   changed_when: false
-  failed_when: >
-    __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')
-
-
-# - name: "Molecule | Verify | Create test email for local root delivery"
-#   ansible.builtin.copy:
-#     dest: "/tmp/test_email.txt"
-#     content: |
-#       From: test@{{ __testing_maincf['myhostname'] }}
-#       To: root@localhost
-#       Subject: Test Email To Root
-
-#       This is a test email to verify local delivery.
-#     mode: '0644'
-
-
-# - name: "Molecule | Verify | Send test email to local root"
-#   ansible.builtin.command:
-#     cmd: |
-#       {{ __testing_sendmail_executable }} -t < /tmp/test_email.txt
-#   register: __testing_send_local_mail_result
-#   changed_when: false
-
-
-# - name: "Molecule | Verify | Wait briefly for mail delivery"
-#   ansible.builtin.pause:
-#     seconds: 5
-
-
-# - name: "Molecule | Verify | Check root mailbox for delivered mail"
-#   ansible.builtin.shell: |
-#     grep -l "Test Email To Root" /var/mail/root || grep -l "Test Email To Root" /var/spool/mail/root
-#   register: __testing_check_root_mail
-#   ignore_errors: true
-#   changed_when: false
-
-# - name: "Molecule | Verify | Assert email was delivered to root"
-#   ansible.builtin.assert:
-#     that:
-#       - __testing_check_root_mail is succeeded
-#     fail_msg: "Email was not delivered to root's mailbox"
-#     success_msg: "Email was successfully delivered to root's mailbox"
-
-
-- name: "Molecule | Verify | Check journal for warnings or errors (second time): Postfix"
-  ansible.builtin.command:
-    cmd: >
-      {{ __testing_journalctl_executable }}
-        --unit={{ __testing_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
-  register: __testing_run_postfix_journalctlcheck_result
-  changed_when: false
-  failed_when: >
-    __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')
+  failed_when:
+    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
+      (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):'))
 
 
 ## FIXME TODO to be implemented, ideas
