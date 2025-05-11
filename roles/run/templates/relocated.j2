@@ -1,11 +1,9 @@
 # {{ ansible_managed }}
 
-# This file defines relocated address mappings for Postfix.
-#
-# It is used to tell senders that a recipient's address has changed. If
-# someone tries to send email to an old address listed here, Postfix
-# will generate a non-delivery report (NDR) with the new address ("user has
-# moved to <new_location>" bounce messages).
+# This file defines relocated address mappings for Postfix. It is used to tell
+# senders that a recipient's address has changed. If someone tries to send email
+# to an old address listed here, Postfix generates a non-delivery report (NDR)
+# with the new address ("user has moved to <new_location>" bounce messages).
 #
 # See the following documentation for more details:
 # - https://www.postfix.org/relocated.5.html

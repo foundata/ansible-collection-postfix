@@ -1,14 +1,13 @@
 # {{ ansible_managed }}
 
 # This file defines the address mappings used by Postfix to redirect email
-# addresses in virtual alias domains to other local or remote addresses, they
-# and do not map to a local user account on the system.
+# addresses in virtual alias domains to other local or remote addresses.
 # Each entry maps one or more virtual addresses to their real destination.
 # This is used to implement catch-all addresses, forwarding, and other
 # aliasing behavior for virtual domains.
 #
 # These domains are defined in the following file:
-# {{ __run_postfix_virtualaliasdomains_file }}
+# {{ __run_postfix_table_virtual_aliasdomains_file }}
 #
 # The format is typically a list of email addresses or patterns followed by
 # their target addresses. See the following resources for more information:

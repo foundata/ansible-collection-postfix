@@ -107,13 +107,13 @@ run_postfix_mastercf_settings:
 # When set to true (which is the default), the role will:
 #
 # 1. Create and manage a config file for relay domains using the
-#    run_postfix_relay_domains variable for the contents
+#    run_postfix_relay_domains_list variable for the contents
 # 2. Set (or override) main.cf settings for the relay_domains option
 #    accordingly.
 #
 # When false, you'll need to configure these settings manually through
 # run_postfix_maincf_settings or through other means.
-run_postfix_handle_relay_domains: true
+run_postfix_relay_domains_manage: true
 
 
 # Relay domains for Postfix. This list of relay domains for which Postfix will
@@ -125,89 +125,192 @@ run_postfix_handle_relay_domains: true
 #   - "example.org"
 #   - "foo.example.org"
 #
-# Will be ignored if run_postfix_handle_relay_domains is set to false.
-run_postfix_relay_domains:
-  [] # see __run_postfix_relay_domains_defaults in vars/main.yml for the defaults
+# Will be ignored if run_postfix_relay_domains_manage is set to false.
+run_postfix_relay_domains_list:
+  [] # see __run_postfix_relay_domains_list_defaults in vars/main.yml for the defaults
 
 
-# Switch to control if transport mappings settings are handled by this role.
+# Switch to control whether the lookup table "canonical" is controlled by
+# dedicated settings and tasks of this role.
+#
+# "canonical" can rewrite mail addresses before mail is stored into the queue:
+# - https://www.postfix.org/canonical.5.html
+# - https://www.postfix.org/postconf.5.html#sender_canonical_maps
 #
 # When set to true (which is the default), the role will:
 #
-# 1. Create and manage a config file for relay domains using the
-#    run_postfix_transport_maps variable for the contents
-# 2. Set (or override) main.cf settings for the transport_maps option
-#    accordingly.
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_canonical_recipient_map
+#    - run_postfix_canonical_sender_map
+# 2. Set (or override) main.cf settings accordingly:
+#    - sender_canonical_maps
+#    - recipient_canonical_maps
 #
-# When false, you'll need to configure these settings manually through
-# run_postfix_maincf_settings or through other means.
-run_postfix_handle_transport_maps: true
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_canonical_manage: true
+
+
+# Lookup-table 'canonical': Recipient address mappings / rewrite rules.
+#
+# Examples:
+#
+#   "old.name@example.com": "new.name@example.com"
+#   "root": "user123@example.com"
+#   "@example.com": "@example.net"
+#
+# Will be ignored if run_postfix_canonical_manage is set to false.
+run_postfix_canonical_recipient_map:
+  {} # see __run_postfix_canonical_recipient_map_defaults in vars/main.yml for the defaults
+
+
+# Lookup-table 'canonical': Sender address mappings / rewrite rules.
+#
+# Examples:
+#
+#   "old.name@example.com": "new.name@example.com"
+#   "root": "user123@example.com"
+#   "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
+#   "@example.com": "@example.net"
+#
+# Will be ignored if run_postfix_canonical_manage is set to false.
+run_postfix_canonical_sender_map:
+  {} # see __run_postfix_canonical_sender_map_defaults in vars/main.yml for the defaults
+
+
+# Switch to control whether the lookup table "relocated" is controlled by
+# dedicated settings and tasks of this role.
+#
+# "relocated" is used to tell senders that a recipient's address has changed.
+# If someone tries to send email to an old address, Postfix generates a
+# non-delivery report (NDR) with the new address ("user has moved to
+# <new_location>" bounce messages):
+# - https://www.postfix.org/relocated.5.html
+# - https://www.postfix.org/postconf.5.html#relocated_maps
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_relocated_map
+# 2. Set (or override) main.cf settings accordingly:
+#    - relocated_maps
+#
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_relocated_manage: true
+
+
+# Lookup-table 'relocated': old-address new-address-info mappings / rules.
+#
+# Dictionary structure:
+#
+# - Keys: Criterions / pattern to describe old addresses.
+# - Values: The new location, usually email addresses (or phone or other
+#           address or location strings)
+# Example:
+#
+#   "user@example.com": "new@example.net"
+#   "@example.com": "Sorry, all mail has to be sent to example.net"
+#
+# Will be ignored if run_postfix_relocated_manage is set to false.
+run_postfix_relocated_map:
+  {} # see __run_postfix_relocated_map_defaults in vars/main.yml for the defaults
+
+
+# Switch to control whether the lookup table "transport" is controlled by
+# dedicated settings and tasks of this role.
+#
+# "transport" defines the mail transport routes for Postfix, mapping domains
+# or email addresses to specific mail delivery methods and destinations:
+# - https://www.postfix.org/transport.5.html
+# - https://www.postfix.org/postconf.5.html#transport_maps
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_transport_map
+# 2. Set (or override) main.cf settings accordingly:
+#    - transport_maps
+#
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_transport_manage: true
 
 
 # Domain transport mapping for Postfix. This defines where to send emails to
 # for the listed domains in a structured format.
 #
-# Attention: Do not forget to use square brackets to force DNS A record instead
-#            of MX record lookups
-#
 # Dictionary structure:
 #
-# - Keys: criterions / pattern, usually an email address
-# - Values: Lists of destinations, usually email addresses
-#
-# Example:
+# - Keys: Criterions / pattern to describe domains.
+# - Values: Lists of destinations, usually email servers or relays.
+#   Attention: Do not forget to use square brackets to force DNS A record
+#              instead of MX record lookups.
+# Examples:
 #
 #   "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
 #   "example.net": "lmtp:127.0.0.1:24"
 #   "example.org": "[192.168.0.1]"
-#   "foo.example.org": "[mailrelay.foo.example.org:123"
+#   "foo.example.org": "[mailrelay.foo.example.org]:123"
 #   # dedicated relay for Microsoft
 #   "/.*@(outlook|hotmail|live|msn)\..*/i": "[relay.example.com]:587"
 #
-# will be ignored if run_postfix_handle_transport_maps is set to false.
-run_postfix_transport_maps:
-  {} # see __run_postfix_transport_maps_defaults in vars/main.yml for the defaults
+# Will be ignored if run_postfix_transport_manage is set to false.
+run_postfix_transport_map:
+  {} # see __run_postfix_transport_map_defaults in vars/main.yml for the defaults
 
 
-# Switch to control if virtual alias domains and mappings are handled by this
-# role.
+# Switch to control whether the lookup table "virtual" is controlled by
+# dedicated settings and tasks of this role.
+#
+# "virtual" defines the address mappings used by Postfix to redirect email
+# addresses in virtual alias domains to other local or remote addresses:
+#
+# - http://www.postfix.org/VIRTUAL_README.html
+# - https://www.postfix.org/virtual.5.html
+# - https://www.postfix.org/postconf.5.html#virtual_alias_domains
+# - https://www.postfix.org/postconf.5.html#virtual_alias_maps
+# - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 #
 # When set to true (which is the default), the role will:
 #
-# 1. Create and manage a config file for virtual domains using the
-#    run_postfix_virtual_alias_domains variable for the contents
-# 2. Create and manage a config file for virtual mappings using the
-#    run_postfix_virtual_alias_maps variable for the contents
-# 3. Set (or override) main.cf settings for the virtual_alias_domains and
-#    virtual_alias_maps options accordingly
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_virtual_aliasdomains_list
+#    - run_postfix_virtual_alias_map
+# 2. Set (or override) main.cf settings accordingly:
+#    - virtual_alias_domains
+#    - virtual_alias_maps
 #
-# When false, you'll need to configure these settings manually through
-# run_postfix_maincf_settings or through other means.
-run_postfix_handle_virtual: true
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_virtual_manage: true
 
 
-# Virtual aliases domains for Postfix. This tells Postfix to accept incoming
+# Virtual alias domains for Postfix. This tells Postfix to accept incoming
 # emails for a list of virtual domains. Mappings for them are defined via
-# run_postfix_virtual_alias_maps
+# run_postfix_virtual_alias_map.
 #
 # Example:
 #   - "example.com"
 #   - "example.net"
 #
-# will be ignored if run_postfix_handle_virtual is set to false.
-run_postfix_virtual_alias_domains:
-  [] # see __run_postfix_virtual_alias_domains_defaults in vars/main.yml for the defaults
+# Will be ignored if run_postfix_virtual_manage is set to false.
+run_postfix_virtual_aliasdomains_list:
+  [] # see __run_postfix_virtual_aliasdomains_list_defaults in vars/main.yml for the defaults
 
 
-# Virtual aliases mappings for Postfix. This defines email forwarding
-# rules in a structured format.
-#
-# Attention: do not forget to list handled domains in
-#             run_postfix_virtual_alias_domains
+# Virtual alias mappings for Postfix. This defines email forwarding rules in a
+# structured format.
 #
 # Dictionary structure:
 #
-# - Keys: criterions / pattern, usually an email address
+# - Keys: Criterions / pattern to describe the virtual address(es)
+#   Attention: Do not forget to list handled domains in
+#              run_postfix_virtual_aliasdomains_list
 # - Values: Lists of destinations, usually email addresses
 #
 # Example:
@@ -224,122 +327,50 @@ run_postfix_virtual_alias_domains:
 #   "@example.net": # catch-all for example.net, rewrite all to @example.com
 #     - "example.com"
 #
-# will be ignored if run_postfix_handle_virtual is set to false.
-run_postfix_virtual_alias_maps:
-  {} # see __run_postfix_virtual_alias_maps_defaults in vars/main.yml for the defaults
+# Will be ignored if run_postfix_virtual_manage is set to false.
+run_postfix_virtual_alias_map:
+  {} # see __run_postfix_virtual_alias_map_defaults in vars/main.yml for the defaults
 
 
-# Switch to control whether canonical address rewriting is handled by this role.
+# Switch to control whether SMTP SASL password credentials are controlled by
+# dedicated settings and tasks of this role.
 #
-# When set to true (which is the default), the role will:
-#
-# 1. Create and manage a config file for canonical mappings using the
-#    run_postfix_canonical variable for the contents.
-# 2. Set (or override) main.cf settings for the sender_canonical_maps and
-#    recipient_canonical_maps options accordingly.
-#
-# When false, you'll need to configure these settings manually through
-# run_postfix_maincf_settings or through other means.
-run_postfix_handle_canonical: true
-
-
-# Canonical recipient address mappings / rewrite rules for Postfix.
-#
-# Example:
-#   "old.name@example.com": "new.name@example.com"
-#   "root": "user123@example.com"
-#   "@example.com": "@example.net"
-#
-# will be ignored if run_postfix_handle_canonical is set to false.
-run_postfix_canonical_recipient:
-  {} # see __run_postfix_canonical_recipient_defaults in vars/main.yml for the defaults
-
-
-# Canonical sender address mappings / rewrite rules for Postfix.
-#
-# Examples:
-#   "old.name@example.com": "new.name@example.com"
-#   "root": "user123@example.com"
-#   "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
-#   "@example.com": "@example.net"
-#
-# will be ignored if run_postfix_handle_canonical is set to false.
-run_postfix_canonical_sender:
-  {} # see __run_postfix_canonical_sender_defaults in vars/main.yml for the defaults
-
-
-# Switch to control if relocated mappings settings are handled by this role.
-#
-# When set to true (which is the default), the role will:
-#
-# 1. Create and manage a config file for relocated mappings using the
-#    run_postfix_relocated_maps variable for the contents.
-# 2. Set (or override) main.cf settings for the relocated_maps option
-#    accordingly.
-#
-# When false, you'll need to configure these settings manually through
-# run_postfix_maincf_settings or through other means.
-run_postfix_handle_relocated_maps: true
-
-
-# Relocated address mapping for Postfix. It is used to tell senders that a
-# recipient's address has changed. If someone tries to send email to an old
-# address listed here, Postfix will generate a non-delivery report (NDR)
-# with the new address ("user has moved to <new_location>" bounce messages).
-#
-# Dictionary structure:
-#
-# - Keys: criterion / pattern, usually an email address
-# - Values: The new location, usually email addresses (or phone or other
-#           address or location strings)
-#
-# Example:
-#
-#   "user@example.com": "new@example.net"
-#   "@example.com": "Sorry, all mail has to be sent to example.net"
-#
-# will be ignored if run_postfix_handle_relocated_maps is set to false.
-run_postfix_relocated_maps:
-  {} # see __run_postfix_relocated_maps_defaults in vars/main.yml for the defaults
-
-
-# Switch to control if SMTP SASL password (credentials) mappings settings are handled by this role.
-#
-# When set to true (which is the default), the role will:
-#
-# 1. Create and manage a config file for SMTP SASL password mappings using the
-#    run_postfix_smtp_sasl_password_maps variable for the contents.
-# 2. Set (or override) main.cf settings for the smtp_sasl_password_maps option
-#    accordingly.
-#
-# When false, you'll need to configure these settings manually through
-# run_postfix_maincf_settings or through other means.
-run_postfix_handle_smtp_sasl_password_maps: true
-
-
-# SMTP SASL authentication credentials for Postfix. It is used to authenticate
-# Postfix when sending emails through a relay server that requires
-# authentication. Each entry maps a remote SMTP server (and optionally a port)
-# to a username and password.
-#
-# See the following documentation for more details:
+# They are used to authenticate Postfix when sending emails through a relay
+# server that requires authentication:
 # - https://www.postfix.org/SASL_README.html#client_sasl
 # - https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
 #
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_smtp_sasl_password_map
+# 2. Set (or override) main.cf settings accordingly:
+#    - smtp_sasl_password_maps
+#
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_smtp_sasl_password_manage: true
+
+
+# SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP
+# server (and optionally a port) to a username and password.
+#
 # Dictionary structure:
 #
-# - Keys: criterion, the destination to specify credentials for. Attention: If
-#         you specify the "[" and "]" in the relayhost destination, then you
-#         must use the same form here.
-# - Values: The credentails, "username:password". Use
-#   smtp_sasl_password_result_delimiter (default ":") to specify an alternative
-#   separator between username and password.
+# - Keys: Criterions, the destination to specify credentials for.
+#   Attention: If you specify the "[" and "]" where the relayhost destination
+#              is defined, then you must use the same form here.
+# - Values: The credentials in the "username:password" format. Use
+#   Note: The main.cf setting "smtp_sasl_password_result_delimiter" (which
+#   defaults to ":") can be used to specify an alternative separator between
+#   username and password.
 #
 # Example:
 #
-#   "[relay.example.com]": "user:password"
-#   "[relay.example.com]:587": "johndoe:password123!"
+#   "[relay.example.com]": "user:password_superSecret-c0e-400a-b683-7ae5"
+#   "[relay.example.com]:587": "johndoe:password-69f7d34-4c-123"
 #
-# will be ignored if run_postfix_handle_smtp_sasl_password_maps is set to false.
-run_postfix_smtp_sasl_password_maps:
-  {} # see __run_postfix_smtp_sasl_password_maps_defaults in vars/main.yml for the defaults
+# will be ignored if run_postfix_smtp_sasl_password_manage is set to false.
+run_postfix_smtp_sasl_password_map:
+  {} # see __run_postfix_smtp_sasl_password_map_defaults in vars/main.yml for the defaults

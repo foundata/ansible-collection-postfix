@@ -41,60 +41,60 @@ argument_specs:
         type: "dict"
         required: true
 
-      run_postfix_handle_relay_domains:
+      run_postfix_relay_domains_manage:
         type: "bool"
         required: true
 
-      run_postfix_relay_domains:
+      run_postfix_relay_domains_list:
         type: "list"
         elements: "str"
         required: true
 
-      run_postfix_handle_transport_maps:
+      run_postfix_canonical_manage:
         type: "bool"
         required: true
 
-      run_postfix_transport_maps:
+      run_postfix_canonical_recipient_map:
         type: "dict"
         required: true
 
-      run_postfix_handle_virtual:
+      run_postfix_canonical_sender_map:
+        type: "dict"
+        required: true
+
+      run_postfix_relocated_manage:
         type: "bool"
         required: true
 
-      run_postfix_virtual_alias_domains:
+      run_postfix_relocated_map:
+        type: "dict"
+        required: true
+
+      run_postfix_transport_manage:
+        type: "bool"
+        required: true
+
+      run_postfix_transport_map:
+        type: "dict"
+        required: true
+
+      run_postfix_virtual_manage:
+        type: "bool"
+        required: true
+
+      run_postfix_virtual_aliasdomains_list:
         type: "list"
         elements: "str"
         required: true
 
-      run_postfix_virtual_alias_maps:
+      run_postfix_virtual_alias_map:
         type: "dict"
         required: true
 
-      run_postfix_handle_canonical:
+      run_postfix_smtp_sasl_password_manage:
         type: "bool"
         required: true
 
-      run_postfix_canonical_recipient:
-        type: "dict"
-        required: true
-
-      run_postfix_canonical_sender:
-        type: "dict"
-        required: true
-
-      run_postfix_handle_relocated_maps:
-        type: "bool"
-        required: true
-
-      run_postfix_relocated_maps:
-        type: "dict"
-        required: true
-
-      run_postfix_handle_smtp_sasl_password_maps:
-        type: "bool"
-        required: true
-
-      run_postfix_smtp_sasl_password_maps:
+      run_postfix_smtp_sasl_password_map:
         type: "dict"
         required: true

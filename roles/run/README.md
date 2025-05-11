@@ -85,21 +85,21 @@ Install and do some basic and common configuration:
             wakeup: "-"
             maxproc: "-"
             command_args: "smtpd"
-        run_postfix_handle_relay_domains: true
-        run_postfix_relay_domains:
+        run_postfix_relay_domains_manage: true
+        run_postfix_relay_domains_list:
           - "example.com"
-        run_postfix_handle_transport_maps: true
-        run_postfix_transport_maps:
+        run_postfix_transport_manage: true
+        run_postfix_transport_map:
           "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
           "example.net": "lmtp:127.0.0.1:24"
           "example.org": "[192.168.0.1]"
           "foo.example.org": "[mailrelay.foo.example.org]:123"
-        run_postfix_handle_virtual: true
-        run_postfix_virtual_alias_domains:
+        run_postfix_virtual_manage: true
+        run_postfix_virtual_aliasdomains_list:
           - "example.com"
           - "example.net"
           - "example.org"
-        run_postfix_virtual_alias_maps:
+        run_postfix_virtual_alias_map:
           "admin@example.com":
             - "admin@actual-destination.example.com"
           "distribution@example.com":
@@ -112,9 +112,6 @@ Install and do some basic and common configuration:
           "@example.net": # catch-all for example.net, rewrite all to @example.com
             - "example.com"
 ```
-
-
-
 
 Uninstall:
 

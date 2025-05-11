@@ -1,17 +1,13 @@
 # {{ ansible_managed }}
 
-# This file defines canonical sender address mappings used by Postfix to
-# rewrite recipient email addresses into a standardized or external-facing form.
+# This file defines address rules used by Postfix to rewrite recipient email
+# addresses. "canonical" is more powerful than "virtual":
 #
-# This is useful for ensuring consistency in outgoing mail, masking internal
-# structures, or applying policy-based sender rewriting. It canonical table is
-# more powerful than virtual:
-#
-# - Can apply rules for sender (see {{ __run_postfix_canonicalsender_file }})
-#   and recipient addresses (this file).
+# - Can apply rules for recipient (this file) or sender addresses (see
+#   {{ __run_postfix_table_canonical_sender_file }}).
 # - Replacements not only in the SMTP envelope, but also in the mail headers.
 #
-# The format here is a list of original sender followed by their replacement
+# The format here is a list of original recipient followed by their replacement
 # rules. See the following resources for more information:
 #
 # - https://www.postfix.org/canonical.5.html

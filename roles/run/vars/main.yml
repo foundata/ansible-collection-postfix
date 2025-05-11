@@ -99,7 +99,7 @@ __run_postfix_paths_removal:
   #       but this role does not remove them unconditionally and therefore not
   #       listed here. They are only removed if the corresponding configuration
   #       is actually managed. For example, /etc/postfix/virtual is removed
-  #       only if run_postfix_handle_virtual is true.
+  #       only if run_postfix_virtual_manage is true.
   - "/etc/postfix/main.cf.proto" # File exists by default at least on Debian, Red Hat
   - "/etc/postfix/master.cf.proto" # File exists by default at least on Debian, Red Hat
 
@@ -113,7 +113,7 @@ __run_postfix_paths_removal:
 #
 # Hint for maintainers: "postconf -m" lists all supported lookup table types on
 # a system.
-__run_postfix_default_lookuptabletype: "lmdb"
+__run_postfix_default_lookuptabletype: "hash" # FIXME run test with hash and btree
 
 
 # Additional default configuration for Postfix daemon. Use standard Postfix
@@ -201,25 +201,49 @@ __run_postfix_mastercf_settings_defaults:
 
 # Default relay domains for Postfix.
 #
-# See in run_postfix_relay_domains in defaults/main.yml for a detailled
+# See in run_postfix_relay_domains_list in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_relay_domains_defaults:
+__run_postfix_relay_domains_list_defaults:
   []
+
+
+# Default canonical recipient mappings for Postfix.
+#
+# See in run_postfix_canonical_recipient_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_canonical_recipient_map_defaults:
+  {}
+
+
+# Default canonical sender mappings for Postfix.
+#
+# See in run_postfix_canonical_sender_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_canonical_sender_map_defaults:
+  {}
+
+
+# Default domain relocated mapping for Postfix.
+#
+# See in run_postfix_relocated_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_relocated_map_defaults:
+  {}
 
 
 # Default domain transport mapping for Postfix.
 #
-# See in run_postfix_transport_maps in defaults/main.yml for a detailled
+# See in run_postfix_transport_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_transport_maps_defaults:
+__run_postfix_transport_map_defaults:
   {}
 
 
 # Default virtual aliases domains for Postfix.
 #
-# See in run_postfix_virtual_alias_domains in defaults/main.yml for a detailled
+# See in run_postfix_virtual_aliasdomains_list in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_virtual_alias_domains_defaults:
+__run_postfix_virtual_aliasdomains_list_defaults:
   []
 
 
@@ -227,39 +251,15 @@ __run_postfix_virtual_alias_domains_defaults:
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_virtual_alias_maps_defaults:
-  {}
-
-
-# Default canonical recipient mappings for Postfix.
-#
-# See in run_postfix_canonical_recipient in defaults/main.yml for a detailled
-# description of the structure (as this variable is using the same).
-__run_postfix_canonical_recipient_defaults:
-  {}
-
-
-# Default canonical sender mappings for Postfix.
-#
-# See in run_postfix_canonical_sender in defaults/main.yml for a detailled
-# description of the structure (as this variable is using the same).
-__run_postfix_canonical_sender_defaults:
-  {}
-
-
-# Default domain relocated mapping for Postfix.
-#
-# See in run_postfix_relocated_maps in defaults/main.yml for a detailled
-# description of the structure (as this variable is using the same).
-__run_postfix_relocated_maps_defaults:
+__run_postfix_virtual_alias_map_defaults:
   {}
 
 
 # Default SMTP SASL password mapping for Postfix.
 #
-# See in run_postfix_smtp_sasl_password_maps in defaults/main.yml for a
+# See in run_postfix_smtp_sasl_password_map in defaults/main.yml for a
 # detailled description of the structure (as this variable is using the same).
-__run_postfix_smtp_sasl_password_maps_defaults:
+__run_postfix_smtp_sasl_password_map_defaults:
   {}
 
 
@@ -277,50 +277,50 @@ __run_postfix_mastercf_owner: "root"
 __run_postfix_mastercf_group: "root"
 __run_postfix_mastercf_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_mailname_file: "/etc/mailname" # May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
-__run_postfix_mailname_owner: "root"
-__run_postfix_mailname_group: "root"
-__run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
-
-__run_postfix_virtualaliasdomains_file: "/etc/postfix/virtual_domains"
-__run_postfix_virtualaliasdomains_owner: "root"
-__run_postfix_virtualaliasdomains_group: "root"
-__run_postfix_virtualaliasdomains_mode: "u=rw,g=r,o=r" # 0644
-
-__run_postfix_virtualaliasmaps_file: "/etc/postfix/virtual_maps"
-__run_postfix_virtualaliasmaps_owner: "root"
-__run_postfix_virtualaliasmaps_group: "root"
-__run_postfix_virtualaliasmaps_mode: "u=rw,g=r,o=r" # 0644
-
 __run_postfix_relaydomains_file: "/etc/postfix/relay_domains"
 __run_postfix_relaydomains_owner: "root"
 __run_postfix_relaydomains_group: "root"
 __run_postfix_relaydomains_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_transportmaps_file: "/etc/postfix/transport_maps"
-__run_postfix_transportmaps_owner: "root"
-__run_postfix_transportmaps_group: "root"
-__run_postfix_transportmaps_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_mailname_file: "/etc/mailname" # May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
+__run_postfix_mailname_owner: "root"
+__run_postfix_mailname_group: "root"
+__run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_canonicalrecipient_file: "/etc/postfix/canonical_recipient"
-__run_postfix_canonicalrecipient_owner: "root"
-__run_postfix_canonicalrecipient_group: "root"
-__run_postfix_canonicalrecipient_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_canonical_recipient_file: "/etc/postfix/canonical_recipient"
+__run_postfix_table_canonical_recipient_owner: "root"
+__run_postfix_table_canonical_recipient_group: "root"
+__run_postfix_table_canonical_recipient_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_canonicalsender_file: "/etc/postfix/canonical_sender"
-__run_postfix_canonicalsender_owner: "root"
-__run_postfix_canonicalsender_group: "root"
-__run_postfix_canonicalsender_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_canonical_sender_file: "/etc/postfix/canonical_sender"
+__run_postfix_table_canonical_sender_owner: "root"
+__run_postfix_table_canonical_sender_group: "root"
+__run_postfix_table_canonical_sender_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_relocatedmaps_file: "/etc/postfix/relocated_maps"
-__run_postfix_relocatedmaps_owner: "root"
-__run_postfix_relocatedmaps_group: "root"
-__run_postfix_relocatedmaps_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_relocated_file: "/etc/postfix/relocated"
+__run_postfix_table_relocated_owner: "root"
+__run_postfix_table_relocated_group: "root"
+__run_postfix_table_relocated_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_transport_file: "/etc/postfix/transport"
+__run_postfix_table_transport_owner: "root"
+__run_postfix_table_transport_group: "root"
+__run_postfix_table_transport_mode: "u=rw,g=r,o=r" # 0644
 
 __run_postfix_smtpsaslpasswordmaps_file: "/etc/postfix/smtp_sasl_password" # May contain passwords!
 __run_postfix_smtpsaslpasswordmaps_owner: "root"
 __run_postfix_smtpsaslpasswordmaps_group: "root"
 __run_postfix_smtpsaslpasswordmaps_mode: "u=rw,g=r,o=" # 0640
+
+__run_postfix_table_virtual_file: "/etc/postfix/virtual"
+__run_postfix_table_virtual_owner: "root"
+__run_postfix_table_virtual_group: "root"
+__run_postfix_table_virtual_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_virtual_aliasdomains_file: "/etc/postfix/virtual_domains"
+__run_postfix_table_virtual_aliasdomains_owner: "root"
+__run_postfix_table_virtual_aliasdomains_group: "root"
+__run_postfix_table_virtual_aliasdomains_mode: "u=rw,g=r,o=r" # 0644
 
 
 # Postfix daemon service name and executable paths.
