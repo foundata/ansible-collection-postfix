@@ -71,6 +71,7 @@ __run_postfix_packages_install:
   # platforms.
   - "postfix"
   - "postfix-ldap"
+  - "postfix-lmdb"
 
 
 # List of package names to be uninstalled when run_postfix_state is
@@ -107,7 +108,8 @@ __run_postfix_paths_removal:
 #
 # "hash" and "btree" are available on systems with support for Berkeley DB
 # databases with "hash" as the default. Many distributions and builds dropped
-# support for Berkeley DB with Postfix ≥ 3.9 and switched to "lmdb".
+# support for Berkeley DB with Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP
+# LMDB database).
 #
 # Hint for maintainers: "postconf -m" lists all supported lookup table types on
 # a system.

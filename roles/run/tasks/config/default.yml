@@ -479,7 +479,7 @@
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
-    - "run_postfix: reload postfix.service"
+    - "run_postfix: restart postfix.service"
 
 
 # Notes on the master.cf handling:
@@ -568,3 +568,10 @@
   register: __run_postfix_config_mastercf_result
   notify:
     - "run_postfix: restart postfix.service"
+
+
+- name: "Config | Default | Ensure handlers run (after package install) before managing Postfix service (e.g. to create needed database files)"
+  ansible.builtin.meta: "flush_handlers"
+  when:
+    - __run_postfix_package_install_result is defined
+    - __run_postfix_package_install_result is ansible.builtin.changed

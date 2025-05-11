@@ -2,7 +2,7 @@
 
 ---
 
-- name: "Handlers | Update Postfix databases / lookup tables: (hash|btree|dbm) ... "
+- name: "Handlers | Update Postfix file-based databases / lookup tables (postmap)"
   # The command or shell module is used here. This approach is justified:
   #
   # - No built-in Ansible module provides a direct way to interact with the
@@ -17,14 +17,19 @@
   ansible.builtin.command:
     cmd: >
       {{ __run_postfix_postmap_executable }}
-      {{ item['value'] | regex_replace('^[^:]+:(.*)$', '\1') | ansible.builtin.quote }}
+      {{ item['value'] | regex_replace('^(hash):(.*)$', '\2') | ansible.builtin.quote }}
   loop: "{{ __run_postfix_merged_maincf_settings | dict2items }}"
   when:
     - __run_postfix_merged_maincf_settings is defined
-    # note: files where "newaliases" or "postalias" has to be used are excluded
+    # Notes:
+    # - Files where other comands have to be used ("newaliases" or "postalias")
+    #   are excluded
+    # - See https://www.postfix.org/DATABASE_README.html#types (look out for
+    #   "files are created with the" string) to maintain the list in
+    #   regex_search('^(btree| ...
     - ((item['key'] == 'relay_domains') or
-       (item['key'] | regex_search('_map$')) or
-       (item['value'] | regex_search('^(hash|btree|dbm):/.+'))) and
+       (item['key'] | regex_search('_maps$')) or
+       (item['value'] | regex_search('^(btree|btree|dbm|hash|lmdb|sdbm):/.+'))) and
       (item['key'] != 'alias_maps') and
       (item['key'] != 'alias_database')
   changed_when:
@@ -38,7 +43,7 @@
   listen: "run_postfix: update lookup tables"
 
 
-- name: "Handlers | Update aliases for smtpd"
+- name: "Handlers | Update aliases for smtpd (postalias)"
   # The command or shell module is used here. This approach is justified:
   #
   # - No built-in Ansible module provides a direct way to interact with the
@@ -51,13 +56,13 @@
   # See the official documentation for a explanation of the parameters:
   # https://www.postfix.org/aliases.5.html
   ansible.builtin.command:
-    # The "newaliases" executable usually comes without support for lmdb, so use
-    # "postalias <file>" instead.
+    # The "newaliases" executable usually only supports "hash:" databases, so
+    # use "postalias" instead.
     cmd: >
       {{ __run_postfix_postalias_executable }}
       {{ __run_postfix_merged_maincf_settings['alias_database'] |
          default(__run_postfix_default_lookuptabletype ~ ':/etc/aliases') |
-         regex_replace('^[^:]+:(.*)$', '\1') | ansible.builtin.quote }}
+         regex_replace('^(hash):(.*)$', '\2') | ansible.builtin.quote }}
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not

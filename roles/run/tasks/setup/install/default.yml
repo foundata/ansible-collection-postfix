@@ -18,6 +18,7 @@
   when:
     - __run_postfix_packages_install is defined
     - (__run_postfix_packages_install | length) > 0
+  register: __run_postfix_package_install_result # to decide if a handler flush (config/default.yml) is necessary
 
 
 - name: "Setup | Install | Default | Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
