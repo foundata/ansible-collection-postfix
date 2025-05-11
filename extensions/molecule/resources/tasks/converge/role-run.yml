@@ -83,6 +83,14 @@
       "user345@example.com": "user345 has left, please contact him at ACME now."
     run_postfix_handle_smtp_sasl_password_maps: true
     run_postfix_smtp_sasl_password_maps:
-      "[mailrelay.foo.example.org]:123": "user123:password_1.2.3"
-      "[mailrelay.foo.example.org]:25": "john:passwor_111"
-      "[relay.example.net]:587": "jane:123456__"
+      # Security Notice: These are *not* real credentials.
+      #
+      # This is example configuration data intended for demonstration purposes
+      # only, referencing hypothetical, non-existent mail relays.
+      #
+      # Reporting this as a vulnerability or data leak suggests a failure
+      # to properly review automated scanning results, and may reflect poorly
+      # on your professional diligence. ;-)
+      "[mailrelay.foo.example.org]:123": "user123:pwd-1fdd4-bbbaf3"
+      "[mailrelay.foo.example.org]:25": "john:pwd_2-8136-4817-a09"
+      "[relay.example.net]:587": "jane:Passw0rd-gcIJcft0t"
