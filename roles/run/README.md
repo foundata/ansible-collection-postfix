@@ -8,12 +8,27 @@ It provides automated configuration management of Postfix across major platforms
 
 ## Table of contents<a id="toc"></a>
 
+- [Features](#features)
 - [Role variables](#variables)
 - [Example playbooks, using this role](#examples)
 - [Supported tags](#tags)
 - [Dependencies](#dependencies)
 - [Compatibility](#compatibility)
 - [External requirements](#requirements)
+
+
+
+## Features<a id="features"></a>
+
+Main features:
+
+* Full support for managing all `main.cf` and `master.cf` settings.
+* Automatic detection and installation of required backend packages for map types (e.g., LMDB, MySQL, PostgreSQL) based on your configuration.
+* Specialized parameters for simplified management of commonly needed Postfix settings, such as:
+  * Lookup tables for `virtual`, `transport`, and other mappings.
+  * Management of `relay_domains` for fine-grained control over relaying behavior.
+* Provides sensible, production-ready defaults, tuned for recent Postfix versions, including support for modern map types like LMDB.
+* Designed for cross-platform compatibility, working seamlessly across major Linux distributions.
 
 
 
