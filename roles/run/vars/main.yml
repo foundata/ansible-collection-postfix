@@ -70,8 +70,40 @@ __run_postfix_packages_install:
   # names across both supported platforms and unsupported, best-effort
   # platforms.
   - "postfix"
-  - "postfix-ldap"
-  - "postfix-lmdb"
+
+
+# Dictionary proving additional packages lists, to be installed for different
+# Postfix map backends when run_postfix_state is set to "present".
+__run_postfix_packages_install_map_backends:
+  # CDB map support
+  # https://www.postfix.org/CDB_README.html
+  cdb:
+    - "postfix-cdb"
+  # LDAP map support
+  # https://postfix.cs.utah.edu/LDAP_README.html
+  ldap:
+    - "postfix-ldap"
+  # OpenLDAP LMDB map support
+  # https://www.postfix.org/LMDB_README.html
+  lmdb:
+    - "postfix-lmdb"
+  # MySQL map support
+  # https://www.postfix.org/MYSQL_README.html
+  mysql:
+    - "postfix-mysql"
+  # PCRE and/or regular expression map support
+  pcre:
+    - "postfix-pcre"
+  regexp:
+    - "postfix-pcre"
+  # PostgreSQL map support
+  # https://www.postfix.org/PGSQL_README.html
+  pgsql:
+    - "postfix-pgsql"
+  # SQLite map support
+  # https://www.postfix.org/SQLITE_README.html
+  sqlite:
+    - "postfix-sqlite"
 
 
 # List of package names to be uninstalled when run_postfix_state is
@@ -100,20 +132,20 @@ __run_postfix_paths_removal:
   #       listed here. They are only removed if the corresponding configuration
   #       is actually managed. For example, /etc/postfix/virtual is removed
   #       only if run_postfix_virtual_manage is true.
-  - "/etc/postfix/main.cf.proto" # File exists by default at least on Debian, Red Hat
-  - "/etc/postfix/master.cf.proto" # File exists by default at least on Debian, Red Hat
+  - "/etc/postfix/main.cf.proto" # Exists by default at least on Debian, Red Hat
+  - "/etc/postfix/master.cf.proto" # Exists by default at least on Debian, Red Hat
 
 
 # Name of the default lookup table types to use if this role manages a resource.
 #
-# "hash" and "btree" are available on systems with support for Berkeley DB
-# databases with "hash" as the default. Many distributions and builds dropped
-# support for Berkeley DB with Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP
-# LMDB database).
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now).
 #
 # Hint for maintainers: "postconf -m" lists all supported lookup table types on
 # a system.
-__run_postfix_default_lookuptabletype: "hash" # FIXME run test with hash and btree
+__run_postfix_default_lookuptabletype: "lmdb"
 
 
 # Additional default configuration for Postfix daemon. Use standard Postfix

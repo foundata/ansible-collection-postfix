@@ -29,7 +29,7 @@
     #   regex_search('^(btree| ...
     - ((item['key'] == 'relay_domains') or
        (item['key'] | regex_search('_maps$')) or
-       (item['value'] | regex_search('^(btree|btree|dbm|hash|lmdb|sdbm):/.+'))) and
+       (item['value'] | regex_search('^(btree|dbm|hash|lmdb|sdbm):/.+'))) and
       (item['key'] != 'alias_maps') and
       (item['key'] != 'alias_database')
   changed_when:
@@ -56,8 +56,9 @@
   # See the official documentation for a explanation of the parameters:
   # https://www.postfix.org/aliases.5.html
   ansible.builtin.command:
-    # The "newaliases" executable usually only supports "hash:" databases, so
-    # use "postalias" instead.
+    # The "newaliases" executable usually only supports "hash:" databases (and
+    # therefore does not work for all modern configurations), so use the
+    # "postalias" command instead.
     cmd: >
       {{ __run_postfix_postalias_executable }}
       {{ __run_postfix_merged_maincf_settings['alias_database'] |

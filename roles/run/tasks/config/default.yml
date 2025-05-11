@@ -527,5 +527,7 @@
   ansible.builtin.meta: "flush_handlers"
   when:
     - run_postfix_service_state in ['enabled', 'running']
-    - __run_postfix_package_install_result is defined
-    - __run_postfix_package_install_result is ansible.builtin.changed
+    - (__run_postfix_package_install_result is defined and
+       __run_postfix_package_install_result is ansible.builtin.changed) or
+      (__run_postfix_package_install_map_backends_result is defined and
+       __run_postfix_package_install_map_backends_result is ansible.builtin.changed)

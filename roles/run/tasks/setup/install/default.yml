@@ -21,6 +21,39 @@
   register: __run_postfix_package_install_result # to decide if a handler flush (config/default.yml) is necessary
 
 
+- name: "Setup | Install | Postfix | Determine required map backend packages"
+  ansible.builtin.set_fact:
+    # Search through all Postfix settings for values defining maps to get a list
+    # of needed map backends, extract "backend" from "backend:/[...]" if found.
+    # Examples settings to search for:
+    # - virtual_alias_maps: "lmdb:/etc/postfix/alias"
+    # - alias_maps: "mysql:/etc/postfix/mysql-aliases.cf"
+    __run_postfix_required_backends: >-
+      {{
+        __run_postfix_merged_maincf_settings | dict2items
+        | map(attribute='value')
+        | select('string')
+        | map('split', ':', 2)
+        | selectattr('0', 'in', __run_postfix_packages_install_map_backends.keys())
+        | map('first')
+        | unique
+        | list
+      }}
+  when:
+    - __run_postfix_merged_maincf_settings is defined
+
+
+- name: "Setup | Install | Default | Install or upgrade additional packages for map backend: {{ item }}"
+  ansible.builtin.package:
+    name: "{{ __run_postfix_packages_install_map_backends[item] }}"
+    state: "{{ 'latest' if run_postfix_autoupgrade else 'present' }}"
+  loop: "{{ __run_postfix_required_backends }}"
+  when:
+    - __run_postfix_required_backends is defined
+    - __run_postfix_required_backends | length > 0
+  register: __run_postfix_package_install_map_backends_result # to decide if a handler flush (config/default.yml) is necessary
+
+
 - name: "Setup | Install | Default | Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
   ansible.builtin.file:
     path: "{{ item }}"
