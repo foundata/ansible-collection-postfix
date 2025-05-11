@@ -33,7 +33,7 @@
       mailbox_size_limit: 0 # 0 == unlimited; max mailbox size should be controlled by the mailserver
       relayhost: "[relay.example.org]:25"
       header_size_limit: 4096000
-      virtual_alias_maps: "btree:/etc/postfix/this_value_should_get_overwritten" # setting "run_postfix_handle_relay_domains: true" should overwrite this
+      virtual_alias_maps: "btree:/etc/postfix/this_value_should_get_overwritten" # setting "run_postfix_relay_domains_manage: true" should overwrite this
     run_postfix_mastercf_settings:
       2525: # Test if a unusual port works
         type: "inet"
@@ -43,23 +43,23 @@
         wakeup: "-"
         maxproc: "-"
         command_args: "smtpd"
-    run_postfix_handle_relay_domains: true
-    run_postfix_relay_domains:
+    run_postfix_relay_domains_manage: true
+    run_postfix_relay_domains_list:
       - "example.com"
       - "example.net"
       - "example.org"
       - "foo.example.org"
-    run_postfix_handle_transport_maps: true
-    run_postfix_transport_maps:
+    run_postfix_transport_manage: true
+    run_postfix_transport_map:
       "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
       "example.net": "lmtp:127.0.0.1:24"
       "example.org": "[192.168.0.1]"
       "foo.example.org": "[mailrelay.foo.example.org]:123"
-    run_postfix_handle_virtual: true
-    run_postfix_virtual_alias_domains:
+    run_postfix_virtual_manage: true
+    run_postfix_virtual_aliasdomains_list:
       - "example.com"
       - "example.net"
-    run_postfix_virtual_alias_maps:
+    run_postfix_virtual_alias_map:
       "admin@example.com":
         - "admin@actual-destination.example.com"
       "distribution@example.com":
@@ -72,17 +72,17 @@
       "@example.net": # catch-all for example.net, rewrite all @example.net addresses to @example.com
         - "example.com"
     run_postfix_handle_canonical: true
-    run_postfix_canonical_recipient:
+    run_postfix_canonical_recipient_map:
       "old.name@example.com": "new.name@example.com"
       "@example.com": "@example.net"
-    run_postfix_canonical_sender:
+    run_postfix_canonical_sender_map:
       "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
-    run_postfix_handle_relocated_maps: true
-    run_postfix_relocated_maps:
+    run_postfix_relocated_manage: true
+    run_postfix_relocated_map:
       "user124@example.com": "user123@example.net"
       "user345@example.com": "user345 has left, please contact him at ACME now."
-    run_postfix_handle_smtp_sasl_password_maps: true
-    run_postfix_smtp_sasl_password_maps:
+    run_postfix_smtp_sasl_password_manage: true
+    run_postfix_smtp_sasl_password_map:
       # Security Notice: These are *not* real credentials.
       #
       # This is example configuration data intended for demonstration purposes
