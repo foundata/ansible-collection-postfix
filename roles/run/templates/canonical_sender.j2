@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 # This file defines address rules used by Postfix to rewrite sender email
-# addresses.  It can be used to ensure consistency in outgoing mail, masking
+# addresses. It can be used to ensure consistency in outgoing mail, masking
 # internal structures, or applying policy-based sender rewriting. "canonical"
 # is more powerful than "virtual":
 #
@@ -16,5 +16,5 @@
 # - https://www.postfix.org/postconf.5.html#sender_canonical_maps
 
 {% for key, value in __run_postfix_merged_canonical_sender.items() %}
-{{ key }}    {{ value }}
+{{ key }}	{{ value }}
 {% endfor %}

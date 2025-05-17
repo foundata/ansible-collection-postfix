@@ -21,5 +21,5 @@
 # - https://www.postfix.org/postconf.5.html#transport_maps
 
 {% for domain, transport in __run_postfix_merged_transport_maps.items() %}
-{{ domain }}    {{ transport }}
+{{ domain }}	{{ transport }}
 {% endfor %}

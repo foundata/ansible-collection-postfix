@@ -19,6 +19,6 @@
 # - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
 {% for key, values in __run_postfix_merged_virtual_alias_maps.items() %}
-{{ key }}    {% for value in values %}{{ value }}{% if not loop.last %}, {% endif %}{% endfor %}
+{{ key }}	{% for value in values %}{{ value }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 {% endfor %}

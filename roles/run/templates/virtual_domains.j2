@@ -17,5 +17,5 @@
 # - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
 {% for domain in __run_postfix_merged_virtual_alias_domains %}
-{{ domain }}    virtual
+{{ domain }}	virtual
 {% endfor %}
