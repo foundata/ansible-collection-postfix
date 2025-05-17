@@ -157,16 +157,20 @@ __run_postfix_maincf_settings_defaults:
   compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
   myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
   mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
+  permit_mx_backup_networks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
   message_size_limit: 52430000 # (50 MiB); default is 10240000 (~ 10 MiB)
   mailbox_size_limit: 0 # 0 == unlimited (makes sense if size is controlled by a mailserver like Dovecot); Default is 51200000 (~ 48 MiB)
   readme_directory: "no"
-  biff: "no" # biff is a local service to send "new mail" notifications to users
-  smtp_dns_support_level: "enabled" # DNS MX RR lookups for nexthop destination domains not enclosed in "[]".
-  smtpd_client_connection_count_limit: 20 # 0 == unlimited; default is 50
-  smtpd_client_auth_rate_limit: 30 # 0 == unlimited; default is 0
+  biff: "no" # "biff" is a local service to send "new mail" notifications to users.
+  smtp_dns_support_level: "enabled" # Enable DNS lookups. Nexthop destination domains not enclosed in "[]" will be subject to DNS RR MX lookups.
+  smtpd_client_connection_count_limit: 20 # AUTH commands per client in anvil_rate_time_unit; 0 == unlimited; default is 50.
+  smtpd_client_auth_rate_limit: 30 # Mails per anvil_rate_time_unit; 0 == unlimited; default is 0
+  smtpd_client_message_rate_limit: 30 # Mails sent per client in anvil_rate_time_unit; 0 == unlimited; default is 0
+  smtpd_client_recipient_rate_limit: 60 # Mails for receiver per anvil_rate_time_unit; 0 == unlimited; default is 0
   smtpd_soft_error_limit: 5 # default is 10
   smtpd_error_sleep_time: "2s" # default is 1s; http://www.postfix.org/TUNING_README.html#speedup
   smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
+  smtpd_helo_required: "yes" # SMTP client needs to introduces itself with HELO or EHLO before sending MAIL and related commands
   alias_maps: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
   # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
   # here because they are either particularly important or may differ due to
