@@ -259,6 +259,14 @@ __run_postfix_canonical_sender_map_defaults:
   {}
 
 
+# Default generic mapping for Postfix.
+#
+# See in run_postfix_generic_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_generic_map_defaults:
+  {}
+
+
 # Default domain relocated mapping for Postfix.
 #
 # See in run_postfix_relocated_map in defaults/main.yml for a detailled
@@ -332,6 +340,11 @@ __run_postfix_table_canonical_sender_file: "/etc/postfix/canonical_sender"
 __run_postfix_table_canonical_sender_owner: "root"
 __run_postfix_table_canonical_sender_group: "root"
 __run_postfix_table_canonical_sender_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_generic_file: "/etc/postfix/generic"
+__run_postfix_table_generic_owner: "root"
+__run_postfix_table_generic_group: "root"
+__run_postfix_table_generic_mode: "u=rw,g=r,o=r" # 0644
 
 __run_postfix_table_relocated_file: "/etc/postfix/relocated"
 __run_postfix_table_relocated_owner: "root"

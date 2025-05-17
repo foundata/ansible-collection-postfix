@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+# This file defines address rules used by Postfix to rewrite sender email
+# addresses. Unlike "canonical" maps, "generic" maps only affect emails when
+# sent via SMTP/LMTP and are not recursive. "generic" maps are typically used
+# to rewrite sender addresses containing invalid or internal domain names
+# (like "something.lan" or "domain.local") to valid external domains for
+# outgoing mail.
+#
+# The format here is a list of original sender followed by their replacement
+# rules. See the following resources for more information:
+#
+# - https://www.postfix.org/generic.5.html
+# - https://www.postfix.org/postconf.5.html#lmtp_generic_maps
+# - https://www.postfix.org/postconf.5.html#smtp_generic_maps
+
+{% for key, value in __run_postfix_merged_generic_maps.items() %}
+{{ key }}	{{ value }}
+{% endfor %}

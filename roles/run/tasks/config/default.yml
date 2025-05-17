@@ -145,6 +145,74 @@
     - "/etc/postfix/canonical" # File exists by default at least on Red Hat
 
 
+### Lookup table: generic (provides info for "user has moved to new_location" bounce messages)
+
+- name: "Config | Default | Lookup-table 'generic': Inform if 'lmtp_generic_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['lmtp_generic_maps']
+      value '{{ run_postfix_maincf_settings['lmtp_generic_maps'] }}' with
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_table_generic_file }}' as
+      run_postfix_generic_manage is true
+  when:
+    - run_postfix_generic_manage is true
+    - run_postfix_maincf_settings['lmtp_generic_maps'] is defined
+    - run_postfix_maincf_settings['lmtp_generic_maps'] | length > 0
+    - run_postfix_maincf_settings['lmtp_generic_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file)
+
+
+- name: "Config | Default | Lookup-table 'generic': Set 'lmtp_generic_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'lmtp_generic_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file) }
+       ) }}
+  when:
+    - run_postfix_generic_manage is true
+    - run_postfix_maincf_settings['lmtp_generic_maps'] is not defined or
+      run_postfix_maincf_settings['lmtp_generic_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file)
+
+
+- name: "Config | Default | Lookup-table 'generic': Inform if 'smtp_generic_maps' setting will be overwritten"
+  ansible.builtin.debug:
+    msg: |
+      Overwriting original run_postfix_maincf_settings['smtp_generic_maps']
+      value '{{ run_postfix_maincf_settings['smtp_generic_maps'] }}' with
+      '{{ __run_postfix_default_lookuptabletype }}:{{ __run_postfix_table_generic_file }}' as
+      run_postfix_generic_manage is true
+  when:
+    - run_postfix_generic_manage is true
+    - run_postfix_maincf_settings['smtp_generic_maps'] is defined
+    - run_postfix_maincf_settings['smtp_generic_maps'] | length > 0
+    - run_postfix_maincf_settings['smtp_generic_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file)
+
+
+- name: "Config | Default | Lookup-table 'generic': Set 'smtp_generic_maps' setting"
+  ansible.builtin.set_fact:
+    __run_postfix_merged_maincf_settings: |
+      {{ __run_postfix_merged_maincf_settings | ansible.builtin.combine(
+        { 'smtp_generic_maps': (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file) }
+       ) }}
+  when:
+    - run_postfix_generic_manage is true
+    - run_postfix_maincf_settings['smtp_generic_maps'] is not defined or
+      run_postfix_maincf_settings['smtp_generic_maps'] != (__run_postfix_default_lookuptabletype ~ ':' ~ __run_postfix_table_generic_file)
+
+
+- name: "Config | Default | Lookup-table 'generic': Write table file"
+  ansible.builtin.template:
+    src: "generic.j2"
+    dest: "{{ __run_postfix_table_generic_file }}"
+    owner: "{{ __run_postfix_table_generic_owner }}"
+    group: "{{ __run_postfix_table_generic_group }}"
+    mode: "{{ __run_postfix_table_generic_mode }}"
+  when:
+    - run_postfix_generic_manage is true
+  notify:
+    - "run_postfix: update lookup tables"
+    - "run_postfix: update aliases"
+
+
 ### Lookup table: relocated (provides info for "user has moved to new_location" bounce messages)
 
 - name: "Config | Default | Lookup-table 'relocated': Inform if 'relocated_maps' setting will be overwritten"

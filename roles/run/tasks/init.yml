@@ -96,6 +96,8 @@
     # Lookup table: canonical
     __run_postfix_merged_canonical_recipient: "{{ run_postfix_canonical_recipient_map | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults) }}"
     __run_postfix_merged_canonical_sender: "{{ run_postfix_canonical_sender_map | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults) }}"
+    # Lookup table: generic
+    __run_postfix_merged_generic_maps: "{{ __run_postfix_generic_map_defaults | ansible.builtin.combine(run_postfix_generic_map) }}"
     # Lookup table: relocated
     __run_postfix_merged_relocated_maps: "{{ __run_postfix_relocated_map_defaults | ansible.builtin.combine(run_postfix_relocated_map) }}"
     # Lookup table: transport

@@ -62,6 +62,14 @@ argument_specs:
         type: "dict"
         required: true
 
+      run_postfix_generic_manage:
+        type: "bool"
+        required: true
+
+      run_postfix_generic_map:
+        type: "dict"
+        required: true
+
       run_postfix_relocated_manage:
         type: "bool"
         required: true
