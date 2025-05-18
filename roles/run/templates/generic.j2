@@ -15,5 +15,5 @@
 # - https://www.postfix.org/postconf.5.html#smtp_generic_maps
 
 {% for key, value in __run_postfix_merged_generic_maps.items() %}
-{{ key }}	{{ value }}
+{{ key }}		{{ value }}
 {% endfor %}
