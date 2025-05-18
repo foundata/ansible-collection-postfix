@@ -19,5 +19,5 @@
 # - https://www.postfix.org/SMTPD_ACCESS_README.html
 
 {% for domain in __run_postfix_merged_relay_domains %}
-{{ domain }}		relay
+{{ domain }}{% if domain|length < 16 %}{{ "\t\t\t" }}{% elif domain|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}relay
 {% endfor %}
