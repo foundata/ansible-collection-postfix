@@ -1,0 +1,30 @@
+{# Get all paths of lookup table files from main.cf settings needed to be
+   processed with the "postmap" command.
+
+   Example config values this template extracts paths from:
+   - virtual_alias_domains: "btree:/etc/postfix/virtual_domains"
+   - transport_maps: "lmdb:/etc/postfix/transport"
+   - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit",
+#}
+{% set paths = [] %}
+{% for key, value in __run_postfix_merged_maincf_settings.items() %}
+{#   Keys referencing files where other comands have to be used ("newaliases" or
+     "postalias") are excluded. #}
+{%   if (key not in ['alias_maps', 'alias_database']) and (value is string) %}
+{%     for part in value.split(',') %}
+{%       set part = (part | trim) %}
+{#       See https://www.postfix.org/DATABASE_README.html#types to maintain the
+         list in the regex (look out for "files are created with the" string). #}
+{%       if (part | regex_search('(btree|dbm|hash|lmdb|sdbm):/.+')) %}
+{#         Get rid of inline config #}
+{%         set part = (part | regex_replace('^.*?(btree|dbm|hash|lmdb|sdbm)(:/.*$)', '\\1\\2') | trim) %}
+{#         Remove only "hash:" as database type prefix. All other database types
+           have to stay to enable the "postmap" command to determine the used
+           format. "hash:" has to be removed as it is the expected default. #}
+{%         set part = (part | regex_replace('^(hash):(.*)$', '\\2') | trim) %}
+{%         set _ = paths.append(part) %}
+{%       endif %}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+{{ paths | unique }}

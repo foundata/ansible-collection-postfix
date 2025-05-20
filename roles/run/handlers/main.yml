@@ -17,21 +17,14 @@
   ansible.builtin.command:
     cmd: >
       {{ __run_postfix_postmap_executable }}
-      {{ item['value'] | regex_replace('^(hash):(.*)$', '\2') | ansible.builtin.quote }}
-  loop: "{{ __run_postfix_merged_maincf_settings | dict2items }}"
+      {{ item | ansible.builtin.quote }}
+  # Using an external template file because:
+  # 1. Single-line inline templates are hard to read and maintain
+  # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
+  #    this converts dictionaries to strings objects, needing additional care.
+  loop: "{{ lookup('template', 'helper_postmap_paths.j2') }}"
   when:
     - __run_postfix_merged_maincf_settings is defined
-    # Notes:
-    # - Files where other comands have to be used ("newaliases" or "postalias")
-    #   are excluded
-    # - See https://www.postfix.org/DATABASE_README.html#types (look out for
-    #   "files are created with the" string) to maintain the list in
-    #   regex_search('^(btree| ...
-    - ((item['key'] == 'relay_domains') or
-       (item['key'] | regex_search('_maps$')) or
-       (item['value'] | regex_search('^(btree|dbm|hash|lmdb|sdbm):/.+'))) and
-      (item['key'] != 'alias_maps') and
-      (item['key'] != 'alias_database')
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
