@@ -93,17 +93,21 @@
     __run_postfix_merged_mastercf_settings: "{{ __run_postfix_mastercf_settings_defaults | ansible.builtin.combine(run_postfix_mastercf_settings) }}"
     # Relay domains
     __run_postfix_merged_relay_domains: "{{ (__run_postfix_relay_domains_list_defaults + run_postfix_relay_domains_list) | ansible.builtin.unique }}"
+    # Lookup table: access
+    __run_postfix_merged_access_recipient_map: "{{ run_postfix_access_recipient_map | ansible.builtin.combine(__run_postfix_access_recipient_map_defaults) }}"
+    __run_postfix_merged_access_sender_map: "{{ run_postfix_access_sender_map | ansible.builtin.combine(__run_postfix_access_sender_map_defaults) }}"
     # Lookup table: canonical
-    __run_postfix_merged_canonical_recipient: "{{ run_postfix_canonical_recipient_map | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults) }}"
-    __run_postfix_merged_canonical_sender: "{{ run_postfix_canonical_sender_map | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults) }}"
+
+    __run_postfix_merged_canonical_recipient_map: "{{ run_postfix_canonical_recipient_map | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults) }}"
+    __run_postfix_merged_canonical_sender_map: "{{ run_postfix_canonical_sender_map | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults) }}"
     # Lookup table: generic
-    __run_postfix_merged_generic_maps: "{{ __run_postfix_generic_map_defaults | ansible.builtin.combine(run_postfix_generic_map) }}"
+    __run_postfix_merged_generic_map: "{{ __run_postfix_generic_map_defaults | ansible.builtin.combine(run_postfix_generic_map) }}"
     # Lookup table: relocated
-    __run_postfix_merged_relocated_maps: "{{ __run_postfix_relocated_map_defaults | ansible.builtin.combine(run_postfix_relocated_map) }}"
+    __run_postfix_merged_relocated_map: "{{ __run_postfix_relocated_map_defaults | ansible.builtin.combine(run_postfix_relocated_map) }}"
     # Lookup table: transport
-    __run_postfix_merged_transport_maps: "{{ __run_postfix_transport_map_defaults | ansible.builtin.combine(run_postfix_transport_map) }}"
+    __run_postfix_merged_transport_map: "{{ __run_postfix_transport_map_defaults | ansible.builtin.combine(run_postfix_transport_map) }}"
     # Lookup table: virtual
     __run_postfix_merged_virtual_alias_domains: "{{ (__run_postfix_virtual_aliasdomains_list_defaults + run_postfix_virtual_aliasdomains_list) | ansible.builtin.unique }}" # noqa: yaml[line-length]
-    __run_postfix_merged_virtual_alias_maps: "{{ __run_postfix_virtual_alias_map_defaults | ansible.builtin.combine(run_postfix_virtual_alias_map) }}"
+    __run_postfix_merged_virtual_alias_map: "{{ __run_postfix_virtual_alias_map_defaults | ansible.builtin.combine(run_postfix_virtual_alias_map) }}"
     # SMTP
-    __run_postfix_merged_smtp_sasl_password_maps: "{{ __run_postfix_smtp_sasl_password_map_defaults | ansible.builtin.combine(run_postfix_smtp_sasl_password_map) }}" # noqa: yaml[line-length]
+    __run_postfix_merged_smtp_sasl_password_map: "{{ __run_postfix_smtp_sasl_password_map_defaults | ansible.builtin.combine(run_postfix_smtp_sasl_password_map) }}" # noqa: yaml[line-length]

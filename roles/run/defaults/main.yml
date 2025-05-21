@@ -48,13 +48,23 @@ run_postfix_service_state: "enabled"
 # Dictionary structure:
 #
 # - Keys: Standard Postfix option names (as defined in postconf documentation)
-# - Values: Corresponding configuration values.Common options include:
-#   myhostname: FQDN of the mail system
-#   mydomain: Domain part of the FQDN
-#   myorigin: Domain to append to locally posted mail
-#   inet_interfaces: Network interfaces to listen on
-#   inet_protocols: IP protocols to use (ipv4, ipv6, all)
-#   mynetworks: Trusted SMTP clients for relay
+# - Values: Corresponding configuration values. Common options include:
+#     myhostname: FQDN of the mail system
+#     mydomain: Domain part of the FQDN
+#     myorigin: Domain to append to locally posted mail
+#     inet_interfaces: Network interfaces to listen on
+#     inet_protocols: IP protocols to use (ipv4, ipv6, all)
+#     mynetworks: Trusted SMTP clients for relay
+#   If a value is a list (which can be whitespace or comma-separated in
+#   Postfix), it can also be passed as YAML list and will be converted into a
+#   comma-separated value string automatically. So all three variants are valid
+#   here to define a list as value:
+#     mynetworks:
+#      - "127.0.0.0/8"
+#      - "[::ffff:127.0.0.0]/104"
+#      - "[::1]/128"
+#     mynetworks: "127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128"
+#     mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
 #
 # Reference commands:
 # - postconf: print all current active values
@@ -130,6 +140,63 @@ run_postfix_relay_domains_list:
   [] # see __run_postfix_relay_domains_list_defaults in vars/main.yml for the defaults
 
 
+# Switch to control whether the lookup table "access" is controlled by
+# dedicated settings and tasks of this role.
+#
+# More information:
+# - https://www.postfix.org/access.5.html
+# - https://www.postfix.org/SMTPD_ACCESS_README.html
+# - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_access_recipient_map
+#    - run_postfix_access_sender_map
+# 2. Set or change main.cf settings accordingly:
+#    - smtpd_relay_restrictions:
+#      The role will introduce new smtpd_restriction_classes
+#      - recipient_access: {{ __run_postfix_default_lookuptabletype }}:/etc/postfix/access-sender
+#      - sender_access: {{ __run_postfix_default_lookuptabletype }}:/etc/postfix/access-recipient
+#      Abd add them at before all other smtpd_relay_restrictions rules.
+#
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_access_manage: true
+
+
+# Lookup-table 'access': Recipient address restriction rules.
+#
+# Examples:
+#
+#   "abuse@example.com": "OK" # Whitelist RFC 2142 address
+#   "postmaster@example.com": "OK" # Whitelist RFC 2142 address
+#   "burned@example.com": "REJECT" # User is gone, address get mass of spam
+#
+# Will be ignored if run_postfix_access_manage is set to false.
+run_postfix_access_recipient_map:
+  {} # see __run_postfix_access_recipient_map_defaults in vars/main.yml for the defaults
+
+
+# Lookup-table 'access': Sender address restriction rules.
+#
+# More information:
+# - https://www.postfix.org/access.5.html
+# - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+#
+# Examples:
+#
+#   "@microsoft.com": "500 Deal with it"
+#   "spammy@example.com": "REJECT"
+#   "spammy2@example.com": "DISCARD" # Attention: silent drop
+#   "important@example.net": "OK"
+#
+# Will be ignored if run_postfix_access_manage is set to false.
+run_postfix_access_sender_map:
+  {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
+
+
 # Switch to control whether the lookup table "canonical" is controlled by
 # dedicated settings and tasks of this role.
 #
@@ -143,7 +210,7 @@ run_postfix_relay_domains_list:
 #    for the contents:
 #    - run_postfix_canonical_recipient_map
 #    - run_postfix_canonical_sender_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or extend) main.cf settings accordingly:
 #    - sender_canonical_maps
 #    - recipient_canonical_maps
 #
@@ -193,7 +260,7 @@ run_postfix_canonical_sender_map:
 # 1. Create and manage table file(s) to manage mappings. It uses variables
 #    for the contents:
 #    - run_postfix_generic_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or extend) main.cf settings accordingly:
 #    - lmtp_generic_maps
 #    - smtp_generic_maps
 #
@@ -229,7 +296,7 @@ run_postfix_generic_map:
 # 1. Create and manage table file(s) to manage mappings. It uses variables
 #    for the contents:
 #    - run_postfix_relocated_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or extend) main.cf settings accordingly:
 #    - relocated_maps
 #
 # When false, you'll need to configure these settings or functionality manually
@@ -267,7 +334,7 @@ run_postfix_relocated_map:
 # 1. Create and manage table file(s) to manage mappings. It uses variables
 #    for the contents:
 #    - run_postfix_transport_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or extend) main.cf settings accordingly:
 #    - transport_maps
 #
 # When false, you'll need to configure these settings or functionality manually
@@ -316,7 +383,7 @@ run_postfix_transport_map:
 #    for the contents:
 #    - run_postfix_virtual_aliasdomains_list
 #    - run_postfix_virtual_alias_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or override or extend) main.cf settings accordingly:
 #    - virtual_alias_domains
 #    - virtual_alias_maps
 #
@@ -380,7 +447,7 @@ run_postfix_virtual_alias_map:
 # 1. Create and manage table file(s) to manage mappings. It uses variables
 #    for the contents:
 #    - run_postfix_smtp_sasl_password_map
-# 2. Set (or override) main.cf settings accordingly:
+# 2. Set (or extend) main.cf settings accordingly:
 #    - smtp_sasl_password_maps
 #
 # When false, you'll need to configure these settings or functionality manually

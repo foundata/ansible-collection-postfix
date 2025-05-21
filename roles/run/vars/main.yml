@@ -156,8 +156,14 @@ __run_postfix_default_lookuptabletype: "lmdb"
 __run_postfix_maincf_settings_defaults:
   compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
   myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
-  mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
-  permit_mx_backup_networks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
+  mynetworks:
+    - "127.0.0.0/8"
+    - "[::ffff:127.0.0.0]/104"
+    - "[::1]/128"
+  permit_mx_backup_networks:
+    - "127.0.0.0/8"
+    - "[::ffff:127.0.0.0]/104"
+    - "[::1]/128"
   message_size_limit: 52430000 # (50 MiB); default is 10240000 (~ 10 MiB)
   mailbox_size_limit: 0 # 0 == unlimited (makes sense if size is controlled by a mailserver like Dovecot); Default is 51200000 (~ 48 MiB)
   readme_directory: "no"
@@ -172,21 +178,78 @@ __run_postfix_maincf_settings_defaults:
   smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
   smtpd_helo_required: "yes" # SMTP client needs to introduces itself with HELO or EHLO before sending MAIL and related commands
   alias_maps: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
+  # For all smtpd_relay_restrictions, the specific result as well as order of
+  # checks matters:
+  #
+  # - If there is an entry whose check results in an OK or REJECT, the email
+  #   is accordingly accepted or rejected and all subsequent checks are no
+  #   longer performed.
+  # - No match or DUNNO (don't know) as a check result causes the subsequent
+  #   checks to be executed.
+  # - Summary:
+  #   OK: Allow-listed. Accept the mail and stop checks.
+  #   REJECT: Deny-listed. Reject the mail and stop checks.
+  #   DUNNO / no entry / no match: Continue with checks.
+  smtpd_relay_restrictions:
+    # The checks listed (and therefore used by default) are:
+    #
+    # - permit_inet_interfaces
+    #   OK if the mail is from our local host itself.
+    # - permit_mynetworks
+    #   OK if the mail from an IP or network allowed using us as relay.
+    # - reject_unauth_destination
+    #   REJECT unless one of the following is true for RCPT TO-domain:
+    #   - matches $relay_domains or a subdomain thereof, and contains no
+    #     sender-specified routing
+    #   - Final destination: matches $mydestination, $inet_interfaces,
+    #     $proxy_interfaces, $virtual_alias_domains or $virtual_mailbox_domains,
+    #     and contains no sender-specified routing
+    # - reject_unknown_sender_domain and reject_unknown_recipient_domain:
+    #   REJECT if the MAIL FROM- or RCPT TO-domain has no DNS MX and no DNS A
+    #   record, or a malformed MX record such as a record with a zero-length
+    #   MX hostname.
+    # - permit_mx_backup
+    #   OK if our server a backup MX (MX 20) of the the receivers's address.
+    # - permit at the end
+    #   An implicit OK is always the end of the chain. It is just listed here
+    #   to make it visible and easier to underestand the processing.
+    - "permit_inet_interfaces"
+    - "permit_mynetworks"
+    - "permit_sasl_authenticated"
+    # reject_unauth_destination may not needed here if the mail relay policy is
+    # specified under smtpd_relay_restrictions
+    - "reject_unauth_destination"
+    - "reject_unknown_sender_domain"
+    - "reject_unknown_recipient_domain"
+    - "reject_non_fqdn_sender"
+    - "permit_mx_backup"
+    - "permit"
   # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
   # here because they are either particularly important or may differ due to
   # distribution-specific modifications.
   inet_interfaces: "all"
   inet_protocols: "all"
-  mydestination: "$myhostname, localhost.$mydomain, localhost"
+  mydestination:
+    - "$myhostname"
+    - "localhost.$mydomain"
+    - "localhost"
   append_dot_mydomain: "no"
   alias_database: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
   broken_sasl_auth_clients: "no"
   body_checks_size_limit: 51200 # = 50 KiB
   bounce_size_limit: 50000 # ~ 49 KiB
   header_size_limit: 102400 # = 100 KiB
-  canonical_classes: "envelope_sender, envelope_recipient, header_sender, header_recipient"
-  recipient_canonical_classes: "envelope_recipient, header_recipient"
-  sender_canonical_classes: "envelope_sender, header_sender"
+  canonical_classes:
+    - "envelope_sender"
+    - "envelope_recipient"
+    - "header_sender"
+    - "header_recipient"
+  recipient_canonical_classes:
+    - "envelope_recipient"
+    - "header_recipient"
+  sender_canonical_classes:
+    - "envelope_sender"
+    - "header_sender"
   smtpd_banner: "$myhostname ESMTP $mail_name"
   smtp_host_lookup: "dns"
   anvil_rate_time_unit: "60s"
@@ -194,6 +257,7 @@ __run_postfix_maincf_settings_defaults:
   smtpd_client_event_limit_exceptions: "${smtpd_client_connection_limit_exceptions:$mynetworks}"
   smtpd_forbid_bare_newline: "normalize" # https://www.postfix.org/smtp-smuggling.html
   smtpd_forbid_bare_newline_exclusions: "$mynetworks"
+  smtpd_recipient_restrictions: ""
 
 
 # Additional default configuration for Postfix master process (master.cf)
@@ -241,6 +305,22 @@ __run_postfix_mastercf_settings_defaults:
 # description of the structure (as this variable is using the same).
 __run_postfix_relay_domains_list_defaults:
   []
+
+
+# Default access recipient mappings for Postfix.
+#
+# See in run_postfix_access_recipient_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_access_recipient_map_defaults:
+  {}
+
+
+# Default access sender mappings for Postfix.
+#
+# See in run_postfix_access_sender_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_access_sender_map_defaults:
+  {}
 
 
 # Default canonical recipient mappings for Postfix.
@@ -330,6 +410,16 @@ __run_postfix_mailname_file: "/etc/mailname" # May be use for EHELO/HELO on Debi
 __run_postfix_mailname_owner: "root"
 __run_postfix_mailname_group: "root"
 __run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_access_recipient_file: "/etc/postfix/access_recipient"
+__run_postfix_table_access_recipient_owner: "root"
+__run_postfix_table_access_recipient_group: "root"
+__run_postfix_table_access_recipient_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_access_sender_file: "/etc/postfix/access_sender"
+__run_postfix_table_access_sender_owner: "root"
+__run_postfix_table_access_sender_group: "root"
+__run_postfix_table_access_sender_mode: "u=rw,g=r,o=r" # 0644
 
 __run_postfix_table_canonical_recipient_file: "/etc/postfix/canonical_recipient"
 __run_postfix_table_canonical_recipient_owner: "root"

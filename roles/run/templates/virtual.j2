@@ -18,7 +18,7 @@
 # - https://www.postfix.org/postconf.5.html#virtual_alias_maps
 # - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
-{% for key, values in __run_postfix_merged_virtual_alias_maps.items() %}
+{% for key, values in __run_postfix_merged_virtual_alias_map.items() %}
 {{ key }}{% if key|length < 16 %}{{ "\t\t\t" }}{% elif key|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{% for value in values %}{{ value }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 {% endfor %}

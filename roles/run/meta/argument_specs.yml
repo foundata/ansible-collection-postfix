@@ -50,6 +50,18 @@ argument_specs:
         elements: "str"
         required: true
 
+      run_postfix_access_manage:
+        type: "bool"
+        required: true
+
+      run_postfix_access_recipient_map:
+        type: "dict"
+        required: true
+
+      run_postfix_access_sender_map:
+        type: "dict"
+        required: true
+
       run_postfix_canonical_manage:
         type: "bool"
         required: true

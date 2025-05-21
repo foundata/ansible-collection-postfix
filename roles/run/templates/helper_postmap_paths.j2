@@ -4,26 +4,33 @@
    Example config values this template extracts paths from:
    - virtual_alias_domains: "btree:/etc/postfix/virtual_domains"
    - transport_maps: "lmdb:/etc/postfix/transport"
-   - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit",
+   - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit"
+   [...]
 #}
 {% set paths = [] %}
 {% for key, value in __run_postfix_merged_maincf_settings.items() %}
 {#   Keys referencing files where other comands have to be used ("newaliases" or
      "postalias") are excluded. #}
 {%   if (key not in ['alias_maps', 'alias_database']) and (value is string) %}
-{%     for part in value.split(',') %}
-{%       set part = (part | trim) %}
-{#       See https://www.postfix.org/DATABASE_README.html#types to maintain the
-         list in the regex (look out for "files are created with the" string). #}
-{%       if (part | regex_search('(btree|dbm|hash|lmdb|sdbm):/.+')) %}
-{#         Get rid of inline config #}
-{%         set part = (part | regex_replace('^.*?(btree|dbm|hash|lmdb|sdbm)(:/.*$)', '\\1\\2') | trim) %}
-{#         Remove only "hash:" as database type prefix. All other database types
-           have to stay to enable the "postmap" command to determine the used
-           format. "hash:" has to be removed as it is the expected default. #}
-{%         set part = (part | regex_replace('^(hash):(.*)$', '\\2') | trim) %}
-{%         set _ = paths.append(part) %}
-{%       endif %}
+{#     Unify whitespace separators to single space only #}
+{%     set value = (value | regex_replace('\s+', ' ') | trim) %}
+{#     Iterate over comma separated values (this loop runs one iteration if there none) #}
+{%     for part_csv in value.split(',') %}
+{%       set part_csv = (part_csv | trim) %}
+{#         Iterate over space separated values (this loop runs one iteration if there are none) #}
+{%         for part in part_csv.split(' ') %}
+{#           See https://www.postfix.org/DATABASE_README.html#types to maintain the
+             list in the regex (look out for "files are created with the" string). #}
+{%           if (part | regex_search('(btree|dbm|hash|lmdb|sdbm):/.+')) %}
+{#             Get rid of inline config in front of the path #}
+{%             set part = (part | regex_replace('^.*?(btree|dbm|hash|lmdb|sdbm)(:/[^\s]$)', '\\1\\2') | trim) %}
+{#             Remove only "hash:" as database type prefix. All other database types
+               have to stay to enable the "postmap" command to determine the used
+               format. "hash:" has to be removed as it is the expected default. #}
+{%             set part = (part | regex_replace('^hash:(.*)$', '\\1') | trim) %}
+{%             set _ = paths.append(part) %}
+{%           endif %}
+{%       endfor %}
 {%     endfor %}
 {%   endif %}
 {% endfor %}

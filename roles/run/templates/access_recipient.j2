@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+# This file defines address rules used by Postfix to define recipient access
+# rules.
+#
+# The format here is a list of recipient pattern followed by their th action.
+# See the following resources for more information:
+#
+# - https://www.postfix.org/access.5.html
+# - https://www.postfix.org/SMTPD_ACCESS_README.html
+# - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+
+{% for key, value in __run_postfix_merged_access_recipient_map.items() %}
+{{ key }}{% if key|length < 16 %}{{ "\t\t\t" }}{% elif key|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
+{% endfor %}
