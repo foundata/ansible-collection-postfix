@@ -45,6 +45,43 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_relay_domains_list_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_relay_domains_list:
         type: "list"
         elements: "str"
@@ -54,9 +91,83 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_access_recipient_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_access_recipient_map:
         type: "dict"
         required: true
+
+      run_postfix_access_sender_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
 
       run_postfix_access_sender_map:
         type: "dict"
@@ -66,9 +177,83 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_canonical_recipient_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_canonical_recipient_map:
         type: "dict"
         required: true
+
+      run_postfix_canonical_sender_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
 
       run_postfix_canonical_sender_map:
         type: "dict"
@@ -78,6 +263,43 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_generic_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_generic_map:
         type: "dict"
         required: true
@@ -85,6 +307,43 @@ argument_specs:
       run_postfix_relocated_manage:
         type: "bool"
         required: true
+
+      run_postfix_relocated_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
 
       run_postfix_relocated_map:
         type: "dict"
@@ -94,6 +353,43 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_transport_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_transport_map:
         type: "dict"
         required: true
@@ -102,10 +398,84 @@ argument_specs:
         type: "bool"
         required: true
 
+      run_postfix_virtual_aliasdomains_list_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
+
       run_postfix_virtual_aliasdomains_list:
         type: "list"
         elements: "str"
         required: true
+
+      run_postfix_virtual_alias_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
 
       run_postfix_virtual_alias_map:
         type: "dict"
@@ -114,6 +484,43 @@ argument_specs:
       run_postfix_smtp_sasl_password_manage:
         type: "bool"
         required: true
+
+      run_postfix_smtp_sasl_password_map_tabletype:
+        type: "str"
+        required: true
+        choices:
+          # See https://www.postfix.org/DATABASE_README.html#types to maintain the list
+          - "btree"
+          - "cdb"
+          - "cidr"
+          - "dbm"
+          - "environ"
+          - "fail"
+          - "hash"
+          - "inline"
+          - "internal"
+          - "lmdb"
+          - "ldap"
+          - "memcache"
+          - "mongodb"
+          - "mysql"
+          - "netinfo"
+          - "nis"
+          - "nisplus"
+          - "pcre"
+          - "pipemap"
+          - "pgsql"
+          - "proxy"
+          - "randmap"
+          - "regexp"
+          - "sdbm"
+          - "socketmap"
+          - "sqlite"
+          - "static"
+          - "tcp"
+          - "texthash"
+          - "unionmap"
+          - "unix"
 
       run_postfix_smtp_sasl_password_map:
         type: "dict"

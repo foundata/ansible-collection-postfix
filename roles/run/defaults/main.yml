@@ -126,6 +126,19 @@ run_postfix_mastercf_settings:
 run_postfix_relay_domains_manage: false
 
 
+# The lookup table type to use if for the list defined by
+# run_postfix_relay_domains_list
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_relay_domains_manage is set to false.
+run_postfix_relay_domains_list_tabletype: "lmdb"
+
+
 # Relay domains for Postfix. This list of relay domains for which Postfix will
 # accept mail for relaying to their final destinations.
 #
@@ -157,13 +170,26 @@ run_postfix_relay_domains_list:
 # 2. Set or change main.cf settings accordingly:
 #    - smtpd_relay_restrictions:
 #      The role will introduce new smtpd_restriction_classes
-#      - recipient_access: {{ __run_postfix_default_lookuptabletype }}:/etc/postfix/access-sender
-#      - sender_access: {{ __run_postfix_default_lookuptabletype }}:/etc/postfix/access-recipient
+#      - recipient_access: {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access-sender
+#      - sender_access: {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access-recipient
 #      Abd add them at before all other smtpd_relay_restrictions rules.
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
 run_postfix_access_manage: false
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_access_recipient_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_access_manage is set to false.
+run_postfix_access_recipient_map_tabletype: "lmdb"
 
 
 # Lookup-table 'access': Recipient address restriction rules.
@@ -177,6 +203,19 @@ run_postfix_access_manage: false
 # Will be ignored if run_postfix_access_manage is set to false.
 run_postfix_access_recipient_map:
   {} # see __run_postfix_access_recipient_map_defaults in vars/main.yml for the defaults
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_access_sender_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_access_manage is set to false.
+run_postfix_access_sender_map_tabletype: "lmdb"
 
 
 # Lookup-table 'access': Sender address restriction rules.
@@ -219,6 +258,19 @@ run_postfix_access_sender_map:
 run_postfix_canonical_manage: false
 
 
+# The lookup table type to use if for the table defined by
+# run_postfix_canonical_recipient_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_canonical_manage is set to false.
+run_postfix_canonical_recipient_map_tabletype: "lmdb"
+
+
 # Lookup-table 'canonical': Recipient address mappings / rewrite rules.
 #
 # Examples:
@@ -231,6 +283,18 @@ run_postfix_canonical_manage: false
 run_postfix_canonical_recipient_map:
   {} # see __run_postfix_canonical_recipient_map_defaults in vars/main.yml for the defaults
 
+
+# The lookup table type to use if for the table defined by
+# run_postfix_canonical_sender_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_canonical_manage is set to false.
+run_postfix_canonical_sender_map_tabletype: "lmdb"
 
 # Lookup-table 'canonical': Sender address mappings / rewrite rules.
 #
@@ -269,6 +333,19 @@ run_postfix_canonical_sender_map:
 run_postfix_generic_manage: false
 
 
+# The lookup table type to use if for the table defined by
+# run_postfix_generic_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_generic_manage is set to false.
+run_postfix_generic_map_tabletype: "lmdb"
+
+
 # Lookup-table 'generic': Sender address mappings / rewrite rules.
 #
 # Examples:
@@ -276,7 +353,7 @@ run_postfix_generic_manage: false
 #   "john.doe@example.local": "john.doe@example.com"
 #   "@example.local": "contact@example.net"
 #
-# Will be ignored if run_postfix_canonical_manage is set to false.
+# Will be ignored if run_postfix_generic_manage is set to false.
 run_postfix_generic_map:
   {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
 
@@ -302,6 +379,19 @@ run_postfix_generic_map:
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
 run_postfix_relocated_manage: false
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_relocated_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_relocated_manage is set to false.
+run_postfix_relocated_map_tabletype: "lmdb"
 
 
 # Lookup-table 'relocated': old-address new-address-info mappings / rules.
@@ -340,6 +430,19 @@ run_postfix_relocated_map:
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
 run_postfix_transport_manage: false
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_transport_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_transport_manage is set to false.
+run_postfix_transport_map_tabletype: "lmdb"
 
 
 # Domain transport mapping for Postfix. This defines where to send emails to
@@ -392,6 +495,19 @@ run_postfix_transport_map:
 run_postfix_virtual_manage: false
 
 
+# The lookup table type to use if for the list defined by
+# run_postfix_virtual_aliasdomains_list
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_virtual_manage is set to false.
+run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
+
+
 # Virtual alias domains for Postfix. This tells Postfix to accept incoming
 # emails for a list of virtual domains. Mappings for them are defined via
 # run_postfix_virtual_alias_map.
@@ -403,6 +519,19 @@ run_postfix_virtual_manage: false
 # Will be ignored if run_postfix_virtual_manage is set to false.
 run_postfix_virtual_aliasdomains_list:
   [] # see __run_postfix_virtual_aliasdomains_list_defaults in vars/main.yml for the defaults
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_virtual_alias_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_virtual_manage is set to false.
+run_postfix_virtual_alias_map_tabletype: "lmdb"
 
 
 # Virtual alias mappings for Postfix. This defines email forwarding rules in a
@@ -453,6 +582,19 @@ run_postfix_virtual_alias_map:
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
 run_postfix_smtp_sasl_password_manage: false
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_smtp_sasl_password_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_smtp_sasl_password_manage is set to false.
+run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 
 
 # SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP

@@ -136,18 +136,6 @@ __run_postfix_paths_removal:
   - "/etc/postfix/master.cf.proto" # Exists by default at least on Debian, Red Hat
 
 
-# Name of the default lookup table types to use if this role manages a resource.
-#
-# Most distributions and builds dropped support for Berkeley DB with
-# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
-# the best default. "hash" and "btree" are available on systems with support for
-# Berkeley DB (and therefore deprecated / legacy now).
-#
-# Hint for maintainers: "postconf -m" lists all supported lookup table types on
-# a system.
-__run_postfix_default_lookuptabletype: "lmdb"
-
-
 # Additional default configuration for Postfix daemon. Use standard Postfix
 # option names as keys with their corresponding values.
 #
@@ -177,7 +165,7 @@ __run_postfix_maincf_settings_defaults:
   smtpd_error_sleep_time: "2s" # default is 1s; http://www.postfix.org/TUNING_README.html#speedup
   smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
   smtpd_helo_required: "yes" # SMTP client needs to introduces itself with HELO or EHLO before sending MAIL and related commands
-  alias_maps: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
+  alias_maps: "lmdb:/etc/aliases"
   # For all smtpd_relay_restrictions, the specific result as well as order of
   # checks matters:
   #
@@ -234,7 +222,7 @@ __run_postfix_maincf_settings_defaults:
     - "localhost.$mydomain"
     - "localhost"
   append_dot_mydomain: "no"
-  alias_database: "{{ __run_postfix_default_lookuptabletype }}:/etc/aliases"
+  alias_database: "lmdb:/etc/aliases"
   broken_sasl_auth_clients: "no"
   body_checks_size_limit: 51200 # = 50 KiB
   bounce_size_limit: 50000 # ~ 49 KiB
@@ -446,7 +434,7 @@ __run_postfix_table_transport_owner: "root"
 __run_postfix_table_transport_group: "root"
 __run_postfix_table_transport_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_smtpsaslpasswordmaps_file: "/etc/postfix/smtp_sasl_password" # May contain passwords!
+__run_postfix_smtpsaslpasswordmap_file: "/etc/postfix/smtp_sasl_password" # May contain passwords!
 __run_postfix_smtpsaslpasswordmaps_owner: "root"
 __run_postfix_smtpsaslpasswordmaps_group: "root"
 __run_postfix_smtpsaslpasswordmaps_mode: "u=rw,g=r,o=" # 0640

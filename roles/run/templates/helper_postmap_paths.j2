@@ -9,7 +9,7 @@
 #}
 {% set paths = [] %}
 {% for key, value in __run_postfix_merged_maincf_settings.items() %}
-{#   Keys referencing files where other comands have to be used ("newaliases" or
+{#   Keys referencing files where other commands have to be used ("newaliases" or
      "postalias") are excluded. #}
 {%   if (key not in ['alias_maps', 'alias_database']) and (value is string) %}
 {#     Unify whitespace separators to single space only #}

@@ -1,0 +1,45 @@
+{# Return a list used map / lookup table backends for which packages to install
+   are defined in __run_postfix_packages_install_map_backends.
+
+   This inits the list with the used backends from managed lookup tables and
+   feature and searches through all Postfix settings for values defining maps to
+   get a list of used map / lookup table backends. This extracts "backend" from
+   "backend:/[...]" if found.
+
+   Example config values this template extracts backend names from:
+    - virtual_alias_maps: "lmdb:/etc/postfix/alias"
+    - alias_maps: "mysql:/etc/postfix/mysql-aliases.cf"
+    - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit"
+   [...]
+#}
+{% set backends = [
+     (run_postfix_access_manage | ansible.builtin.ternary(run_postfix_access_recipient_map_tabletype, '')),
+     (run_postfix_access_manage | ansible.builtin.ternary(run_postfix_access_sender_map_tabletype, '')),
+     (run_postfix_canonical_manage | ansible.builtin.ternary(run_postfix_canonical_recipient_map_tabletype, '')),
+     (run_postfix_canonical_manage | ansible.builtin.ternary(run_postfix_canonical_sender_map_tabletype, '')),
+     (run_postfix_generic_manage | ansible.builtin.ternary(run_postfix_generic_map_tabletype, '')),
+     (run_postfix_relay_domains_manage | ansible.builtin.ternary(run_postfix_relay_domains_list_tabletype, '')),
+     (run_postfix_relocated_manage | ansible.builtin.ternary(run_postfix_relocated_map_tabletype, '')),
+     (run_postfix_smtp_sasl_password_manage | ansible.builtin.ternary(run_postfix_smtp_sasl_password_map_tabletype, '')),
+     (run_postfix_transport_manage | ansible.builtin.ternary(run_postfix_transport_map_tabletype, '')),
+     (run_postfix_virtual_manage | ansible.builtin.ternary(run_postfix_virtual_aliasdomains_list_tabletype, '')),
+     (run_postfix_virtual_manage | ansible.builtin.ternary(run_postfix_virtual_alias_map_tabletype, ''))
+   ] | reject('match', '^$') | unique %}
+{# See https://www.postfix.org/DATABASE_README.html#types to maintain the regex list. #}
+{% set regex_list = 'btree|cdb|cidr|dbm|environ|fail|hash|inline|internal|lmdb|ldap|memcache|mongodb|mysql|netinfo|nis|nisplus|pcre|pipemap|pgsql|proxy|randmap|regexp|sdbm|socketmap|sqlite|static|tcp|texthash|unionmap|unix' %}
+{% for key, value in __run_postfix_merged_maincf_settings.items() %}
+{#   Unify whitespace separators to single space only #}
+{%   set value = (value | regex_replace('\s+', ' ') | trim) %}
+{#   Iterate over comma separated values (this loop runs one iteration if there none) #}
+{%   for part_csv in value.split(',') %}
+{%     set part_csv = (part_csv | trim) %}
+{#       Iterate over space separated values (this loop runs one iteration if there are none) #}
+{%       for part in part_csv.split(' ') %}
+{%         if (part | regex_search('(' ~ regex_list ~ '):/.+')) %}
+{%           set _ = backends.append((part | regex_replace('(' ~ regex_list ~ '):/.+', '\\1') | trim)) %}
+{%         endif %}
+{%     endfor %}
+{%   endfor %}
+{% endfor %}
+{# Return all backends with an entry in the __run_postfix_packages_install_map_backends dict #}
+{{ backends | unique | intersect(__run_postfix_packages_install_map_backends.keys()) | sort }}
