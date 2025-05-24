@@ -123,7 +123,7 @@ run_postfix_mastercf_settings:
 #
 # When false, you'll need to configure these settings manually through
 # run_postfix_maincf_settings or through other means.
-run_postfix_relay_domains_manage: true
+run_postfix_relay_domains_manage: false
 
 
 # Relay domains for Postfix. This list of relay domains for which Postfix will
@@ -163,7 +163,7 @@ run_postfix_relay_domains_list:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_access_manage: true
+run_postfix_access_manage: false
 
 
 # Lookup-table 'access': Recipient address restriction rules.
@@ -216,7 +216,7 @@ run_postfix_access_sender_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_canonical_manage: true
+run_postfix_canonical_manage: false
 
 
 # Lookup-table 'canonical': Recipient address mappings / rewrite rules.
@@ -266,7 +266,7 @@ run_postfix_canonical_sender_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_generic_manage: true
+run_postfix_generic_manage: false
 
 
 # Lookup-table 'generic': Sender address mappings / rewrite rules.
@@ -301,7 +301,7 @@ run_postfix_generic_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_relocated_manage: true
+run_postfix_relocated_manage: false
 
 
 # Lookup-table 'relocated': old-address new-address-info mappings / rules.
@@ -339,7 +339,7 @@ run_postfix_relocated_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_transport_manage: true
+run_postfix_transport_manage: false
 
 
 # Domain transport mapping for Postfix. This defines where to send emails to
@@ -389,7 +389,7 @@ run_postfix_transport_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_virtual_manage: true
+run_postfix_virtual_manage: false
 
 
 # Virtual alias domains for Postfix. This tells Postfix to accept incoming
@@ -452,7 +452,7 @@ run_postfix_virtual_alias_map:
 #
 # When false, you'll need to configure these settings or functionality manually
 # through run_postfix_maincf_settings or other means.
-run_postfix_smtp_sasl_password_manage: true
+run_postfix_smtp_sasl_password_manage: false
 
 
 # SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP
