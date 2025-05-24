@@ -23,8 +23,6 @@
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
   #    this converts dictionaries to strings objects, needing additional care.
   loop: "{{ lookup('template', 'helper_postmap_paths.j2') }}"
-  when:
-    - __run_postfix_merged_maincf_settings is defined
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
@@ -50,21 +48,24 @@
   # https://www.postfix.org/aliases.5.html
   ansible.builtin.command:
     # The "newaliases" executable usually only supports "hash:" databases (and
-    # therefore does not work for all modern configurations), so use the
-    # "postalias" command instead.
+    # therefore does not work for modern configurations), so use the "postalias"
+    # command instead.
     cmd: >
       {{ __run_postfix_postalias_executable }}
-      {{ __run_postfix_merged_maincf_settings['alias_database'] |
-         default('lmdb:/etc/aliases') |
-         regex_replace('^(hash):(.*)$', '\2') | ansible.builtin.quote }}
+      {{ item | ansible.builtin.quote }}
+  # Using an external template file because:
+  # 1. Single-line inline templates are hard to read and maintain
+  # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
+  #    this converts dictionaries to strings objects, needing additional care.
+  loop: "{{ lookup('template', 'helper_postalias_paths.j2') }}"
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
     # changed, so there is a change in any case. This is no idempotence problem
     # as this handler should only get triggered when Postfix configuration has
     # actually changed.
-    - __run_postfix_newaliases_result['rc'] == 0
-  register: __run_postfix_newaliases_result
+    - __run_postfix_postalias_result['rc'] == 0
+  register: __run_postfix_postalias_result
   listen: "run_postfix: update aliases"
 
 

@@ -1,17 +1,15 @@
 {# Get all paths of lookup table files from main.cf settings needed to be
-   processed with the "postmap" command.
+   processed with the "postalias" command.
 
    Example config values this template extracts paths from:
-   - virtual_alias_domains: "btree:/etc/postfix/virtual_domains"
-   - transport_maps: "lmdb:/etc/postfix/transport"
-   - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit"
+   - alias_database: "hash:/etc/aliases"
+   - alias_maps: "hash:/etc/aliases, nis:mail.aliases"
    [...]
 #}
 {% set paths = [] %}
 {% for key, value in __run_postfix_merged_maincf_settings.items() %}
-{#   Keys referencing files where other commands have to be used ("newaliases" or
-     "postalias") are excluded. #}
-{%   if (key not in ['alias_database', 'alias_maps']) and (value is string) %}
+{#   Keys referencing files where other commands have to be used ("postmap") are excluded. #}
+{%   if (key in ['alias_database', 'alias_maps']) and (value is string) %}
 {#     Unify whitespace separators to single space only #}
 {%     set value = (value | regex_replace('\s+', ' ') | trim) %}
 {#     Iterate over comma separated values (this loop runs one iteration if there none) #}

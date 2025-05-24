@@ -236,6 +236,58 @@ run_postfix_access_sender_map:
   {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
 
 
+# Switch to control whether the lookup table "aliases" is controlled by
+# dedicated settings and tasks of this role.
+#
+# "aliases" can rewrite local(!) addresses (no domain part) and redirect mails
+# to other mailboxes, files or commands:
+# - https://www.postfix.org/aliases.5.html
+# - https://www.postfix.org/local.8.html
+# - https://www.postfix.org/postconf.5.html#alias_database
+# - https://www.postfix.org/postconf.5.html#alias_maps
+#
+# When set to true (which is the default), the role will:
+#
+# 1. Create and manage table file(s) to manage mappings. It uses variables
+#    for the contents:
+#    - run_postfix_aliases_map
+# 2. Set (or extend) main.cf settings accordingly:
+#    - alias_maps
+#
+# When false, you'll need to configure these settings or functionality manually
+# through run_postfix_maincf_settings or other means.
+run_postfix_aliases_manage: false
+
+
+# The lookup table type to use if for the table defined by
+# run_postfix_aliases_map
+#
+# Most distributions and builds dropped support for Berkeley DB with
+# Postfix ≥ 3.9 and switched to "lmdb" (OpenLDAP LMDB database) which should be
+# the best default. "hash" and "btree" are available on systems with support for
+# Berkeley DB (and therefore deprecated / legacy now). "pcre" is usually faster
+# than "regex".
+#
+# Will be ignored if run_postfix_aliases_manage is set to false.
+run_postfix_aliases_map_tabletype: "lmdb"
+
+
+# Lookup-table 'alias': address mappings.
+#
+# Examples:
+#   abuse: "root"
+#   deamon123: "root, tux"
+#   foo: "/var/spool/mail/foo"
+#   bar: "| my_mail_script.sh"
+#   baz: "/dev/null"
+#   tux: "tux@example.com"
+#   root: "admin-info@example.com, admin2@example.net"
+#
+# Will be ignored if run_postfix_canonical_manage is set to false.
+run_postfix_aliases_map:
+  {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
+
+
 # Switch to control whether the lookup table "canonical" is controlled by
 # dedicated settings and tasks of this role.
 #

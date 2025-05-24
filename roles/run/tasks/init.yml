@@ -96,6 +96,8 @@
     # Lookup table: access
     __run_postfix_merged_access_recipient_map: "{{ run_postfix_access_recipient_map | ansible.builtin.combine(__run_postfix_access_recipient_map_defaults) }}"
     __run_postfix_merged_access_sender_map: "{{ run_postfix_access_sender_map | ansible.builtin.combine(__run_postfix_access_sender_map_defaults) }}"
+    # Lookup table: aliases
+    __run_postfix_merged_aliases_map: "{{ run_postfix_aliases_map | ansible.builtin.combine(__run_postfix_aliases_map_defaults) }}"
     # Lookup table: canonical
     __run_postfix_merged_canonical_recipient_map: "{{ run_postfix_canonical_recipient_map | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults) }}" # noqa: yaml[line-length]
     __run_postfix_merged_canonical_sender_map: "{{ run_postfix_canonical_sender_map | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults) }}"

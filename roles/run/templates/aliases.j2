@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+# This file defines mappings to redirects mail for local recipients. It is
+# always searched with an email address localpart (no domain portion).
+#
+# See the following resources for more information:
+#
+# - https://www.postfix.org/aliases.5.html
+# - https://www.postfix.org/local.8.html
+# - https://www.postfix.org/postconf.5.html#alias_database
+# - https://www.postfix.org/postconf.5.html#alias_maps
+
+{% for key, value in __run_postfix_merged_aliases_map.items() %}
+{{ key }}:{% if key|length < 15 %}{{ "\t\t\t" }}{% elif key|length < 23 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
+{% endfor %}

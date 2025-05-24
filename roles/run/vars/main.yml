@@ -198,14 +198,14 @@ __run_postfix_maincf_settings_defaults:
     #   MX hostname.
     # - permit_mx_backup
     #   OK if our server a backup MX (MX 20) of the the receivers's address.
+    #   To be placed after usual reject rules to have the same level of
+    #   protection as the main MX.
     # - permit at the end
     #   An implicit OK is always the end of the chain. It is just listed here
     #   to make it visible and easier to underestand the processing.
     - "permit_inet_interfaces"
     - "permit_mynetworks"
     - "permit_sasl_authenticated"
-    # reject_unauth_destination may not needed here if the mail relay policy is
-    # specified under smtpd_relay_restrictions
     - "reject_unauth_destination"
     - "reject_unknown_sender_domain"
     - "reject_unknown_recipient_domain"
@@ -311,10 +311,18 @@ __run_postfix_access_sender_map_defaults:
   {}
 
 
+# Default aliases mappings for Postfix.
+#
+# See in run_postfix_aliases_map in defaults/main.yml for a detailled
+# description of the structure (as this variable is using the same).
+__run_postfix_aliases_map_defaults:
+  {}
+
+
 # Default canonical recipient mappings for Postfix.
 #
-# See in run_postfix_canonical_recipient_map in defaults/main.yml for a detailled
-# description of the structure (as this variable is using the same).
+# See in run_postfix_canonical_recipient_map in defaults/main.yml for a
+# detailled description of the structure (as this variable is using the same).
 __run_postfix_canonical_recipient_map_defaults:
   {}
 
@@ -353,8 +361,8 @@ __run_postfix_transport_map_defaults:
 
 # Default virtual aliases domains for Postfix.
 #
-# See in run_postfix_virtual_aliasdomains_list in defaults/main.yml for a detailled
-# description of the structure (as this variable is using the same).
+# See in run_postfix_virtual_aliasdomains_list in defaults/main.yml for a
+# detailled description of the structure (as this variable is using the same).
 __run_postfix_virtual_aliasdomains_list_defaults:
   []
 
@@ -408,6 +416,11 @@ __run_postfix_table_access_sender_file: "/etc/postfix/access_sender"
 __run_postfix_table_access_sender_owner: "root"
 __run_postfix_table_access_sender_group: "root"
 __run_postfix_table_access_sender_mode: "u=rw,g=r,o=r" # 0644
+
+__run_postfix_table_aliases_file: "/etc/aliases" # This file usually exists
+__run_postfix_table_aliases_owner: "root"
+__run_postfix_table_aliases_group: "root"
+__run_postfix_table_aliases_mode: "u=rw,g=r,o=r" # 0644
 
 __run_postfix_table_canonical_recipient_file: "/etc/postfix/canonical_recipient"
 __run_postfix_table_canonical_recipient_owner: "root"

@@ -150,6 +150,66 @@
         - "run_postfix: update aliases"
 
 
+### Lookup table: aliases (selectively accept, reject, or filter email based on rules with PERMIT, REJECT and DUNNO)
+
+- name: "Config | Default | Lookup-table 'aliases'"
+  when:
+    - run_postfix_aliases_manage is true
+  block:
+
+    - name: "Config | Default | Lookup-table 'aliases': Inform if 'alias_maps' config value gets extended"
+      ansible.builtin.debug:
+        msg: |
+          Extending the original "run_postfix_maincf_settings['alias_maps']"
+          value "{{ run_postfix_maincf_settings['alias_maps'] }}" with
+          "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file }}"
+          at the first position as "run_postfix_aliases_manage" is true.
+      when:
+        - run_postfix_maincf_settings['alias_maps'] is defined
+        - run_postfix_maincf_settings['alias_maps'] | length > 0
+        - run_postfix_maincf_settings['alias_maps'] != (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file)
+
+
+    - name: "Config | Default | Lookup-table 'aliases': Set 'alias_maps' setting"
+      ansible.builtin.set_fact:
+        __run_postfix_merged_maincf_settings: |
+          {{ __run_postfix_merged_maincf_settings | combine({
+            'alias_maps': (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file) ~
+                              (', ' ~ __run_postfix_merged_maincf_settings['alias_maps']
+                              if (__run_postfix_merged_maincf_settings['alias_maps'] is defined) and
+                                  (__run_postfix_merged_maincf_settings['alias_maps'] | length > 0))
+          }) }}
+      when:
+        - run_postfix_maincf_settings['alias_maps'] is not defined or
+          run_postfix_maincf_settings['alias_maps'] != (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file)
+
+
+    # The file existence is checked and "ansible.builtin.blockinfile" instead of
+    # "ansible.builtin.template" used as the aliases file usually exists and
+    # already contains default data which should not be overwritten.
+    - name: "Config | Default | Lookup-table 'aliases': Ensure aliases file exists"
+      ansible.builtin.file:
+        path: "{{ __run_postfix_table_aliases_file }}"
+        state: "touch"
+        owner: "{{ __run_postfix_table_aliases_owner }}"
+        group: "{{ __run_postfix_table_aliases_group }}"
+        mode: "{{ __run_postfix_table_aliases_mode }}"
+        modification_time: "preserve"
+        access_time: "preserve"
+      notify:
+        # prevent warning: database /etc/aliases[...] is older than source file /etc/aliases
+        - "run_postfix: update aliases"
+
+
+    - name: "Config | Default | Lookup-table 'aliases': update {{ __run_postfix_table_aliases_file }}"
+      ansible.builtin.blockinfile:
+        path: "{{ __run_postfix_table_aliases_file }}"
+        marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
+        block: "{{ lookup('template', 'aliases.j2') }}"
+      notify:
+        - "run_postfix: update aliases"
+
+
 ### Lookup table: canonical (rewrites mail addresses before mail is stored into the queue)
 
 - name: "Config | Default | Lookup-table 'canonical'"
@@ -537,9 +597,15 @@
 
 ### Main configuration files (handled last as the previous task may changed settings)
 
-- name: "Config | Default | Print lookup table paths (extracted from main.cf settings)"
+- name: "Config | Default | Print postmap lookup table paths (extracted from main.cf settings)"
   ansible.builtin.debug:
     msg: "{{ lookup('template', 'helper_postmap_paths.j2') }}"
+    verbosity: 4
+
+
+- name: "Config | Default | Print postalias lookup table paths (extracted from main.cf settings)"
+  ansible.builtin.debug:
+    msg: "{{ lookup('template', 'helper_postalias_paths.j2') }}"
     verbosity: 4
 
 
@@ -573,10 +639,10 @@
   #   used command.
   # - Inline templating allows for safe and efficient parameter handling,
   #   avoiding the need for multiple additional tasks with little to no benefit.
-  # - We first uses [lineinfile|blockinfile], but it had major downsides:
+  # - We first used [lineinfile|blockinfile], but it had major downsides:
   #   1. The need to comment out already-defined values to prevent warnings.
   #   2. The great variation on different platforms may trigger high maintenance
-  #      for regexes and edge-cases, changed_when, ...
+  #      for regexes and edge-cases, changed_when, and so on...
   #   Using postconf in a loop seems to be the sanest way to handle the config.
   #
   # Notes on the command or script itself:
@@ -595,7 +661,7 @@
       fi
 
       # Ensure file ownership
-       {{ __run_postfix_chown_executable }} -c \
+      {{ __run_postfix_chown_executable }} -c \
         {{ (__run_postfix_maincf_owner ~ ':' ~ __run_postfix_maincf_group) | ansible.builtin.quote }} \
         {{ __run_postfix_maincf_file | ansible.builtin.quote }}
 
