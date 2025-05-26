@@ -1,9 +1,9 @@
 # {{ ansible_managed }}
 
 # This file defines a list of virtual alias domains Postfix is the final
-# destination for. Virtual domains are those for which all addresses are
-# aliased to addresses in other local or remote domains through mappings
-# and do not map to a local user account on the system.
+# destination for. Virtual domains (or hosted domains) are those for which all
+# addresses are aliased to addresses in other domains classes through
+# mappings, for example, a local UNIX system account or a remote address.
 #
 # These mappings are defined in the following file:
 # {{ __run_postfix_table_virtual_file }}
@@ -11,6 +11,7 @@
 # See the following resources for more information:
 #
 # - http://www.postfix.org/VIRTUAL_README.html
+# - https://www.postfix.org/ADDRESS_CLASS_README.html#classes
 # - https://www.postfix.org/virtual.5.html
 # - https://www.postfix.org/postconf.5.html#virtual_alias_domains
 # - https://www.postfix.org/postconf.5.html#virtual_alias_maps

@@ -1,10 +1,13 @@
 # {{ ansible_managed }}
 
 # This file defines the list of relay domains for which Postfix will accept
-# mail for relaying to their final destinations. By default, Postfix refuses to
-# relay mail to domains that aren't listed in this file to prevent the server
-# from being used as an open relay. Relay domains are also commonly used on the
-# same host (e.g. to put Postfix in front of a service like Dovecot or Cyrus
+# mail for relaying to their final destinations.
+#
+# By default, Postfix refuses to relay mail to domains that aren't listed in
+# this file to prevent the server from being used as an open relay. They main
+# purpose is usually mail forwarding to remote destinations that list your
+# system as primary or backup MX host. Relay domains are also commonly used on
+# the same host (e.g. to put Postfix in front of a service like Dovecot or Cyrus
 # which is the final destination then).
 #
 {% if run_postfix_transport_manage %}
@@ -17,6 +20,7 @@
 #
 # - https://www.postfix.org/postconf.5.html#relay_domains
 # - https://www.postfix.org/SMTPD_ACCESS_README.html
+# - https://www.postfix.org/ADDRESS_CLASS_README.html#relay_domain_class
 
 {% for domain in __run_postfix_merged_relay_domains %}
 {{ domain }}{% if domain|length < 16 %}{{ "\t\t\t" }}{% elif domain|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}relay
