@@ -70,6 +70,7 @@ __run_postfix_packages_install:
   # names across both supported platforms and unsupported, best-effort
   # platforms.
   - "postfix"
+  - "libsasl2-modules" # for SASL authentication support
 
 
 # Dictionary proving additional packages lists, to be installed for different
@@ -166,6 +167,8 @@ __run_postfix_maincf_settings_defaults:
   smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
   smtpd_helo_required: "yes" # SMTP client needs to introduces itself with HELO or EHLO before sending MAIL and related commands
   alias_maps: "lmdb:/etc/aliases"
+  delay_warning_time: "4h"
+  unverified_recipient_reject_reason: "Recipient address lookup failed"
   # For all smtpd_relay_restrictions, the specific result as well as order of
   # checks matters:
   #
@@ -181,36 +184,72 @@ __run_postfix_maincf_settings_defaults:
   smtpd_relay_restrictions:
     # The checks listed (and therefore used by default) are:
     #
-    # - permit_inet_interfaces
-    #   OK if the mail is from our local host itself.
-    # - permit_mynetworks
-    #   OK if the mail from an IP or network allowed using us as relay.
-    # - reject_unauth_destination
-    #   REJECT unless one of the following is true for RCPT TO-domain:
-    #   - matches $relay_domains or a subdomain thereof, and contains no
-    #     sender-specified routing
-    #   - Final destination: matches $mydestination, $inet_interfaces,
-    #     $proxy_interfaces, $virtual_alias_domains or $virtual_mailbox_domains,
-    #     and contains no sender-specified routing
-    # - reject_unknown_sender_domain and reject_unknown_recipient_domain:
-    #   REJECT if the MAIL FROM- or RCPT TO-domain has no DNS MX and no DNS A
-    #   record, or a malformed MX record such as a record with a zero-length
-    #   MX hostname.
+    # Do no accept technically dirty mail or communication:
+    #
+    # - reject_non_fqdn_sender:
+    #   REJECT when the MAIL FROM address specifies a domain that is not a
+    #   fully-qualified domain (FQDN).
+    # - reject_non_fqdn_recipient
+    #   REJECT when the RCPT TO address specifies a domain that is not a
+    #   fully-qualified domain (FQDN).
+    # - reject_unknown_sender_domain:
+    #   REJECT if Postfix is not the final destination for the recipient domain
+    #   an the MAIL TO-domain has no DNS MX and no DNS A record, or a malformed
+    #   MX record such as a record with a zero-length MX hostname (nullMX).
+    # - reject_unknown_recipient_domain:
+    #   REJECT if Postfix is not the final destination for the recipient domain
+    #   an the RCPT TO-domain has no DNS MX and no DNS A record, or a malformed
+    #   MX record such as a record with a zero-length MX hostname (nullMX).
+    # - reject_unknown_helo_hostname:
+    #   Reject the request when the HELO or EHLO hostname has no DNS A or MX
+    #   record.
+    #
+    # Allow our own users:
+    # - permit_sasl_authenticated:
+    #   PERMIT if the request when the client is successfully authenticated via
+    #   RFC 4954 (AUTH) protocol.
+    # - permit_inet_interfaces:
+    #   PERMIT if the mail is from our local host itself.
+    # - permit_mynetworks:
+    #   PERMIT if the mail from an IP or network allowed using us as relay.
+    #
+    # Dynamically check if recipients exists:
+    # - reject_unverified_recipient
+    #   REJECT mail to the RCPT TO address if it is known to bounce, or when the
+    #   recipient address destination is not reachable. See
+    #   https://www.postfix.org/ADDRESS_VERIFICATION_README.html for details
+    #
+    # Allow backup MX:
     # - permit_mx_backup
-    #   OK if our server a backup MX (MX 20) of the the receivers's address.
+    #   PERMIT if our server a backup MX (MX 20) of the the receivers's address.
     #   To be placed after usual reject rules to have the same level of
     #   protection as the main MX.
-    # - permit at the end
+    #
+    # Deny all other relaying:
+    # - reject_unauth_destination
+    #   REJECT unless one of the following is true for RCPT TO-domain:
+    #   1. Matches $relay_domains or a subdomain thereof, and contains no
+    #      sender-specified routing.
+    #   2. Final destination: matches $mydestination, $inet_interfaces,
+    #      $proxy_interfaces, $virtual_alias_domains or $virtual_mailbox_domains,
+    #      and contains no sender-specified routing
+    #
+    # End of processing:
+    # - permit
     #   An implicit OK is always the end of the chain. It is just listed here
-    #   to make it visible and easier to underestand the processing.
-    - "permit_inet_interfaces"
-    - "permit_mynetworks"
-    - "permit_sasl_authenticated"
-    - "reject_unauth_destination"
+    #   to make it visible and easier to underestand the processing. Every mail
+    #   which did not match a rule before via PERMIT or REJECT will get a PERMIT
+    #   here.
+    - "reject_non_fqdn_sender"
+    - "reject_non_fqdn_recipient"
     - "reject_unknown_sender_domain"
     - "reject_unknown_recipient_domain"
-    - "reject_non_fqdn_sender"
+    - "reject_unknown_helo_hostname" # needs "smtpd_helo_required = yes" to be effective
+    - "permit_sasl_authenticated"
+    - "permit_mynetworks"
+    - "reject_unverified_recipient"
     - "permit_mx_backup"
+    - "reject_unauth_destination"
     - "permit"
   # The following parameters are Postfix ≥ 3.9 defaults. We explicitly set them
   # here because they are either particularly important or may differ due to
@@ -227,6 +266,7 @@ __run_postfix_maincf_settings_defaults:
   body_checks_size_limit: 51200 # = 50 KiB
   bounce_size_limit: 50000 # ~ 49 KiB
   header_size_limit: 102400 # = 100 KiB
+  lmtp_data_done_timeout: "600s"
   canonical_classes:
     - "envelope_sender"
     - "envelope_recipient"
@@ -316,7 +356,9 @@ __run_postfix_access_sender_map_defaults:
 # See in run_postfix_aliases_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
 __run_postfix_aliases_map_defaults:
-  {}
+  abuse: "root"
+  postmaster: "root"
+  mailer-daemon: "postmaster"
 
 
 # Default canonical recipient mappings for Postfix.
