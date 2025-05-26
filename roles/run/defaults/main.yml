@@ -189,7 +189,7 @@ run_postfix_access_manage: false
 # than "regex".
 #
 # Will be ignored if run_postfix_access_manage is set to false.
-run_postfix_access_recipient_map_tabletype: "lmdb"
+run_postfix_access_recipient_map_tabletype: "pcre"
 
 
 # Lookup-table 'access': Recipient address restriction rules.
@@ -395,7 +395,7 @@ run_postfix_generic_manage: false
 # than "regex".
 #
 # Will be ignored if run_postfix_generic_manage is set to false.
-run_postfix_generic_map_tabletype: "lmdb"
+run_postfix_generic_map_tabletype: "pcre"
 
 
 # Lookup-table 'generic': Sender address mappings / rewrite rules.
@@ -452,7 +452,8 @@ run_postfix_relocated_map_tabletype: "lmdb"
 #
 # - Keys: Criterions / pattern to describe old addresses.
 # - Values: The new location, usually email addresses (or phone or other
-#           address or location strings)
+#           address or location strings; Postfix's default template starts with
+#           "User has moved to " so use a fitting string).
 # Example:
 #
 #   "user@example.com": "new@example.net"
