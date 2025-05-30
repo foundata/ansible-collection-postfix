@@ -1,5 +1,15 @@
-This file is updated by ``antsibull-changelog``. Do not edit it manually! See:
+=================================================
+foundata.postfix Ansible collection Release Notes
+=================================================
 
-- `changelogs/config.yaml <./changelogs/config.yaml>`_ for its configuration.
-- `changelogs/changelog.yaml` for contents and usage instructions as well as a
-  content template.
+.. contents:: Topics
+
+v1.0.0
+======
+
+Release Summary
+---------------
+
+Release Date: 2025-05-30
+
+First public release, providing all functionality and files.
