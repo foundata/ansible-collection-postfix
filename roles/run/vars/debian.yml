@@ -11,3 +11,8 @@
 
 # name of the main postfix package to pre-configure with debconf
 __run_postfix_debian_debconf_postfixpkgname: "postfix"
+
+
+__run_postfix_packages_install:
+  - "postfix"
+  - "libsasl2-modules" # for SASL authentication support

@@ -70,7 +70,6 @@ __run_postfix_packages_install:
   # names across both supported platforms and unsupported, best-effort
   # platforms.
   - "postfix"
-  - "libsasl2-modules" # for SASL authentication support
 
 
 # Dictionary proving additional packages lists, to be installed for different
