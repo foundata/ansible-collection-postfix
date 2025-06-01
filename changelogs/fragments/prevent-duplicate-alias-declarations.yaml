@@ -1,0 +1,4 @@
+---
+
+minor_changes:
+  - Prevent duplicate alias declarations by commenting out previously existing aliases in the lookup-table when they are also defined in ``run_postfix_aliases_map`` or ``__run_postfix_aliases_map_defaults``.

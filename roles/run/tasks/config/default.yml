@@ -210,6 +210,17 @@
         - "run_postfix: update aliases"
 
 
+    - name: "Config | Default | Lookup-table 'aliases': Comment out existing aliases before Ansible managed block"
+      ansible.builtin.replace:
+        path: "{{ __run_postfix_table_aliases_file }}"
+        regexp: '^({{ item }}:\s*.*)'
+        replace: '#\1'
+        before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
+      loop: "{{ __run_postfix_merged_aliases_map.keys() | list }}"
+      notify:
+        - "run_postfix: update aliases"
+
+
 ### Lookup table: canonical (rewrites mail addresses before mail is stored into the queue)
 
 - name: "Config | Default | Lookup-table 'canonical'"
