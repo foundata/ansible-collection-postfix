@@ -9,7 +9,7 @@
       - "ca-certificates" # Certificate management tools
       - "openssl" # Create certificates, test STARTTLS
       - "python3-pexpect" # Ansible (ansible.builtin.expect)
-      - "telnet" # Test SMTP
+      - "telnet" # Easy communication with SMTP
     state: "present"
 
 
@@ -50,34 +50,6 @@
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
   loop:
-    - file: "dhparam_ffdhe4096"
-      content: |
-        -----BEGIN DH PARAMETERS-----
-        MIICCAKCAgEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
-        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
-        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
-        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
-        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
-        ssbzSibBsu/6iGtCOGEfz9zeNVs7ZRkDW7w09N75nAI4YbRvydbmyQd62R0mkff3
-        7lmMsPrBhtkcrv4TCYUTknC0EwyTvEN5RPT9RFLi103TZPLiHnH1S/9croKrnJ32
-        nuhtK8UiNjoNq8Uhl5sN6todv5pC1cRITgq80Gv6U93vPBsg7j/VnXwl5B0rZp4e
-        8W5vUsMWTfT7eTDp5OWIV7asfV9C1p9tGHdjzx1VA0AEh/VbpX4xzHpxNciG77Qx
-        iu1qHgEtnmgyqQdgCpGBMMRtx3j5ca0AOAkpmaMzy4t6Gh25PXFAADwqTs6p+Y0K
-        zAqCkc3OyX3Pjsm1Wn+IpGtNtahR9EGC4caKAH5eZV9q//////////8CAQI=
-        -----END DH PARAMETERS-----
-    - file: "dhparam_ffdhe3072"
-      content: |
-        -----BEGIN DH PARAMETERS-----
-        MIIBiAKCAYEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
-        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
-        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
-        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
-        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
-        ssbzSibBsu/6iGtCOGEfz9zeNVs7ZRkDW7w09N75nAI4YbRvydbmyQd62R0mkff3
-        7lmMsPrBhtkcrv4TCYUTknC0EwyTvEN5RPT9RFLi103TZPLiHnH1S/9croKrnJ32
-        nuhtK8UiNjoNq8Uhl5sN6todv5pC1cRITgq80Gv6U93vPBsg7j/VnXwl5B0rZsYu
-        N///////////AgEC
-        -----END DH PARAMETERS-----
     - file: "dhparam_ffdhe2048"
       content: |
         -----BEGIN DH PARAMETERS-----
@@ -88,6 +60,24 @@
         7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
         ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         -----END DH PARAMETERS-----
+  when:
+    # The file is passed via smtpd_tls_dh1024_param_file to Postfix.
+    # From: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
+    # With Postfix ≥ 3.7, built with OpenSSL version is 3.0.0 or later, if the
+    # parameter value is either empty or "auto" then the DH parameter selection
+    # is delegated to the OpenSSL library, which selects appropriate parameters
+    # based on the TLS handshake.
+    #
+    # This matches the following target platforms:
+    # - Enterprise Linux 9 (OpenSSL 3.2.x, Postfix 3.5)
+    # - Debian 11 (OpenSSL 1.1.x, Postfix 3.5)
+    # - Ubuntu 22.04 (OpenSSL 3.0.x, Postfix 3.6)
+    #
+    # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
+    # handling can be removed if these targets are not supported anymore.
+    - ((ansible_facts['os_family'] | lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<='))) or
+      ((ansible_facts['distribution'] | lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
+      ((ansible_facts['distribution'] | lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
 
 
 - name: "Molecule | Prepare | Certificates: Get info about dummy cert file"
@@ -165,3 +155,109 @@
     cmd: "/usr/bin/update-ca-trust"
   when:
     - (ansible_facts['os_family'] | lower) == 'redhat'
+
+
+### SASL (Simple Authentication and Security Layer) for better testing of restrictions
+# Resources:
+# - https://www.postfix.org/SASL_README.html
+# - Why only PLAIN LOGIN:
+#   https://datatracker.ietf.org/doc/html/draft-ietf-sasl-crammd5-to-historic-00.html#section-2
+# - Important files:
+#   Red Hat:
+#   - /etc/sasl2/smtpd.conf ()
+#   - /etc/sysconfig/saslauthd
+#   Debian:
+#   - /etc/sasl2/smtpd.conf (Provided by Postfix)
+#   - /etc/default/saslauthd
+
+- name: "Molecule | Prepare | Set variables for Cyrus SASL (Debian)"
+  ansible.builtin.set_fact:
+    __testing_run_postfix_packages_install_sasl_cyrus:
+      - "libsasl2-modules"
+      - "sasl2-bin" # Cyrus SASL - administration programs for SASL users database
+    __testing_run_sasl_saslauthd_config_file: "/etc/default/saslauthd"
+    __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
+    __testing_run_sasl_smtpd_config_file: "/etc/postfix/sasl/smtpd.conf" # Provided by Postfix packages
+  when:
+    - (ansible_facts['os_family'] | lower) == 'debian'
+
+
+- name: "Molecule | Prepare | Set variables for Cyrus SASL (Red Hat)"
+  ansible.builtin.set_fact:
+    __testing_run_postfix_packages_install_sasl_cyrus:
+      - "cyrus-sasl"
+      - "cyrus-sasl-plain"
+    __testing_run_sasl_saslauthd_config_file: "/etc/sysconfig/saslauthd"
+    __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
+    __testing_run_sasl_smtpd_config_file: "/etc/sasl2/smtpd.conf" # Provided by Postfix packages
+  when:
+    - (ansible_facts['os_family'] | lower) == 'redhat'
+
+
+- name: "Molecule | Prepare | Install Cyrus SASL authentication packages"
+  ansible.builtin.package:
+    name: "{{ __testing_run_postfix_packages_install_sasl_cyrus }}"
+    state: "present"
+
+
+- name: "Molecule | Prepare | Configure saslauthd"
+  ansible.builtin.lineinfile:
+    path: "{{ __testing_run_sasl_saslauthd_config_file }}"
+    regexp: "{{ item['regexp'] }}"
+    line: "{{ item['line'] }}"
+  loop:
+    - { regexp: '^START=', line: 'START=yes' }
+
+
+- name: "Molecule | Prepare | Ensure existence of Cyrus SASL smtpd.conf parent directory"
+  ansible.builtin.file:
+    path: "{{ __testing_run_sasl_smtpd_config_file | ansible.builtin.dirname }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx" # 0755
+
+
+- name: "Molecule | Prepare | Create Cyrus SASL smtpd.conf"
+  ansible.builtin.copy:
+    dest: "{{ __testing_run_sasl_smtpd_config_file }}"
+    content: |
+      log_level: 3
+      pwcheck_method: saslauthd
+      mech_list: PLAIN LOGIN
+    force: true
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r" # 0644
+
+
+- name: "Molecule | Prepare | Ensure service state: saslauthd"
+  ansible.builtin.service:
+    name: "saslauthd.service"
+    state: "restarted"
+    enabled: true
+
+
+- name: "Molecule | Prepare | Create a local test user for SMPT authentication (SASL)"
+  ansible.builtin.user:
+    comment: "SMPT test user"
+    create_home: true
+    force: true
+    # Base64: am9obmRvZQ==
+    name: "johndoe"
+    # Security Notice: These are NOT real credentials.
+    #
+    # This is example configuration data intended for demonstration purposes
+    # only. Reporting this as a vulnerability or data leak suggests a failure to
+    # properly review automated scanning results, and may reflect poorly on your
+    # professional diligence. ;-)
+    #
+    # Plain: Hallo123postfix__
+    # Base64: SGFsbG8xMjNwb3N0Zml4X18=
+    password: "$6$aLzJcqJEXjx2VTpS$SKxw.kqr.vxWw8/vkZWi7hDAICVU5WFKPjVgnM/yNCa2ES.jMN6uJGvIE0gP39ShRWovmvsd9Y51nROVnx71S/"
+    remove: true
+    shell: "/sbin/nologin"
+    state: "present"
+    system: false
+    update_password: "always"
+    umask: "0027"

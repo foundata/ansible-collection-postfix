@@ -1,6 +1,5 @@
 # Tasks for the Molecule verify stage: Check collection role "run" outcomes.
 
-
 - name: "Molecule | Verify | Initialize the foundata.postfix.run role (without actually running it; get and expose variables)"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
@@ -90,14 +89,33 @@
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
 
+- name: "Molecule | Verify | Set regular expression to search for warnings and errors in the journal"
+  ansible.builtin.set_fact:
+    __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):'
+
+
+# Exclude OpenSSL version mismatch warnings on Enterprise Linux 9/10:
+# "run-time library vs. compile-time header version mismatch: OpenSSL <version> may not be compatible with OpenSSL 3.2.0"
+# This warning is unavoidable when using default packages. Upgrading openssl/openssl-libs results in OpenSSL 3.5.x vs.
+# Postfix compiled against 3.2.0, still triggering the warning (therefore https://access.redhat.com/solutions/7100609
+# does not resolve this issue)
+- name: "Molecule | Verify | Overwrite regular expression to search for warnings and errors in the journal for specific Red Hat-like platforms"
+  ansible.builtin.set_fact:
+    __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):(?!.*header version mismatch: OpenSSL)'
+  when:
+    - (ansible_facts['os_family'] | lower) == 'redhat'
+    - ansible_facts['distribution_major_version'] is defined
+    - ansible_facts['distribution_major_version'] is ansible.builtin.version('10', '<=')
+
+
 - name: "Molecule | Verify | Check journal for warnings or errors: Postfix"
   ansible.builtin.command:
     cmd: >
       {{ __testing_journalctl_executable }}
         --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
   changed_when: false
-  failed_when: >
-    (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):'))
+  failed_when:
+    - (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
   register: __testing_run_postfix_journalctlcheck_result
 
 
@@ -157,8 +175,8 @@
     - name: "Molecule | Verify | Assert access_recipient file contents"
       ansible.builtin.assert:
         that:
-          - "'/^burned@example.com$/i\t\tREJECT' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
-          - "'/^do-not-reply@example.com$/i\tREJECT' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
+          - "'/^abuse@.+/i\t\t\tOK' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
+          - "'/^do-not-reply@example.com$/im\tREJECT' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_access_recipient_file }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_access_recipient_file }}"
 
@@ -294,8 +312,8 @@
     - name: "Molecule | Verify | Assert canonical_sender file contents"
       ansible.builtin.assert:
         that:
-          - "'/^(.+)@alias1.example.com$/i-s\t$1@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
-          - "'/^(.+)@alias2.example.com$/i-s\tdo-not-reply@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
+          - "'/^(.+)@alias1.example.com$/im\t$1@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
+          - "'/^(.+)@alias2.example.com$/im\tdo-not-reply@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_canonical_sender_file }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_canonical_sender_file }}"
 
@@ -370,7 +388,7 @@
     - name: "Molecule | Verify | Assert generic file contents"
       ansible.builtin.assert:
         that:
-          - "'/^(.+)@ad\\.local$/i-s\t\t$1@example.com' in (__testing_generic_file.content | b64decode)" # noqa: no-tabs
+          - "'/^(.+)@ad\\.local$/im\t\t$1@example.com' in (__testing_generic_file.content | b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_generic_file }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_generic_file }}"
 
@@ -668,7 +686,7 @@
       changed_when: false
       failed_when:
         - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):')) or
+          (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror)) or
           (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)sender non-delivery notification')) or
           (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)connection refused')) or
           (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)relayhost configuration problem')) or
@@ -717,4 +735,4 @@
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
-      (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)\b(warning|error):'))
+      (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))

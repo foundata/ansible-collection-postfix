@@ -5,7 +5,7 @@
     command: >
         {{ __testing_openssl_executable }}
           s_client -starttls smtp -crlf -quiet
-          -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port']  | ansible.builtin.quote }}
+          -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
       # Wait for response
       '(?i)250.*\r?\n': "QUIT"
