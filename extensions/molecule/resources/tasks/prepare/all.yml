@@ -261,3 +261,30 @@
     system: false
     update_password: "always"
     umask: "0027"
+
+
+# This would be the clean way in a real world scenario:
+#
+#   - name: "Molecule | Prepare | Grant Postfix's service user access to saslauthd resources (like its socket) by adding it to the sasl group (Debian)"
+#     ansible.builtin.user:
+#       name: "postfix"
+#       groups:
+#         - "sasl"
+#       append: true # do not remove existing group memberships
+#     when:
+#       - (ansible_facts['os_family'] | lower) == 'debian'
+#
+# However, we have got a chicken-egg problem here as Postfix is not installed
+# yet and creating it's service user upfront would tamper the installation
+# testing itself. Moving the task to "converge" also feels unclean. So we picked
+# the following, insecure method which seems to be OK for this testing scenario.
+# Note: the permissions get resetted when saslauthd.service is restarted.
+- name: "Molecule | Prepare | Grant everyone access to the saslauthd socket directory (only for test) (Debian)"
+  ansible.builtin.file:
+    path: "/var/run/saslauthd"
+    state: "directory"
+    mode: "755"
+    owner: "root"
+    group: "sasl"
+  when:
+    - (ansible_facts['os_family'] | lower) == 'debian'

@@ -5,11 +5,8 @@
     command: |
       {{ __testing_telnet_executable }} {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
-      # Wait for initial banner that ends with a newline
       '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
-      # Wait for response to EHLO command
-      '(?i)250.*\r?\n': "QUIT"
-      # Wait for response to QUIT
+      '(?i)250 .*\r?\n': "QUIT"
       '(?i)221.*\r?\n': ""
     timeout: 5
   changed_when: false

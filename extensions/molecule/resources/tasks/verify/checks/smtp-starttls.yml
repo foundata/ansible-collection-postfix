@@ -7,9 +7,7 @@
           s_client -starttls smtp -crlf -quiet
           -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
-      # Wait for response
-      '(?i)250.*\r?\n': "QUIT"
-      # Wait for response to QUIT
+      '(?i)250 .*\r?\n': "QUIT"
       '(?i)221.*\r?\n': ""
     timeout: 5
   changed_when: false

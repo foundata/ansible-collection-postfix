@@ -54,7 +54,6 @@
     # The following configuration is using many features ans makes no real sense
     # from a production point of view. But it might be interesting regarding the
     # features when tinkering out your own.
-
     run_postfix_maincf_settings:
       myhostname: "smtp.example.com"
       mydomain: "example.com"
@@ -96,7 +95,6 @@
         - "reject_non_fqdn_sender"
         - "reject_non_fqdn_recipient"
         - "permit_sasl_authenticated"
-        - "permit_mynetworks"
           # REJECT unless one of the following is true for RCPT TO-domain:
           #   1. Matches $relay_domains or a subdomain thereof, and contains no
           #      sender-specified routing.
@@ -105,14 +103,12 @@
           #      and contains no sender-specified routing
         - "reject_unauth_destination"
         - "permit"
-
       # https://www.postfix.org/SASL_README.html#server_cyrus
       smtpd_sasl_auth_enable: "yes"
       smtpd_sasl_type: "cyrus"
       smtpd_sasl_path: "smtpd"
       smtpd_sasl_security_options: "noanonymous"
       smtpd_sasl_tls_security_options: "$smtpd_sasl_security_options"
-
     run_postfix_mastercf_settings:
       2525: # Test if a unusual port works
         type: "inet"
@@ -122,11 +118,19 @@
         wakeup: "-"
         maxproc: "-"
         command_args: "smtpd"
-
     run_postfix_relay_domains_manage: true
     run_postfix_relay_domains_list: |-
       {{ [__testing_mailfrom_relay_domain] }}
-
+    # Mail to
+    #   user345@example.com: relocated info
+    #   user.old@example.com: relocated info
+    #   molecule: mail to root (local)
+    #   burned@example.com: REJECT (SMTP restriction)
+    #   do-not-reply@example.com: REJECT (SMTP restriction)
+    # Mail from
+    #   root@ad.local: rewrite to root@example.com (via generic)
+    #   root@alias1.example.com: rewrite to root@example.com (via canonical)
+    #   root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
     run_postfix_access_manage: true
     run_postfix_access_recipient_map_tabletype: "pcre"
     run_postfix_access_recipient_map:
@@ -139,27 +143,12 @@
       # Deny-list (blacklist) other addresses
       "/^burned@example.com$/im": "REJECT"
       "/^do-not-reply@example.com$/im": "REJECT" # Prevent Mail-loop because of our run_postfix_canonical_sender_map
-
     run_postfix_aliases_manage: true
     run_postfix_aliases_map:
       abuse: "root"
       baz: "/dev/null"
       molecule: "root" # Alias will be tested for delivery to root during verify stage
       new.name: "root"
-
-    # Mail to
-    # user345@example.com: relocated info
-    # user.old@example.com: relocated info
-    # molecule: mail to root (local)
-    # burned@example.com: REJECT (SMTP restriction)
-    # do-not-reply@example.com: REJECT (SMTP restriction)
-
-    # Mail from
-    # root@ad.local: rewrite to root@example.com (via generic)
-    # root@alias1.example.com: rewrite to root@example.com (via canonical)
-    # root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
-
-    # manage
     run_postfix_canonical_manage: true
     run_postfix_canonical_recipient_map:
       "old.name@example.com": "new.name@example.com"
@@ -168,18 +157,15 @@
     run_postfix_canonical_sender_map:
       '/^(.+)@alias1.example.com$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
       '/^(.+)@alias2.example.com$/im': "do-not-reply@example.com" # Rewrite all outgoing mail addresses form @ad.local
-
     run_postfix_generic_manage: true
     run_postfix_generic_map_tabletype: "pcre"
     run_postfix_generic_map:
       '/^(.+)@ad\.local$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
-
     run_postfix_relocated_manage: true
     run_postfix_relocated_map:
       "user.old@example.com": "user.new@example.net"
       # Postfix's default template starts with "User has moved to " so use a fitting string.
       "user345@example.com": "to ACME Inc.; Please contact him there now."
-
     run_postfix_transport_manage: true
     run_postfix_transport_map: |-
       {{
@@ -196,7 +182,6 @@
           else {}
         )
       }}
-
     run_postfix_virtual_manage: true
     run_postfix_virtual_aliasdomains_list:
       - "alias1.example.com"
@@ -215,7 +200,6 @@
         - "office@example.com"
       "@alias2.example.com": # Catch-all for alias2.example.com, rewrite all @alias2.example.com addresses to @example.com
         - "example.com"
-
     # Security Notice: These keys do NOT contain real credentials.
     #
     # This is example configuration data intended for demonstration purposes

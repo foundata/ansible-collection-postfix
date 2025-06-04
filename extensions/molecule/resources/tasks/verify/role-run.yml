@@ -50,6 +50,8 @@
         if (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] | int == 11)
         else '/usr/bin/journalctl'
       }}
+    __testing_sasl_auth_username_base64: "am9obmRvZQ==" # johndoe
+    __testing_sasl_auth_password_base64: "SGFsbG8xMjNwb3N0Zml4X18=" # Hallo123postfix__
 
 
 - name: "Molecule | Verify | Gather service facts"
@@ -193,7 +195,7 @@
       when:
         - run_postfix_access_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_access_db_stat.stat.exists is false
+        - __testing_access_db_stat['stat']['exists'] is false
       register: __testing_access_db_stat
 
 
@@ -223,7 +225,7 @@
       when:
         - run_postfix_access_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_access_db_stat.stat.exists is false
+        - __testing_access_db_stat['stat']['exists'] is false
       register: __testing_access_db_stat
 
 
@@ -261,7 +263,7 @@
       when:
         - run_postfix_aliases_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_aliases_db_stat.stat.exists is false
+        - __testing_aliases_db_stat['stat']['exists'] is false
       register: __testing_aliases_db_stat
 
 
@@ -299,7 +301,7 @@
       when:
         - run_postfix_canonical_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_canonical_db_stat.stat.exists is false
+        - __testing_canonical_db_stat['stat']['exists'] is false
       register: __testing_canonical_db_stat
 
 
@@ -330,7 +332,7 @@
       when:
         - run_postfix_canonical_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_canonical_db_stat.stat.exists is false
+        - __testing_canonical_db_stat['stat']['exists'] is false
       register: __testing_canonical_db_stat
 
 
@@ -368,7 +370,7 @@
       when:
         - run_postfix_relocated_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_relocated_db_stat.stat.exists is false
+        - __testing_relocated_db_stat['stat']['exists'] is false
       register: __testing_relocated_db_stat
 
 
@@ -405,7 +407,7 @@
       when:
         - run_postfix_generic_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_generic_db_stat.stat.exists is false
+        - __testing_generic_db_stat['stat']['exists'] is false
       register: __testing_generic_db_stat
 
 
@@ -443,7 +445,7 @@
       when:
         - run_postfix_transport_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_transport_db_stat.stat.exists is false
+        - __testing_transport_db_stat['stat']['exists'] is false
       register: __testing_transport_db_stat
 
 
@@ -481,8 +483,9 @@
       when:
         - run_postfix_virtual_alias_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_virtual_db_stat.stat.exists is false
+        - __testing_virtual_db_stat['stat']['exists'] is false
       register: __testing_virtual_db_stat
+
 
     - name: "Molecule | Verify | Read virtual file (alias domains)"
       ansible.builtin.slurp:
@@ -511,7 +514,7 @@
       when:
         - run_postfix_virtual_aliasdomains_list_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_virtual_db_stat.stat.exists is false
+        - __testing_virtual_db_stat['stat']['exists'] is false
       register: __testing_virtual_db_stat
 
 
@@ -549,7 +552,7 @@
       when:
         - run_postfix_smtp_sasl_password_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_smtp_sasl_password_db_stat.stat.exists is false
+        - __testing_smtp_sasl_password_db_stat['stat']['exists'] is false
       register: __testing_smtp_sasl_password_db_stat
 
 
@@ -558,7 +561,7 @@
 - name: "Molecule | Verify | Send local test email: set subject line"
   ansible.builtin.set_fact:
     __testing_postfix_local_email_subject: >-
-      Test email from foundata.postfix.run
+      Test email from Ansible
       ({{ inventory_hostname }}@{{ lookup('ansible.builtin.pipe', __testing_date_executable ~ ' ' ~ ('+%s' | ansible.builtin.quote)) }})
 
 
@@ -599,10 +602,10 @@
         exit 0
       fi
     executable: "/bin/bash" # Support for other shells untested (so far)
-  register: __testing_check_root_mail
   changed_when: false
   failed_when:
     - __testing_check_root_mail['rc'] != 0
+  register: __testing_check_root_mail
 
 
 - name: "Molecule | Verify | Send local test email: Assert email was delivered to root"
@@ -613,20 +616,20 @@
     success_msg: "Email was successfully delivered to root's mailbox"
 
 
-## Check if sending emails to a real destination via Internet works
+### Check if sending emails to a real destination via Internet works
 
-- name: "Molecule | Verify | Send test email: check for environment variables"
+- name: "Molecule | Verify | Send SASL authenticated test email: check for environment variables"
   ansible.builtin.set_fact:
     __testing_missing_envvars_sendmail: "{{ __testing_missing_envvars_sendmail | default([]) + [item] }}"
   when:
     - lookup('env', item, default='') == ''
   changed_when: false # noqa: no-changed-when
   loop:
-    - "TEST_POSTFIX_MAILFROM"
-    - "TEST_POSTFIX_MAILTO"
+    - "TEST_POSTFIX_MAILFROM_EMAIL"
+    - "TEST_POSTFIX_MAILTO_EMAIL"
 
 
-- name: "Molecule | Verify | Send test email: show missing environment variables (if any)"
+- name: "Molecule | Verify | Send SASL authenticated test email: show missing environment variables (if any)"
   ansible.builtin.debug:
     msg: >
       Tests regarding sending an email to an external address will be skipped,
@@ -637,47 +640,70 @@
     - __testing_missing_envvars_sendmail | length > 0
 
 
-- name: "Molecule | Verify | Send test email: gather environment variables"
+- name: "Molecule | Verify | Send SASL authenticated test email: gather environment variables"
   ansible.builtin.set_fact:
-    __testing_mailfrom: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM', default='') | default(omit) }}"
-    __testing_mailto: "{{ lookup('env', 'TEST_POSTFIX_MAILTO') | default(omit) }}"
+    __testing_mailfrom_email: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_EMAIL') | default(omit, true) }}"
+    __testing_mailfrom_name: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_NAME', default='John Doe') }}"
+    __testing_mailto_email: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL') | default(omit, true) }}"
+    __testing_mailto_name: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
     - __testing_missing_envvars_sendmail is not defined or
       (__testing_missing_envvars_sendmail | length <= 0)
 
 
-- name: "Molecule | Verify | Send test email"
+- name: "Molecule | Verify | Send SASL authenticated test email"
   when:
-    - __testing_mailfrom is defined
-    - __testing_mailto is defined
+    - __testing_mailfrom_email is defined
+    - __testing_mailto_email is defined
     - __testing_missing_envvars_sendmail is not defined or
       (__testing_missing_envvars_sendmail | length <= 0)
   block:
 
-    - name: "Molecule | Verify | Send test email: add email to queue"
-      ansible.builtin.shell:
-        cmd: |
-          set -u # Fail on unset vars
-          set -o pipefail # Fail if any pipe cmd fails
-          {{ __testing_sendmail_executable }} -i -t <<-'EOF'
-          From: {{ __testing_mailfrom }}
-          To: {{ __testing_mailto }}
-          Subject: Test email from foundata.postfix.run ({{ inventory_hostname }})
-          Content-Type: text/plain; charset=UTF-8
-
-          This is a test email intended to be sent with Postfix to an external address.
-          EOF
-
-          sleep 10 # Wait briefly for queueing
-          exit 0
-        executable: "/bin/bash" # Support for other shells untested (so far)
-      changed_when: true
+    - name: "Molecule | Verify | Send SASL authenticated test email: add email to queue"
+      ansible.builtin.expect:
+        command: >
+            {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+        responses:
+          '(?i)220.*\r?\n': "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
+          '(?i)250 .*\r?\n':
+            - "AUTH LOGIN"
+            - "RCPT TO: <{{ __testing_mailto_email }}>"
+            - "DATA"
+            - "QUIT"
+          '(?i)354.*\r?\n': "From: \"{{ __testing_mailfrom_name }}\" <{{ __testing_mailfrom_email }}>\r\nTo: \"{{ __testing_mailto_name }}\" <{{ __testing_mailto_email }}>\r\nSubject: Test email from Ansible ({{ inventory_hostname }})\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nThis is a test email intended to be sent with Postfix to an external address\r\n.\r\n" # noqa: yaml[line-length]
+          '(?i)334.*\r?\n':
+            - "{{ __testing_sasl_auth_username_base64 }}"
+            - "{{ __testing_sasl_auth_password_base64 }}"
+          '(?i)235.*\r?\n': "MAIL FROM: <{{ __testing_mailfrom_email }}>"
+          '(?i)554.*\r?\n': "QUIT"
+          '(?i)221.*\r?\n': ""
+        timeout: 5
+      changed_when: false
       failed_when:
-        - __testing_sendmail_relay_result['rc'] != 0
-      register: __testing_sendmail_relay_result
+        # Most (not all) versions of telnet return exit status 1 if the
+        # connection was closed by the host after QUIT which is expected
+        # in this case.
+        - __testing_run_postfix_rcpttoexternal_result['rc'] > 1
+      register: __testing_run_postfix_rcpttoexternal_result
 
 
-    - name: "Molecule | Verify | Send test email: Check journal for warnings or errors logged"
+    - name: "Molecule | Verify | Assert correct answers: Send SASL authenticated test email"
+      ansible.builtin.assert:
+        that:
+          # Most (not all) versions of telnet return exit status 1 if the
+          # connection was closed by the host after QUIT which is expected
+          # in this case.
+          #- __testing_run_postfix_rcpttoexternal_result is succeeded
+          - ('220 ' ~ run_postfix_maincf_settings['myhostname'] ~ ' ESMTP') in __testing_run_postfix_rcpttoexternal_result['stdout']
+          - ('250 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
+          - ('221 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
+          - ('235 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
+          - ('Authentication successful') in __testing_run_postfix_rcpttoexternal_result['stdout']
+          - ('queued as') in __testing_run_postfix_rcpttoexternal_result['stdout']
+        fail_msg: "Send SASL authenticated test email: Expected proper responses to SMTP commands"
+
+
+    - name: "Molecule | Verify | Send SASL authenticated test email: Check journal for warnings or errors logged"
       ansible.builtin.command:
         cmd: >
           {{ __testing_journalctl_executable }}
@@ -685,16 +711,19 @@
             --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
       changed_when: false
       failed_when:
+        # Not searching for the following  because test emails are likely to be
+        # bounced/deferred by spam filters when the testing infrastructure uses
+        # non-static IP addresses etc. pp. and other tests here are creating NDRs:
+        #  '(?i)status=(bounced|deferred)'
+        #  '(?i)sender non-delivery notification'
         - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
           (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror)) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)sender non-delivery notification')) or
           (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)connection refused')) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)relayhost configuration problem')) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)status=(bounced|deferred)'))
+          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)relayhost configuration problem'))
       register: __testing_run_postfix_journalctlcheck_result
 
 
-    - name: "Molecule | Verify | Send test email: Check mail queue for transport issues"
+    - name: "Molecule | Verify | Send SASL authenticated test email: Check mail queue for transport issues"
       ansible.builtin.command:
         cmd: |-
           {{ __testing_postqueue_executable }} -p
@@ -717,13 +746,13 @@
       ansible.builtin.assert:
         that:
           - __testing_run_postfix_journalctlcheck_result is succeeded
-          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/qmgr.+from=')
-          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/smtp.+to=')
+          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/qmgr.+from=<' ~ __testing_mailfrom_email ~ '>')
+          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/smtp.+to=<' ~ __testing_mailto_email ~ '>')
         fail_msg: "Test email for queue check was not found in Postfix queue"
         success_msg: "Test email for queue check was successfully found in Postfix queue"
 
 
-### Final check of logs before running falsification tests
+### Final check of logs before running tests triggering errors (like non-delivery reports (NDR))
 
 - name: "Molecule | Verify | Check journal for warnings or errors logged during verify: Postfix"
   ansible.builtin.command:
@@ -731,8 +760,114 @@
       {{ __testing_journalctl_executable }}
         --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
         --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
-  register: __testing_run_postfix_journalctlcheck_result
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
       (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
+  register: __testing_run_postfix_journalctlcheck_result
+
+
+### Check relocated non-delivery report (NDR)
+
+- name: "Molecule | Verify | Send test email to relocated recipient(s): add email to queue"
+  ansible.builtin.shell:
+    cmd: |
+      set -u # Fail on unset vars
+      set -o pipefail # Fail if any pipe cmd fails
+      {{ __testing_sendmail_executable }} -i -t <<-'EOF'
+      From: root
+      To: user345@example.com
+      Subject: Test email from Ansible to get a relocated NDR ({{ inventory_hostname }}@{{ lookup('ansible.builtin.pipe', __testing_date_executable ~ ' ' ~ ('+%s' | ansible.builtin.quote)) }})
+      Content-Type: text/plain; charset=UTF-8
+
+      This is a test email intended to generate a Email non-delivery report (NDR)
+      with additional relocated information.
+      EOF
+
+      sleep 3 # Wait briefly for queueing
+      sleep 3 # Wait briefly for NDR
+      exit 0
+    executable: "/bin/bash" # Support for other shells untested (so far)
+  changed_when: true
+  failed_when:
+    - __testing_sendmail_relocated_recipient_result['rc'] != 0
+  register: __testing_sendmail_relocated_recipient_result
+
+
+- name: "Molecule | Verify | Send SASL authenticated test email: Check journal for 'User has moved' bounce"
+  ansible.builtin.command:
+    cmd: >
+      {{ __testing_journalctl_executable }}
+        --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
+        --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+  changed_when: false
+  failed_when:
+    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
+      not (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)status=bounced.*User has moved to'))
+  register: __testing_run_postfix_journalctlcheck_result
+
+
+- name: "Molecule | Verify | Send test email to relocated recipient(s): Check root mailbox for non-delivery report (NDR)"
+  ansible.builtin.shell:
+    cmd: |
+      set -u # Fail on unset vars
+      set -o pipefail # Fail if any pipe cmd fails
+
+      # /var/spool/mail is usually a symlink to /var/mail (or vice versa, depending on the distribution)
+      if ! grep -l "User has moved to" "/var/mail/root"
+      then
+        exit 1
+      else
+        exit 0
+      fi
+    executable: "/bin/bash" # Support for other shells untested (so far)
+  changed_when: false
+  failed_when:
+    - __testing_check_relocated_mail['rc'] != 0
+  register: __testing_check_relocated_mail
+
+
+### Check if relay access is denied for deny-listed or otherwise blocked recipients
+
+- name: "Molecule | Verify | Lookup-table 'access': Initiate SASL authenticated RCPT TO a deny-listed address"
+  ansible.builtin.expect:
+    command: >
+        {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+    responses:
+      '(?i)220.*\r?\n': "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
+      '(?i)250 .*\r?\n':
+        - "AUTH LOGIN"
+        - "RCPT TO: <burned@example.com>"
+        - "QUIT"
+      '(?i)334.*\r?\n':
+        - "{{ __testing_sasl_auth_username_base64 }}"
+        - "{{ __testing_sasl_auth_password_base64 }}"
+      '(?i)235.*\r?\n': "MAIL FROM: <root@example.com>"
+      '(?i)554.*\r?\n': "QUIT"
+      '(?i)221.*\r?\n': ""
+    timeout: 5
+  changed_when: false
+  failed_when:
+    # Most (not all) versions of telnet return exit status 1 if the
+    # connection was closed by the host after QUIT which is expected
+    # in this case.
+    - __testing_run_postfix_rcpttodeny_result['rc'] > 1
+  register: __testing_run_postfix_rcpttodeny_result
+
+
+- name: "Molecule | Verify | Assert correct answers: Initiate SASL authenticated RCPT TO a deny-listed address"
+  ansible.builtin.assert:
+    that:
+      # Most (not all) versions of telnet return exit status 1 if the
+      # connection was closed by the host after QUIT which is expected
+      # in this case.
+      # - __testing_run_postfix_rcpttodeny_result is succeeded
+      - ('220 ' ~ run_postfix_maincf_settings['myhostname'] ~ ' ESMTP') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('250 ') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('221 ') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('235 ') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('Authentication successful') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('554 ') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('Recipient address rejected') in __testing_run_postfix_rcpttodeny_result['stdout']
+      - ('Access denied') in __testing_run_postfix_rcpttodeny_result['stdout']
+    fail_msg: "Initiate RCPT TO a deny-listed address: Expected proper responses to SMTP commands"
