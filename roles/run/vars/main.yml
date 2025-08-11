@@ -46,8 +46,8 @@ __run_postfix_used_facts:
 __run_postfix_supported_platforms:
   - name: "Debian"
     versions:
-      - "11"
       - "12"
+      - "13"
   - name: "Fedora"
     versions:
       - "42"
