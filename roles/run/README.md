@@ -8,8 +8,7 @@ It provides automated configuration management of Postfix across major platforms
 
 ## Table of contents<a id="toc"></a>
 
-- [Features](#features)
-- [Role variables](#variables)
+- [Features](#features)<!-- BEGIN ANSIBLE DOCSMITH TOC --><!-- END ANSIBLE DOCSMITH TOC -->
 - [Example playbooks, using this role](#examples)
 - [Supported tags](#tags)
 - [Dependencies](#dependencies)
@@ -31,7 +30,7 @@ Main features:
 * Designed for cross-platform compatibility, working seamlessly across major Linux distributions.
 
 
-
+<!-- BEGIN ANSIBLE DOCSMITH MAIN -->
 ## Role variables<a id="variables"></a>
 
 See [`defaults/main.yml`](./defaults/main.yml) for all available role parameters and their description. [`vars/main.yml`](./vars/main.yml) contains internal variables you should not override (but their description might be interesting).
@@ -39,7 +38,7 @@ See [`defaults/main.yml`](./defaults/main.yml) for all available role parameters
 Additionally, there are variables read from other roles and/or the global scope (for example, host or group vars) as follows:
 
 - None right now.
-
+<!-- END ANSIBLE DOCSMITH MAIN -->
 
 
 ## Example playbooks, using this role<a id="examples"></a>
