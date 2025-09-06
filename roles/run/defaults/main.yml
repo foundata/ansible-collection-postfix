@@ -16,7 +16,7 @@
 # deleting created users, stopping services, restoring modified settings, …
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: present
 # - Choices: present, absent
 run_postfix_state: "present"
@@ -26,7 +26,7 @@ run_postfix_state: "present"
 # currently installed one).
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_autoupgrade: false
 
@@ -34,14 +34,18 @@ run_postfix_autoupgrade: false
 #
 # - `enabled`: Service is running and will start automatically at boot.
 # - `disabled`: Service is stopped and will not start automatically at boot.
-# - `running``: Service is running but will not start automatically at boot. This can be used to start a service on the first Ansible run without enabling it for boot.
-# - `unmanaged`: Service will not start at boot, and Ansible will not manage its running state. This is primarily useful when services are monitored and managed by systems other than Ansible.
+# - `running``: Service is running but will not start automatically at boot.
+#   This can be used to start a service on the first Ansible run without
+#   enabling it for boot.
+# - `unmanaged`: Service will not start at boot, and Ansible will not manage its
+#   running state. This is primarily useful when services are monitored and
+#   managed by systems other than Ansible.
 #
 # The singular form ("service") is used for simplicity. However, the defined
 # status applies to all services if multiple are being managed by this role.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: enabled
 # - Choices: enabled, disabled, running, unmanaged
 run_postfix_service_state: "enabled"
@@ -55,20 +59,25 @@ run_postfix_service_state: "enabled"
 # Dictionary structure:
 #
 # - Keys: Standard Postfix option names (as defined in postconf documentation)
-# - Values: Corresponding configuration values. Common options include: - `myhostname`: FQDN of the mail system
-# - `mydomain`: Domain part of the FQDN
-# - `myorigin`: Domain to append to locally posted mail
-# - `inet_interfaces`: Network interfaces to listen on
-# - `inet_protocols`: IP protocols to use (ipv4, ipv6, all)
-# - `mynetworks`: Trusted SMTP clients for relay
-# - If a value is a list (which can be whitespace or comma-separated in Postfix), it can also be passed as YAML list and will be converted into a comma-separated value string automatically. So all three variants are valid here to define a list as value: ```
-# mynetworks:
-# - "127.0.0.0/8"
-# - "[::ffff:127.0.0.0]/104"
-# - "[::1]/128"
-# mynetworks: "127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128"
-# mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
-# ```
+# - Values: Corresponding configuration values. Common options include:
+#     - `myhostname`: FQDN of the mail system
+#     - `mydomain`: Domain part of the FQDN
+#     - `myorigin`: Domain to append to locally posted mail
+#     - `inet_interfaces`: Network interfaces to listen on
+#     - `inet_protocols`: IP protocols to use (ipv4, ipv6, all)
+#     - `mynetworks`: Trusted SMTP clients for relay
+#     - If a value is a list (which can be whitespace or comma-separated in
+#       Postfix), it can also be passed as YAML list and will be converted into a
+#       comma-separated value string automatically. So all three variants are
+#       valid here to define a list as value:
+#       ```
+#       mynetworks:
+#       - "127.0.0.0/8"
+#       - "[::ffff:127.0.0.0]/104"
+#       - "[::1]/128"
+#       mynetworks: "127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128"
+#       mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
+#       ```
 #
 # Reference commands:
 #
@@ -84,7 +93,7 @@ run_postfix_service_state: "enabled"
 # For a complete list of options, see https://www.postfix.org/postconf.5.html
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_maincf_settings:
   {} # see __run_postfix_maincf_settings_defaults in vars/main.yml for the defaults
@@ -120,7 +129,7 @@ run_postfix_maincf_settings:
 # ```
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_mastercf_settings:
   {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
@@ -129,14 +138,16 @@ run_postfix_mastercf_settings:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage a config file for relay domains using the `run_postfix_relay_domains_list` variable for the contents
-# - Set (or override) `main.cf` settings for the relay_domains option accordingly.
+# 1. Create and manage a config file for relay domains using the
+#    `run_postfix_relay_domains_list` variable for the contents
+# 2. Set (or override) `main.cf` settings for the relay_domains option
+#    accordingly.
 #
 # When `false`, you'll need to configure these settings manually through
 # `run_postfix_maincf_settings` or through other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_relay_domains_manage: false
 
@@ -149,7 +160,7 @@ run_postfix_relay_domains_manage: false
 # `run_postfix_relay_domains_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_relay_domains_list_tabletype: "lmdb"
@@ -169,7 +180,7 @@ run_postfix_relay_domains_list_tabletype: "lmdb"
 # Will be ignored if `run_postfix_relay_domains_manage` is set to `false`.
 #
 # - Type: list
-# - Required: Yes
+# - Required: No
 # - Default: []
 # - List elements: str
 run_postfix_relay_domains_list:
@@ -186,16 +197,24 @@ run_postfix_relay_domains_list:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_access_recipient_map`
-# - `run_postfix_access_sender_map`
-# - Set or change `main.cf` settings accordingly: - `smtpd_relay_restrictions:` The role will introduce new `smtpd_restriction_classes`: - `recipient_access: {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access-sender`
-# - `sender_access: {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access-recipient` and add them at before all other `smtpd_relay_restrictions` rules.
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_access_recipient_map`
+#      - `run_postfix_access_sender_map`
+# 2. Set or change `main.cf` settings accordingly:
+#      - `smtpd_relay_restrictions:` The role will introduce new
+#        `smtpd_restriction_classes`:
+#        - `recipient_access: {{ run_postfix_access_recipient_map_tabletype
+#          }}:/etc/postfix/access-sender`
+#        - `sender_access: {{ run_postfix_access_sender_map_tabletype
+#          }}:/etc/postfix/access-recipient` and add them at before all other
+#          `smtpd_relay_restrictions` rules.
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_access_manage: false
 
@@ -211,7 +230,7 @@ run_postfix_access_manage: false
 # Will be ignored if `run_postfix_access_manage` is set to `false``.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: pcre
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_access_recipient_map_tabletype: "pcre"
@@ -229,7 +248,7 @@ run_postfix_access_recipient_map_tabletype: "pcre"
 # Will be ignored if `run_postfix_access_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_access_recipient_map:
   {} # see __run_postfix_access_recipient_map_defaults in vars/main.yml for the defaults
@@ -246,7 +265,7 @@ run_postfix_access_recipient_map:
 # Will be ignored if `run_postfix_access_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_access_sender_map_tabletype: "lmdb"
@@ -270,7 +289,7 @@ run_postfix_access_sender_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_access_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_access_sender_map:
   {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
@@ -288,14 +307,17 @@ run_postfix_access_sender_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_aliases_map`
-# - Set (or extend) main.cf settings accordingly: - `alias_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_aliases_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `alias_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_aliases_manage: false
 
@@ -308,7 +330,7 @@ run_postfix_aliases_manage: false
 # `run_postfix_aliases_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_aliases_map_tabletype: "lmdb"
@@ -335,7 +357,7 @@ run_postfix_aliases_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_aliases_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_aliases_map:
   {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
@@ -350,16 +372,19 @@ run_postfix_aliases_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_canonical_recipient_map`
-# - `run_postfix_canonical_sender_map`
-# - Set (or extend) main.cf settings accordingly: - `sender_canonical_maps`
-# - `recipient_canonical_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_canonical_recipient_map`
+#      - `run_postfix_canonical_sender_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `sender_canonical_maps`
+#      - `recipient_canonical_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_canonical_manage: false
 
@@ -372,7 +397,7 @@ run_postfix_canonical_manage: false
 # `run_postfix_canonical_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_canonical_recipient_map_tabletype: "lmdb"
@@ -390,7 +415,7 @@ run_postfix_canonical_recipient_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_canonical_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_canonical_recipient_map:
   {} # see __run_postfix_canonical_recipient_map_defaults in vars/main.yml for the defaults
@@ -404,7 +429,7 @@ run_postfix_canonical_recipient_map:
 # `run_postfix_canonical_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_canonical_sender_map_tabletype: "lmdb"
@@ -423,7 +448,7 @@ run_postfix_canonical_sender_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_canonical_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_canonical_sender_map:
   {} # see __run_postfix_canonical_sender_map_defaults in vars/main.yml for the defaults
@@ -440,15 +465,18 @@ run_postfix_canonical_sender_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_generic_map`
-# - Set (or extend) main.cf settings accordingly: - `lmtp_generic_maps`
-# - `smtp_generic_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_generic_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `lmtp_generic_maps`
+#      - `smtp_generic_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_generic_manage: false
 
@@ -464,7 +492,7 @@ run_postfix_generic_manage: false
 # Will be ignored if `run_postfix_generic_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: pcre
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_generic_map_tabletype: "pcre"
@@ -481,7 +509,7 @@ run_postfix_generic_map_tabletype: "pcre"
 # Will be ignored if `run_postfix_generic_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_generic_map:
   {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
@@ -499,14 +527,17 @@ run_postfix_generic_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_relocated_map`
-# - Set (or extend) main.cf settings accordingly: - `relocated_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_relocated_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `relocated_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_relocated_manage: false
 
@@ -522,7 +553,7 @@ run_postfix_relocated_manage: false
 # Will be ignored if `run_postfix_relocated_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_relocated_map_tabletype: "lmdb"
@@ -532,7 +563,9 @@ run_postfix_relocated_map_tabletype: "lmdb"
 # Dictionary structure:
 #
 # - Keys: Criterions / pattern to describe old addresses.
-# - Values: The new location, usually email addresses (or phone or other address or location strings; Postfix's default template starts with "User has moved to " so use a fitting string). Example:
+# - Values: The new location, usually email addresses (or phone or other address
+#   or location strings; Postfix's default template starts with "User has moved
+#   to " so use a fitting string). Example:
 #
 # ```
 # "user@example.com": "new@example.net"
@@ -542,7 +575,7 @@ run_postfix_relocated_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_relocated_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_relocated_map:
   {} # see __run_postfix_relocated_map_defaults in vars/main.yml for the defaults
@@ -558,14 +591,17 @@ run_postfix_relocated_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_transport_map`
-# - Set (or extend) main.cf settings accordingly: - `transport_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_transport_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `transport_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_transport_manage: false
 
@@ -581,7 +617,7 @@ run_postfix_transport_manage: false
 # Will be ignored if `run_postfix_transport_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_transport_map_tabletype: "lmdb"
@@ -592,7 +628,9 @@ run_postfix_transport_map_tabletype: "lmdb"
 # Dictionary structure:
 #
 # - Keys: Criterions / pattern to describe domains.
-# - Values: Lists of destinations, usually email servers or relays. Attention: Do not forget to use square brackets to force DNS A record instead of MX record lookups. Examples:
+# - Values: Lists of destinations, usually email servers or relays. Attention:
+#   Do not forget to use square brackets to force DNS A record instead of MX
+#   record lookups. Examples:
 #
 # ```
 # "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
@@ -606,7 +644,7 @@ run_postfix_transport_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_transport_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_transport_map:
   {} # see __run_postfix_transport_map_defaults in vars/main.yml for the defaults
@@ -625,16 +663,19 @@ run_postfix_transport_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_virtual_aliasdomains_list`
-# - `run_postfix_virtual_alias_map`
-# - Set (or override or extend) main.cf settings accordingly: - `virtual_alias_domains`
-# - `virtual_alias_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_virtual_aliasdomains_list`
+#      - `run_postfix_virtual_alias_map`
+# 2. Set (or override or extend) main.cf settings accordingly:
+#      - `virtual_alias_domains`
+#      - `virtual_alias_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_virtual_manage: false
 
@@ -650,7 +691,7 @@ run_postfix_virtual_manage: false
 # Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
@@ -668,7 +709,7 @@ run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
 # Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 #
 # - Type: list
-# - Required: Yes
+# - Required: No
 # - Default: []
 # - List elements: str
 run_postfix_virtual_aliasdomains_list:
@@ -686,7 +727,7 @@ run_postfix_virtual_aliasdomains_list:
 # Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_virtual_alias_map_tabletype: "lmdb"
@@ -696,7 +737,9 @@ run_postfix_virtual_alias_map_tabletype: "lmdb"
 #
 # Dictionary structure:
 #
-# - Keys: Criterions / pattern to describe the virtual address(es) Attention: Do not forget to list handled domains in `run_postfix_virtual_aliasdomains_list`
+# - Keys: Criterions / pattern to describe the virtual address(es) Attention: Do
+#   not forget to list handled domains in
+#   `run_postfix_virtual_aliasdomains_list`
 # - Values: Lists of destinations, usually email addresses
 #
 # Example:
@@ -718,7 +761,7 @@ run_postfix_virtual_alias_map_tabletype: "lmdb"
 # Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_virtual_alias_map:
   {} # see __run_postfix_virtual_alias_map_defaults in vars/main.yml for the defaults
@@ -734,14 +777,17 @@ run_postfix_virtual_alias_map:
 #
 # When set to `true` (which is the default), the role will:
 #
-# - Create and manage table file(s) to manage mappings. It uses variables for the contents: - `run_postfix_smtp_sasl_password_map`
-# - Set (or extend) main.cf settings accordingly: - `smtp_sasl_password_maps`
+# 1. Create and manage table file(s) to manage mappings. It uses variables for
+#    the contents:
+#      - `run_postfix_smtp_sasl_password_map`
+# 2. Set (or extend) main.cf settings accordingly:
+#      - `smtp_sasl_password_maps`
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.
 #
 # - Type: bool
-# - Required: Yes
+# - Required: No
 # - Default: false
 run_postfix_smtp_sasl_password_manage: false
 
@@ -757,7 +803,7 @@ run_postfix_smtp_sasl_password_manage: false
 # Will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
 #
 # - Type: str
-# - Required: Yes
+# - Required: No
 # - Default: lmdb
 # - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
 run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
@@ -767,8 +813,12 @@ run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 #
 # Dictionary structure:
 #
-# - Keys: Criterions, the destination to specify credentials for. Attention: If you specify the `[` and `]` where the relayhost destination is defined, then you must use the same form here.
-# - Values: The credentials in the `username:password` format. Note: The main.cf setting `smtp_sasl_password_result_delimiter` (which defaults to `:`) can be used to specify an alternative separator between username and password.
+# - Keys: Criterions, the destination to specify credentials for. Attention: If
+#   you specify the `[` and `]` where the relayhost destination is defined, then
+#   you must use the same form here.
+# - Values: The credentials in the `username:password` format. Note: The main.cf
+#   setting `smtp_sasl_password_result_delimiter` (which defaults to `:`) can be
+#   used to specify an alternative separator between username and password.
 #
 # Example:
 #
@@ -780,7 +830,7 @@ run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 # will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
 #
 # - Type: dict
-# - Required: Yes
+# - Required: No
 # - Default: {}
 run_postfix_smtp_sasl_password_map:
   {} # see __run_postfix_smtp_sasl_password_map_defaults in vars/main.yml for the defaults
