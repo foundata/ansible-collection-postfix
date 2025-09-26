@@ -78,11 +78,11 @@ The following variables can be configured for this role:
 
 | Variable | Type | Required | Default | Description (abstract) |
 |----------|------|----------|---------|------------------------|
-| `run_postfix_state` | `str` | No | `"presents"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
+| `run_postfix_state` | `str` | No | `"present"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
 | `run_postfix_autoupgrade` | `bool` | No | `false` | If set to `true`, all managed packages will be upgraded during each Ansible run (e.g., when the package provider detects a newer version than the currently installed one). |
-| `run_postfix_service_state` | `str` | No | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running``: Service is running but will […](#variable-run_postfix_service_state) |
+| `run_postfix_service_state` | `str` | No | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running`: Service is running but will […](#variable-run_postfix_service_state) |
 | `run_postfix_maincf_settings` | `dict` | No | `{}` | Additional configuration for Postfix daemon (additional config values or to overwrite defaults from `__run_postfix_maincf_settings_defaults` in `vars/main.yml`).<br><br>Use standard Postfix option names as keys with their corresponding […](#variable-run_postfix_maincf_settings) |
-| `run_postfix_mastercf_settings` | `dict` | No | `{}` | Additional configuration for Postfix master process (`master.cf``). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: http://www.postfix.org/master.5.html).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
+| `run_postfix_mastercf_settings` | `dict` | No | `{}` | Additional configuration for Postfix master process (`master.cf`). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: http://www.postfix.org/master.5.html).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
 | `run_postfix_relay_domains_manage` | `bool` | No | `false` | Switch to control if relay domains settings are handled by this role.<br><br>When set to `true` (which is the default), the role will:<br><br>1. Create and manage a config file for relay domains using the `run_postfix_relay_domains_list` variable for […](#variable-run_postfix_relay_domains_manage) |
 | `run_postfix_relay_domains_list_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_relay_domains_list` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relay_domains_list_tabletype) |
 | `run_postfix_relay_domains_list` | `list` | No | `[]` | Relay domains for Postfix. This list of relay domains for which Postfix will accept mail for relaying to their final destinations.<br><br>Example:<br><br>``` - "example.com" - "example.net" - "example.org" - "foo.example.org" ```<br><br>Will be […](#variable-run_postfix_relay_domains_list) |
@@ -131,7 +131,7 @@ deleting created users, stopping services, restoring modified settings, …
 
 - **Type**: `str`
 - **Required**: No
-- **Default**: `"presents"`
+- **Default**: `"present"`
 - **Choices**: `present`, `absent`
 
 
@@ -158,7 +158,7 @@ Defines the status of the service(s). Possible values:
 
 - `enabled`: Service is running and will start automatically at boot.
 - `disabled`: Service is stopped and will not start automatically at boot.
-- `running``: Service is running but will not start automatically at boot.
+- `running`: Service is running but will not start automatically at boot.
   This can be used to start a service on the first Ansible run without
   enabling it for boot.
 - `unmanaged`: Service will not start at boot, and Ansible will not
@@ -210,12 +210,12 @@ Dictionary structure:
 
 Reference commands:
 
-- `postconf``: print all current active values
+- `postconf`: print all current active values
 - `postconf -n`: print all active, explicitly set options
 - `postconf -d`: print all options with their default
 
 Please note that you do not need own handler for postmap when using
-`hash|btree|dbm:`` somewhere. The role's handler is intelligent enough to scan
+`hash|btree|dbm:` somewhere. The role's handler is intelligent enough to scan
 the config for hash|btree|dbm:/path values. Just notify
 `run_postfix: update lookup tables` on changes when writing additional, own
 tasks.
@@ -232,7 +232,7 @@ For a complete list of options, see https://www.postfix.org/postconf.5.html
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-Additional configuration for Postfix master process (`master.cf``). For
+Additional configuration for Postfix master process (`master.cf`). For
 details on the syntax of the fields/values, see the master(5) manual page
 (command: `man 5 master` or online: http://www.postfix.org/master.5.html).
 
@@ -376,7 +376,7 @@ the best default. `hash` and `btree` are available on systems with support for
 Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
 than `regex`.
 
-Will be ignored if `run_postfix_access_manage` is set to `false``.
+Will be ignored if `run_postfix_access_manage` is set to `false`.
 
 - **Type**: `str`
 - **Required**: No
