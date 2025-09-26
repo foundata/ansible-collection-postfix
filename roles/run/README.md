@@ -8,7 +8,7 @@ It provides automated configuration management of Postfix across major platforms
 
 ## Table of contents<a id="toc"></a>
 
-- [Features](#features)<!-- BEGIN ANSIBLE DOCSMITH TOC -->
+- [Features](#features)<!-- ANSIBLE DOCSMITH TOC START -->
 - [Role variables](#variables)
   - [`run_postfix_state`](#variable-run_postfix_state)
   - [`run_postfix_autoupgrade`](#variable-run_postfix_autoupgrade)
@@ -48,7 +48,7 @@ It provides automated configuration management of Postfix across major platforms
   - [`run_postfix_smtp_sasl_password_manage`](#variable-run_postfix_smtp_sasl_password_manage)
   - [`run_postfix_smtp_sasl_password_map_tabletype`](#variable-run_postfix_smtp_sasl_password_map_tabletype)
   - [`run_postfix_smtp_sasl_password_map`](#variable-run_postfix_smtp_sasl_password_map)
-<!-- END ANSIBLE DOCSMITH TOC -->
+<!-- ANSIBLE DOCSMITH TOC END -->
 - [Example playbooks, using this role](#examples)
 - [Supported tags](#tags)
 - [Dependencies](#dependencies)
@@ -70,7 +70,7 @@ Main features:
 * Designed for cross-platform compatibility, working seamlessly across major Linux distributions.
 
 
-<!-- BEGIN ANSIBLE DOCSMITH MAIN -->
+<!-- ANSIBLE DOCSMITH MAIN START -->
 
 ## Role variables<a id="variables"></a>
 
@@ -78,7 +78,7 @@ The following variables can be configured for this role:
 
 | Variable | Type | Required | Default | Description (abstract) |
 |----------|------|----------|---------|------------------------|
-| `run_postfix_state` | `str` | No | `"present"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
+| `run_postfix_state` | `str` | No | `"presents"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
 | `run_postfix_autoupgrade` | `bool` | No | `false` | If set to `true`, all managed packages will be upgraded during each Ansible run (e.g., when the package provider detects a newer version than the currently installed one). |
 | `run_postfix_service_state` | `str` | No | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running``: Service is running but will […](#variable-run_postfix_service_state) |
 | `run_postfix_maincf_settings` | `dict` | No | `{}` | Additional configuration for Postfix daemon (additional config values or to overwrite defaults from `__run_postfix_maincf_settings_defaults` in `vars/main.yml`).<br><br>Use standard Postfix option names as keys with their corresponding […](#variable-run_postfix_maincf_settings) |
@@ -131,7 +131,7 @@ deleting created users, stopping services, restoring modified settings, …
 
 - **Type**: `str`
 - **Required**: No
-- **Default**: `"present"`
+- **Default**: `"presents"`
 - **Choices**: `present`, `absent`
 
 
@@ -1098,7 +1098,7 @@ will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
 
 
 
-<!-- END ANSIBLE DOCSMITH MAIN -->
+<!-- ANSIBLE DOCSMITH MAIN END -->
 
 
 ## Example playbooks, using this role<a id="examples"></a>
