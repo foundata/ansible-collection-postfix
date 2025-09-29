@@ -1,6 +1,6 @@
 # Ansible role: `foundata.postfix.run`
 
-The `foundata.postfix.run` Ansible role (part if the `foundata.postfix` Ansible collection).
+The `foundata.postfix.run` Ansible role (part of the `foundata.postfix` Ansible collection).
 
 It provides automated configuration management of Postfix across major platforms. It does not explain how to create a good Postfix configuration that suits your requirements; that task remains for you to accomplish. However, the [examples playbooks](#examples) may help you a bit with that.
 
