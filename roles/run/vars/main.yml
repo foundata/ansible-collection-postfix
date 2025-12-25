@@ -50,8 +50,8 @@ __run_postfix_supported_platforms:
       - "13"
   - name: "Fedora"
     versions:
+      - "43"
       - "42"
-      - "41"
   - name: "RedHat" # includes AlmaLinux, Rocky and CentOS Stream
     versions:
       - "9"
