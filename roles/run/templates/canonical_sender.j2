@@ -15,6 +15,6 @@
 # - https://www.postfix.org/canonical.5.html
 # - https://www.postfix.org/postconf.5.html#sender_canonical_maps
 
-{% for key, value in __run_postfix_merged_canonical_sender_map.items() %}
+{% for key, value in __run_postfix_effective_canonical_sender_map.items() %}
 {{ key }}{% if key|length < 16 %}{{ "\t\t\t" }}{% elif key|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}

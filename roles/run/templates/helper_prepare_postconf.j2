@@ -1,7 +1,7 @@
 {# Convert values in main.cf settings to postconf compatible strings (if
    needed), for example YAML lists to strings. #}
 {% set result = {} %}
-{% for key, value in __run_postfix_merged_maincf_settings.items() %}
+{% for key, value in __run_postfix_effective_maincf_settings.items() %}
 {%   if (value is iterable) and (value is not string) and (value is not mapping) %}
 {#     Postfix allows list values to be separated by whitspace or comma. Both
        are valid and can be even mixed. We prefer comma as separator. #}

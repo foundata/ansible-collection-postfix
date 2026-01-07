@@ -27,7 +27,7 @@
    ] | reject('match', '^$') | unique %}
 {# See https://www.postfix.org/DATABASE_README.html#types to maintain the regex list. #}
 {% set regex_list = 'btree|cdb|cidr|dbm|environ|fail|hash|inline|internal|lmdb|ldap|memcache|mongodb|mysql|netinfo|nis|nisplus|pcre|pipemap|pgsql|proxy|randmap|regexp|sdbm|socketmap|sqlite|static|tcp|texthash|unionmap|unix' %}
-{% for key, value in __run_postfix_merged_maincf_settings.items() %}
+{% for key, value in __run_postfix_effective_maincf_settings.items() %}
 {#   Unify whitespace separators to single space only #}
 {%   set value = (value | regex_replace('\s+', ' ') | trim) %}
 {#   Iterate over comma separated values (this loop runs one iteration if there none) #}

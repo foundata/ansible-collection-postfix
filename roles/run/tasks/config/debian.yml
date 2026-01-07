@@ -9,7 +9,7 @@
 # May be used for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
 - name: "Config | Debian | Update mailname file: {{ __run_postfix_mailname_file }}"
   ansible.builtin.copy:
-    content: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
+    content: "{{ __run_postfix_effective_maincf_settings['myhostname'] }}"
     dest: "{{ __run_postfix_mailname_file }}"
     owner: "{{ __run_postfix_mailname_owner }}"
     group: "{{ __run_postfix_mailname_group }}"

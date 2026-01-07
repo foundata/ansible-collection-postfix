@@ -10,6 +10,6 @@
 # - https://www.postfix.org/postconf.5.html#alias_database
 # - https://www.postfix.org/postconf.5.html#alias_maps
 
-{% for key, value in __run_postfix_merged_aliases_map.items() %}
+{% for key, value in __run_postfix_effective_aliases_map.items() %}
 {{ key }}:{% if key|length < 17 %}{{ "\t\t\t" }}{% elif key|length < 25 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}

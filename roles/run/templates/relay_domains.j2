@@ -22,6 +22,6 @@
 # - https://www.postfix.org/SMTPD_ACCESS_README.html
 # - https://www.postfix.org/ADDRESS_CLASS_README.html#relay_domain_class
 
-{% for domain in __run_postfix_merged_relay_domains %}
+{% for domain in __run_postfix_effective_relay_domains %}
 {{ domain }}{% if domain|length < 16 %}{{ "\t\t\t" }}{% elif domain|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}relay
 {% endfor %}

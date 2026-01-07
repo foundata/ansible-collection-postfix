@@ -381,7 +381,7 @@ argument_specs:
 
           Will be ignored if `run_postfix_access_manage` is set to `false`.
         type: "dict"
-        default:  {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
+        default: {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
 
       run_postfix_aliases_manage:
         description: |
@@ -478,7 +478,7 @@ argument_specs:
 
           Will be ignored if `run_postfix_aliases_manage` is set to `false`.
         type: "dict"
-        default:  {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
+        default: {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
 
       run_postfix_canonical_manage:
         description: |
@@ -719,7 +719,7 @@ argument_specs:
 
           Will be ignored if `run_postfix_generic_manage` is set to `false`.
         type: "dict"
-        default:  {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
+        default: {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
 
       run_postfix_relocated_manage:
         description: |

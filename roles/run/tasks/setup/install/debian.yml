@@ -21,7 +21,7 @@
       vtype: "string"
     - package: "{{ __run_postfix_debian_debconf_postfixpkgname }}"
       question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/mailname"
-      value: "{{ __run_postfix_merged_maincf_settings['myhostname'] }}"
+      value: "{{ __run_postfix_effective_maincf_settings['myhostname'] }}"
       vtype: "string"
   when:
     - __run_postfix_debian_debconf_postfixpkgname is defined

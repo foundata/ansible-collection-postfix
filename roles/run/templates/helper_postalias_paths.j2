@@ -7,7 +7,7 @@
    [...]
 #}
 {% set paths = [] %}
-{% for key, value in __run_postfix_merged_maincf_settings.items() %}
+{% for key, value in __run_postfix_effective_maincf_settings.items() %}
 {#   Keys referencing files where other commands have to be used ("postmap") are excluded. #}
 {%   if (key in ['alias_database', 'alias_maps']) and (value is string) %}
 {#     Unify whitespace separators to single space only #}
