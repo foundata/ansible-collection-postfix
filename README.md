@@ -5,6 +5,18 @@ This repository contains the `foundata.postfix` Ansible Collection.
 It provides resources to manage and use the [Postfix](https://www.postfix.org/) mail transfer agent (MTA) that routes and delivers electronic mail (email) via [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) and [LMTP](https://en.wikipedia.org/wiki/Local_Mail_Transfer_Protocol).
 
 
+<div align="center" id="project-readme-header">
+<br>
+<br>
+
+**⭐ Found this useful? Support open-source and star this project:**
+
+[![GitHub repository](https://img.shields.io/github/stars/foundata/ansible-collection-postfix.svg)](https://github.com/foundata/ansible-collection-postfix)
+
+<br>
+</div>
+
+
 
 ## Table of contents<a id="toc"></a>
 
