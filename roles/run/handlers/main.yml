@@ -16,7 +16,7 @@
   # https://www.postfix.org/postmap.1.html
   ansible.builtin.command:
     cmd: >
-      {{ __run_postfix_postmap_executable }}
+      {{ __run_postfix_postmap_exec_path }}
       {{ item | ansible.builtin.quote }}
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain
@@ -51,7 +51,7 @@
     # therefore does not work for modern configurations), so use the "postalias"
     # command instead.
     cmd: >
-      {{ __run_postfix_postalias_executable }}
+      {{ __run_postfix_postalias_exec_path }}
       {{ item | ansible.builtin.quote }}
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain

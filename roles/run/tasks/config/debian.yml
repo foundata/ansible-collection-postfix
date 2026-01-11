@@ -7,12 +7,12 @@
 ---
 
 # May be used for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
-- name: "Config | Debian | Update mailname file: {{ __run_postfix_mailname_file }}"
+- name: "Config | Debian | Update mailname file: {{ __run_postfix_mailname_file_path }}"
   ansible.builtin.copy:
     content: "{{ __run_postfix_effective_maincf_settings['myhostname'] }}"
-    dest: "{{ __run_postfix_mailname_file }}"
-    owner: "{{ __run_postfix_mailname_owner }}"
-    group: "{{ __run_postfix_mailname_group }}"
-    mode: "{{ __run_postfix_mailname_mode }}"
+    dest: "{{ __run_postfix_mailname_file_path }}"
+    owner: "{{ __run_postfix_mailname_file_owner }}"
+    group: "{{ __run_postfix_mailname_file_group }}"
+    mode: "{{ __run_postfix_mailname_file_mode }}"
   notify:
     - "run_postfix: restart postfix.service"

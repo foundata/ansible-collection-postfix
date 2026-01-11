@@ -5,7 +5,6 @@
 # This prevents testing whether the role itself verifies these facts'
 # availability but it avoids fragile workarounds (like parsing container
 # names) if additional platform specific preparations are needed.
-# No problem as our roles using the subset do proper availability checks.
 - name: "Molecule | Converge | Gather playbook-specific facts"
   ansible.builtin.setup:
     gather_subset:

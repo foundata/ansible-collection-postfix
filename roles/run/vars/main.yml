@@ -428,97 +428,97 @@ __run_postfix_smtp_sasl_password_map_defaults:
 # These variables define the different locations of configuration files, the
 # include directory, and the Ansible-managed configuration file, ensuring
 # consistent file handling across distributions.
-__run_postfix_maincf_file: "/etc/postfix/main.cf"
-__run_postfix_maincf_owner: "root"
-__run_postfix_maincf_group: "root"
-__run_postfix_maincf_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_maincf_file_path: "/etc/postfix/main.cf"
+__run_postfix_maincf_file_owner: "root"
+__run_postfix_maincf_file_group: "root"
+__run_postfix_maincf_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_mastercf_file: "/etc/postfix/master.cf"
-__run_postfix_mastercf_owner: "root"
-__run_postfix_mastercf_group: "root"
-__run_postfix_mastercf_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_mastercf_file_path: "/etc/postfix/master.cf"
+__run_postfix_mastercf_file_owner: "root"
+__run_postfix_mastercf_file_group: "root"
+__run_postfix_mastercf_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_relaydomains_file: "/etc/postfix/relay_domains"
-__run_postfix_relaydomains_owner: "root"
-__run_postfix_relaydomains_group: "root"
-__run_postfix_relaydomains_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_relaydomains_file_path: "/etc/postfix/relay_domains"
+__run_postfix_relaydomains_file_owner: "root"
+__run_postfix_relaydomains_file_group: "root"
+__run_postfix_relaydomains_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_mailname_file: "/etc/mailname" # May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
-__run_postfix_mailname_owner: "root"
-__run_postfix_mailname_group: "root"
-__run_postfix_mailname_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_mailname_file_path: "/etc/mailname" # May be use for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
+__run_postfix_mailname_file_owner: "root"
+__run_postfix_mailname_file_group: "root"
+__run_postfix_mailname_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_access_recipient_file: "/etc/postfix/access_recipient"
-__run_postfix_table_access_recipient_owner: "root"
-__run_postfix_table_access_recipient_group: "root"
-__run_postfix_table_access_recipient_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_access_recipient_file_path: "/etc/postfix/access_recipient"
+__run_postfix_table_access_recipient_file_owner: "root"
+__run_postfix_table_access_recipient_file_group: "root"
+__run_postfix_table_access_recipient_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_access_sender_file: "/etc/postfix/access_sender"
-__run_postfix_table_access_sender_owner: "root"
-__run_postfix_table_access_sender_group: "root"
-__run_postfix_table_access_sender_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_access_sender_file_path: "/etc/postfix/access_sender"
+__run_postfix_table_access_sender_file_owner: "root"
+__run_postfix_table_access_sender_file_group: "root"
+__run_postfix_table_access_sender_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_aliases_file: "/etc/aliases" # This file usually exists
-__run_postfix_table_aliases_owner: "root"
-__run_postfix_table_aliases_group: "root"
-__run_postfix_table_aliases_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_aliases_file_path: "/etc/aliases" # This file usually exists
+__run_postfix_table_aliases_file_owner: "root"
+__run_postfix_table_aliases_file_group: "root"
+__run_postfix_table_aliases_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_canonical_recipient_file: "/etc/postfix/canonical_recipient"
-__run_postfix_table_canonical_recipient_owner: "root"
-__run_postfix_table_canonical_recipient_group: "root"
-__run_postfix_table_canonical_recipient_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_canonical_recipient_file_path: "/etc/postfix/canonical_recipient"
+__run_postfix_table_canonical_recipient_file_owner: "root"
+__run_postfix_table_canonical_recipient_file_group: "root"
+__run_postfix_table_canonical_recipient_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_canonical_sender_file: "/etc/postfix/canonical_sender"
-__run_postfix_table_canonical_sender_owner: "root"
-__run_postfix_table_canonical_sender_group: "root"
-__run_postfix_table_canonical_sender_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_canonical_sender_file_path: "/etc/postfix/canonical_sender"
+__run_postfix_table_canonical_sender_file_owner: "root"
+__run_postfix_table_canonical_sender_file_group: "root"
+__run_postfix_table_canonical_sender_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_generic_file: "/etc/postfix/generic"
-__run_postfix_table_generic_owner: "root"
-__run_postfix_table_generic_group: "root"
-__run_postfix_table_generic_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_generic_file_path: "/etc/postfix/generic"
+__run_postfix_table_generic_file_owner: "root"
+__run_postfix_table_generic_file_group: "root"
+__run_postfix_table_generic_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_relocated_file: "/etc/postfix/relocated"
-__run_postfix_table_relocated_owner: "root"
-__run_postfix_table_relocated_group: "root"
-__run_postfix_table_relocated_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_relocated_file_path: "/etc/postfix/relocated"
+__run_postfix_table_relocated_file_owner: "root"
+__run_postfix_table_relocated_file_group: "root"
+__run_postfix_table_relocated_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_transport_file: "/etc/postfix/transport"
-__run_postfix_table_transport_owner: "root"
-__run_postfix_table_transport_group: "root"
-__run_postfix_table_transport_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_transport_file_path: "/etc/postfix/transport"
+__run_postfix_table_transport_file_owner: "root"
+__run_postfix_table_transport_file_group: "root"
+__run_postfix_table_transport_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_smtpsaslpasswordmap_file: "/etc/postfix/smtp_sasl_password" # May contain passwords!
-__run_postfix_smtpsaslpasswordmaps_owner: "root"
-__run_postfix_smtpsaslpasswordmaps_group: "root"
-__run_postfix_smtpsaslpasswordmaps_mode: "u=rw,g=r,o=" # 0640
+__run_postfix_smtpsaslpasswordmap_file_path: "/etc/postfix/smtp_sasl_password" # May contain passwords!
+__run_postfix_smtpsaslpasswordmap_file_owner: "root"
+__run_postfix_smtpsaslpasswordmap_file_group: "root"
+__run_postfix_smtpsaslpasswordmap_file_mode: "u=rw,g=r,o=" # 0640
 
-__run_postfix_table_virtual_file: "/etc/postfix/virtual"
-__run_postfix_table_virtual_owner: "root"
-__run_postfix_table_virtual_group: "root"
-__run_postfix_table_virtual_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_virtual_file_path: "/etc/postfix/virtual"
+__run_postfix_table_virtual_file_owner: "root"
+__run_postfix_table_virtual_file_group: "root"
+__run_postfix_table_virtual_file_mode: "u=rw,g=r,o=r" # 0644
 
-__run_postfix_table_virtual_aliasdomains_file: "/etc/postfix/virtual_domains"
-__run_postfix_table_virtual_aliasdomains_owner: "root"
-__run_postfix_table_virtual_aliasdomains_group: "root"
-__run_postfix_table_virtual_aliasdomains_mode: "u=rw,g=r,o=r" # 0644
+__run_postfix_table_virtual_aliasdomains_file_path: "/etc/postfix/virtual_domains"
+__run_postfix_table_virtual_aliasdomains_file_owner: "root"
+__run_postfix_table_virtual_aliasdomains_file_group: "root"
+__run_postfix_table_virtual_aliasdomains_file_mode: "u=rw,g=r,o=r" # 0644
 
 
 # Postfix daemon service name and executable paths.
 # These variables define the systemd service name for Postfix daemon
 # and the paths the Postfix executables for service management and validation.
 __run_postfix_postfix_servicename: "postfix.service"
-__run_postfix_postfix_executable: "/usr/sbin/postfix"
-__run_postfix_postconf_executable: "/usr/sbin/postconf"
-__run_postfix_postmap_executable: "/usr/sbin/postmap"
-__run_postfix_postalias_executable: "/usr/sbin/postalias"
+__run_postfix_postfix_exec_path: "/usr/sbin/postfix"
+__run_postfix_postconf_exec_path: "/usr/sbin/postconf"
+__run_postfix_postmap_exec_path: "/usr/sbin/postmap"
+__run_postfix_postalias_exec_path: "/usr/sbin/postalias"
 
 
 # Paths of other executables and resources.
-__run_postfix_sha1sum_executable: "/usr/bin/sha1sum"
-__run_postfix_touch_executable: "/usr/bin/touch"
-__run_postfix_chmod_executable: "/usr/bin/chmod"
-__run_postfix_chown_executable: "/usr/bin/chown"
+__run_postfix_sha1sum_exec_path: "/usr/bin/sha1sum"
+__run_postfix_touch_exec_path: "/usr/bin/touch"
+__run_postfix_chmod_exec_path: "/usr/bin/chmod"
+__run_postfix_chown_exec_path: "/usr/bin/chown"
 
 
 ### Override defaults of dependencies used by this role (if any).
