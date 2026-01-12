@@ -144,14 +144,16 @@
 
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Debian)"
   ansible.builtin.command:
-    cmd: "/usr/sbin/update-ca-certificates"
+    argv:
+      - "/usr/sbin/update-ca-certificates"
   when:
     - (ansible_facts['os_family'] | lower) == 'debian'
 
 
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Red Hat)"
   ansible.builtin.command:
-    cmd: "/usr/bin/update-ca-trust"
+    argv:
+      - "/usr/bin/update-ca-trust"
   when:
     - (ansible_facts['os_family'] | lower) == 'redhat'
 

@@ -15,9 +15,9 @@
   # See the official documentation for a explanation of the parameters:
   # https://www.postfix.org/postmap.1.html
   ansible.builtin.command:
-    cmd: >
-      {{ __run_postfix_postmap_exec_path }}
-      {{ item | ansible.builtin.quote }}
+    argv:
+      - "{{ __run_postfix_postmap_exec_path }}"
+      - "{{ item }}"
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
@@ -50,9 +50,9 @@
     # The "newaliases" executable usually only supports "hash:" databases (and
     # therefore does not work for modern configurations), so use the "postalias"
     # command instead.
-    cmd: >
-      {{ __run_postfix_postalias_exec_path }}
-      {{ item | ansible.builtin.quote }}
+    argv:
+      - "{{ __run_postfix_postalias_exec_path }}"
+      - "{{ item }}"
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as

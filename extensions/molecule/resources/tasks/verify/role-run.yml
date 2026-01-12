@@ -91,7 +91,7 @@
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
 
-- name: "Molecule | Verify | Set regular expression to search for warnings and errors in the journal"
+- name: "Molecule | Verify | Set regular expression to search for postfix warnings and errors in the journal"
   ansible.builtin.set_fact:
     __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):'
 
@@ -112,9 +112,9 @@
 
 - name: "Molecule | Verify | Check journal for warnings or errors: Postfix"
   ansible.builtin.command:
-    cmd: >
-      {{ __testing_journalctl_executable }}
-        --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+    argv:
+      - "{{ __testing_journalctl_executable }}"
+      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
@@ -680,10 +680,11 @@
         timeout: 5
       changed_when: false
       failed_when:
+        - __testing_run_postfix_rcpttoexternal_result is failed
         # Most (not all) versions of telnet return exit status 1 if the
         # connection was closed by the host after QUIT which is expected
         # in this case.
-        - __testing_run_postfix_rcpttoexternal_result['rc'] > 1
+        - (__testing_run_postfix_rcpttoexternal_result['rc'] | default(2)) > 1
       register: __testing_run_postfix_rcpttoexternal_result
 
 
@@ -693,7 +694,7 @@
           # Most (not all) versions of telnet return exit status 1 if the
           # connection was closed by the host after QUIT which is expected
           # in this case.
-          #- __testing_run_postfix_rcpttoexternal_result is succeeded
+          - (__testing_run_postfix_rcpttoexternal_result['rc'] | default(2)) < 2
           - ('220 ' ~ run_postfix_maincf_settings['myhostname'] ~ ' ESMTP') in __testing_run_postfix_rcpttoexternal_result['stdout']
           - ('250 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
           - ('221 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
@@ -705,10 +706,10 @@
 
     - name: "Molecule | Verify | Send SASL authenticated test email: Check journal for warnings or errors logged"
       ansible.builtin.command:
-        cmd: >
-          {{ __testing_journalctl_executable }}
-            --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
-            --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+        argv:
+          - "{{ __testing_journalctl_executable }}"
+          - "--since={{ __testing_postfix_verifystarttime }}"
+          - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
       changed_when: false
       failed_when:
         # Not searching for the following  because test emails are likely to be
@@ -725,8 +726,9 @@
 
     - name: "Molecule | Verify | Send SASL authenticated test email: Check mail queue for transport issues"
       ansible.builtin.command:
-        cmd: |-
-          {{ __testing_postqueue_executable }} -p
+        argv:
+          - "{{ __testing_postqueue_executable }}"
+          - "-p"
       changed_when: false
       failed_when:
         - (__testing_run_postfix_queuecheck_result['rc'] > 0) or
@@ -756,10 +758,10 @@
 
 - name: "Molecule | Verify | Check journal for warnings or errors logged during verify: Postfix"
   ansible.builtin.command:
-    cmd: >
-      {{ __testing_journalctl_executable }}
-        --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
-        --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+    argv:
+      - "{{ __testing_journalctl_executable }}"
+      - "--since={{ __testing_postfix_verifystarttime }}"
+      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
@@ -796,10 +798,10 @@
 
 - name: "Molecule | Verify | Send SASL authenticated test email: Check journal for 'User has moved' bounce"
   ansible.builtin.command:
-    cmd: >
-      {{ __testing_journalctl_executable }}
-        --since={{ __testing_postfix_verifystarttime | ansible.builtin.quote }}
-        --unit={{ __run_postfix_postfix_servicename | regex_replace('\.service$', '*') | ansible.builtin.quote }}
+    argv:
+      - "{{ __testing_journalctl_executable }}"
+      - "--since={{ __testing_postfix_verifystarttime }}"
+      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
