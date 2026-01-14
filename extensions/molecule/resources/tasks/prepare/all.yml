@@ -208,6 +208,7 @@
     line: "{{ item['line'] }}"
   loop:
     - { regexp: '^START=', line: 'START=yes' }
+    - { regexp: '^MECHANISMS=', line: 'MECHANISMS=pam' }
 
 
 - name: "Molecule | Prepare | Ensure existence of Cyrus SASL smtpd.conf parent directory"
