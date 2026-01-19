@@ -1,0 +1,11 @@
+# Molecule cleanup playbook for execution-environment scenario.
+#
+# No cleanup needed between test runs - destroy handles image removal.
+
+---
+
+- name: "Molecule | Cleanup (EE) | No-op"
+  hosts: "localhost"
+  connection: "local"
+  gather_facts: false
+  tasks: []

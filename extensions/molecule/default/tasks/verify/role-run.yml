@@ -131,7 +131,7 @@
 
 - name: "Molecule | Verify | Run SMTP tests: basic"
   ansible.builtin.include_tasks:
-    file: "../tasks/verify/checks/smtp-basic.yml"
+    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | default('../../default')) }}/tasks/verify/checks/smtp-basic.yml"
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -150,7 +150,7 @@
 
 - name: "Molecule | Verify | Run SMTP tests: STARTTLS"
   ansible.builtin.include_tasks:
-    file: "../tasks/verify/checks/smtp-starttls.yml"
+    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | default('../../default')) }}/tasks/verify/checks/smtp-starttls.yml"
   vars:
     __testing_hostdata: "{{ item }}"
   when:

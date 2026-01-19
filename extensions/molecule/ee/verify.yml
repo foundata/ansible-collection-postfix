@@ -1,0 +1,67 @@
+# Molecule verify playbook for execution-environment scenario.
+#
+# Verifies that the collection is properly installed in the EE image.
+
+---
+
+- name: "Molecule | Verify (EE) | Validate Execution Environment"
+  hosts: "localhost"
+  connection: "local"
+  gather_facts: false
+  vars:
+    podman_executable: "{{ lookup('env', 'MOLECULE_PODMAN_EXECUTABLE') | default('podman', true) }}"
+
+  tasks:
+
+    - name: "Molecule | Verify (EE) | Read EE image name"
+      ansible.builtin.slurp:
+        src: "{{ molecule_ephemeral_directory }}/ee-image-name.txt"
+      register: __testing_ee_image_name_raw
+
+
+    - name: "Molecule | Verify (EE) | Set EE image name fact"
+      ansible.builtin.set_fact:
+        __testing_ee_image_name: "{{ __testing_ee_image_name_raw['content'] | b64decode | trim }}"
+
+
+    - name: "Molecule | Verify (EE) | Verify EE image exists"
+      ansible.builtin.command:
+        cmd: "{{ podman_executable }} image exists {{ __testing_ee_image_name }}"
+      changed_when: false
+
+
+    - name: "Molecule | Verify (EE) | List collections in EE"
+      ansible.builtin.command:
+        cmd: "{{ podman_executable }} run --rm {{ __testing_ee_image_name }} ansible-galaxy collection list"
+      register: __testing_collection_list
+      changed_when: false
+
+
+    - name: "Molecule | Verify (EE) | Print collection list"
+      ansible.builtin.debug:
+        var: __testing_collection_list['stdout_lines']
+        verbosity: 1
+
+
+    - name: "Molecule | Verify (EE) | Assert foundata.postfix collection is present"
+      ansible.builtin.assert:
+        that:
+          - "'foundata.postfix' in __testing_collection_list['stdout']"
+        fail_msg: "Collection foundata.postfix not found in Execution Environment"
+        success_msg: "Collection foundata.postfix successfully installed in Execution Environment"
+
+
+    - name: "Molecule | Verify (EE) | Verify collection is usable (list roles)"
+      ansible.builtin.command:
+        cmd: >-
+          {{ podman_executable }} run --rm {{ __testing_ee_image_name }}
+          ansible-doc --list --type role foundata.postfix
+      register: __testing_role_list
+      changed_when: false
+      failed_when: false
+
+
+    - name: "Molecule | Verify (EE) | Print available roles"
+      ansible.builtin.debug:
+        var: __testing_role_list['stdout_lines']
+        verbosity: 1
