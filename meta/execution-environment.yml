@@ -1,0 +1,10 @@
+# Execution Environment dependencies for the foundata.postfix collection
+
+---
+
+version: 3
+
+dependencies:
+  galaxy:
+    collections: {}
+    roles: {}
