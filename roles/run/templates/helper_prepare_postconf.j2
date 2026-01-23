@@ -5,7 +5,7 @@
 {%   if (value is iterable) and (value is not string) and (value is not mapping) %}
 {#     Postfix allows list values to be separated by whitspace or comma. Both
        are valid and can be even mixed. We prefer comma as separator. #}
-{%     set _ = result.update({key: (value | unique) | join(', ')}) %}
+{%     set _ = result.update({key: (value | ansible.builtin.unique) | join(', ')}) %}
 {%   else %}
 {%     set _ = result.update({key: value}) %}
 {%   endif %}
