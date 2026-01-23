@@ -21,7 +21,7 @@
     __testing_certs_base_dir: "/etc/ssl/certs"
     __testing_certs_trustanchors_dir: "/usr/local/share/ca-certificates"
   when:
-    - (ansible_facts['os_family'] | lower) == 'debian'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
 
 - name: "Molecule | Prepare | Certificates: Set paths (Red Hat)"
@@ -29,7 +29,7 @@
     __testing_certs_base_dir: "/etc/pki/tls/certs"
     __testing_certs_trustanchors_dir: "/etc/pki/ca-trust/source/anchors"
   when:
-    - (ansible_facts['os_family'] | lower) == 'redhat'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
 
 - name: "Molecule | Prepare | Certificates: Set dummy cert file (PEM) path"
@@ -74,9 +74,9 @@
     #
     # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
     # handling can be removed if these targets are not supported anymore.
-    - ((ansible_facts['os_family'] | lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<='))) or
-      ((ansible_facts['distribution'] | lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
-      ((ansible_facts['distribution'] | lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
+    - ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<='))) or
+      ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
+      ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
 
 
 - name: "Molecule | Prepare | Certificates: Get info about dummy cert file"
@@ -147,7 +147,7 @@
     argv:
       - "/usr/sbin/update-ca-certificates"
   when:
-    - (ansible_facts['os_family'] | lower) == 'debian'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
 
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Red Hat)"
@@ -155,7 +155,7 @@
     argv:
       - "/usr/bin/update-ca-trust"
   when:
-    - (ansible_facts['os_family'] | lower) == 'redhat'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
 
 ### SASL (Simple Authentication and Security Layer) for better testing of restrictions
@@ -180,7 +180,7 @@
     __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
     __testing_run_sasl_smtpd_config_file: "/etc/postfix/sasl/smtpd.conf" # Provided by Postfix packages
   when:
-    - (ansible_facts['os_family'] | lower) == 'debian'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
 
 - name: "Molecule | Prepare | Set variables for Cyrus SASL (Red Hat)"
@@ -192,7 +192,7 @@
     __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
     __testing_run_sasl_smtpd_config_file: "/etc/sasl2/smtpd.conf" # Provided by Postfix packages
   when:
-    - (ansible_facts['os_family'] | lower) == 'redhat'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
 
 - name: "Molecule | Prepare | Install Cyrus SASL authentication packages"
@@ -274,7 +274,7 @@
 #         - "sasl"
 #       append: true # do not remove existing group memberships
 #     when:
-#       - (ansible_facts['os_family'] | lower) == 'debian'
+#       - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 #
 # However, we have got a chicken-egg problem here as Postfix is not installed
 # yet and creating it's service user upfront would tamper the installation
@@ -289,4 +289,4 @@
     owner: "root"
     group: "sasl"
   when:
-    - (ansible_facts['os_family'] | lower) == 'debian'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'

@@ -105,7 +105,7 @@
   ansible.builtin.set_fact:
     __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):(?!.*header version mismatch: OpenSSL)'
   when:
-    - (ansible_facts['os_family'] | lower) == 'redhat'
+    - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
     - ansible_facts['distribution_major_version'] is defined
     - ansible_facts['distribution_major_version'] is ansible.builtin.version('10', '<=')
 

@@ -60,9 +60,9 @@
       smtpd_tls_security_level: "may"
       smtp_tls_note_starttls_offer: "yes"
       smtpd_tls_cert_file: |-
-        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
+        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
       smtpd_tls_key_file: |-
-        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
+        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
       # From: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
       # With Postfix ≥ 3.7, built with OpenSSL version is 3.0.0 or later, if the
       # parameter value is either empty or "auto" then the DH parameter selection
@@ -78,11 +78,11 @@
       # handling can be removed if these targets are not supported anymore.
       smtpd_tls_dh1024_param_file: |-
         {{ '/etc/pki/tls/certs/dhparam_ffdhe2048'
-           if ((ansible_facts['os_family'] | lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<=')))
+           if ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<=')))
            else
              ('/etc/ssl/certs/dhparam_ffdhe2048'
-              if ((ansible_facts['distribution'] | lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
-                 ((ansible_facts['distribution'] | lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
+              if ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
+                 ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
               else omit)
         }}
       message_size_limit: 52428800 # 50 MiB; max size of a incoming email
