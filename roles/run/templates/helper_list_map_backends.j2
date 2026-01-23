@@ -42,4 +42,4 @@
 {%   endfor %}
 {% endfor %}
 {# Return all backends with an entry in the __run_postfix_packages_install_map_backends dict #}
-{{ backends | unique | intersect(__run_postfix_packages_install_map_backends.keys()) | sort }}
+{{ backends | unique | intersect(__run_postfix_packages_install_map_backends.keys()) | ansible.builtin.sort }}
