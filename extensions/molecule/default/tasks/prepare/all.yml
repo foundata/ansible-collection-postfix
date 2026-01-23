@@ -135,7 +135,7 @@
 - name: "Molecule | Prepare | Certificates: Copy dummy cert into trust anchor store"
   ansible.builtin.copy:
     src: "{{ __testing_certs_dummycert_pem }}"
-    dest: "{{ __testing_certs_trustanchors_dir }}/{{ __testing_certs_dummycert_pem | basename }}"
+    dest: "{{ __testing_certs_trustanchors_dir }}/{{ __testing_certs_dummycert_pem | ansible.builtin.basename }}"
     remote_src: true
     owner: "root"
     group: "root"
