@@ -97,7 +97,7 @@
           {{ __run_postfix_access_deprecatedsettings | join(', ') }}.
           Consider consolidating your access controls within "smtpd_relay_restrictions" instead.
       vars:
-        __run_postfix_access_deprecatedsettings: "{{ __run_postfix_access_deprecatedsettings_list | select('in', run_postfix_maincf_settings.keys()) | ansible.builtin.list }}"
+        __run_postfix_access_deprecatedsettings: "{{ __run_postfix_access_deprecatedsettings_list | ansible.builtin.select('in', run_postfix_maincf_settings.keys()) | ansible.builtin.list }}"
         __run_postfix_access_deprecatedsettings_list:
           - "smtpd_client_restrictions" # exists for historic reasons (since a long time)
           - "smtpd_helo_restrictions" # exists for historic reasons (since a long time)
