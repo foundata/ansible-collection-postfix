@@ -143,7 +143,7 @@ __run_postfix_paths_removal:
 # description of the structure (as this variable is using the same).
 __run_postfix_maincf_settings_defaults:
   compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
-  myhostname: "{{ ansible_facts['hostname'] | default(inventory_hostname) }}"
+  myhostname: "{{ ansible_facts['hostname'] | ansible.builtin.default(inventory_hostname) }}"
   mynetworks:
     - "127.0.0.0/8"
     - "[::ffff:127.0.0.0]/104"

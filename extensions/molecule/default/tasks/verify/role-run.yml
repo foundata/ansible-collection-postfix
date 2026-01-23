@@ -131,7 +131,7 @@
 
 - name: "Molecule | Verify | Run SMTP tests: basic"
   ansible.builtin.include_tasks:
-    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | default('../../default')) }}/tasks/verify/checks/smtp-basic.yml"
+    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-basic.yml"
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -150,7 +150,7 @@
 
 - name: "Molecule | Verify | Run SMTP tests: STARTTLS"
   ansible.builtin.include_tasks:
-    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | default('../../default')) }}/tasks/verify/checks/smtp-starttls.yml"
+    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-starttls.yml"
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -620,7 +620,7 @@
 
 - name: "Molecule | Verify | Send SASL authenticated test email: check for environment variables"
   ansible.builtin.set_fact:
-    __testing_missing_envvars_sendmail: "{{ __testing_missing_envvars_sendmail | default([]) + [item] }}"
+    __testing_missing_envvars_sendmail: "{{ __testing_missing_envvars_sendmail | ansible.builtin.default([]) + [item] }}"
   when:
     - lookup('env', item, default='') == ''
   changed_when: false # noqa: no-changed-when
@@ -642,9 +642,9 @@
 
 - name: "Molecule | Verify | Send SASL authenticated test email: gather environment variables"
   ansible.builtin.set_fact:
-    __testing_mailfrom_email: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_EMAIL') | default(omit, true) }}"
+    __testing_mailfrom_email: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_EMAIL') | ansible.builtin.default(omit, true) }}"
     __testing_mailfrom_name: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_NAME', default='John Doe') }}"
-    __testing_mailto_email: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL') | default(omit, true) }}"
+    __testing_mailto_email: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL') | ansible.builtin.default(omit, true) }}"
     __testing_mailto_name: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
     - __testing_missing_envvars_sendmail is not defined or
@@ -684,7 +684,7 @@
         # Most (not all) versions of telnet return exit status 1 if the
         # connection was closed by the host after QUIT which is expected
         # in this case.
-        - (__testing_run_postfix_rcpttoexternal_result['rc'] | default(2)) > 1
+        - (__testing_run_postfix_rcpttoexternal_result['rc'] | ansible.builtin.default(2)) > 1
       register: __testing_run_postfix_rcpttoexternal_result
 
 
@@ -694,7 +694,7 @@
           # Most (not all) versions of telnet return exit status 1 if the
           # connection was closed by the host after QUIT which is expected
           # in this case.
-          - (__testing_run_postfix_rcpttoexternal_result['rc'] | default(2)) < 2
+          - (__testing_run_postfix_rcpttoexternal_result['rc'] | ansible.builtin.default(2)) < 2
           - ('220 ' ~ run_postfix_maincf_settings['myhostname'] ~ ' ESMTP') in __testing_run_postfix_rcpttoexternal_result['stdout']
           - ('250 ') in __testing_run_postfix_rcpttoexternal_result['stdout']
           - ('221 ') in __testing_run_postfix_rcpttoexternal_result['stdout']

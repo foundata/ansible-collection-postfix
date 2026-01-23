@@ -13,7 +13,7 @@
     __testing_ee_image_tag: "latest"
     __testing_collection_root: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | ansible.builtin.dirname | ansible.builtin.dirname }}"
     __testing_build_dir: "{{ molecule_ephemeral_directory }}/ee-build"
-    podman_executable: "{{ lookup('env', 'MOLECULE_PODMAN_EXECUTABLE') | default('podman', true) }}"
+    podman_executable: "{{ lookup('env', 'MOLECULE_PODMAN_EXECUTABLE') | ansible.builtin.default('podman', true) }}"
 
   tasks:
 

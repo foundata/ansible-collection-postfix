@@ -9,7 +9,7 @@
   connection: "local"
   gather_facts: false
   vars:
-    podman_executable: "{{ lookup('env', 'MOLECULE_PODMAN_EXECUTABLE') | default('podman', true) }}"
+    podman_executable: "{{ lookup('env', 'MOLECULE_PODMAN_EXECUTABLE') | ansible.builtin.default('podman', true) }}"
 
   tasks:
 
