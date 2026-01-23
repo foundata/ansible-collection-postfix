@@ -79,7 +79,7 @@
   vars:
     __run_postfix_vars_file: "{{ role_path }}/vars/{{ item }}"
   when:
-    - __run_postfix_vars_file is file
+    - __run_postfix_vars_file is ansible.builtin.file
   loop: "{{ __run_postfix_platform_filenames_most_specific_last }}"
 
 
