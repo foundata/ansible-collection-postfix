@@ -701,7 +701,7 @@
     - __run_postfix_effective_maincf_settings is defined
   changed_when:
     - __run_postfix_config_maincf_result['rc'] == 0
-    - __run_postfix_config_maincf_result['stdout'] | trim | length > 0
+    - __run_postfix_config_maincf_result['stdout'] | ansible.builtin.trim | length > 0
   register: __run_postfix_config_maincf_result
   notify:
     - "run_postfix: update lookup tables"
@@ -790,7 +790,7 @@
     - __run_postfix_effective_mastercf_settings is defined
   changed_when:
     - __run_postfix_config_mastercf_result['rc'] == 0
-    - __run_postfix_config_mastercf_result['stdout'] | trim | length > 0
+    - __run_postfix_config_mastercf_result['stdout'] | ansible.builtin.trim | length > 0
   register: __run_postfix_config_mastercf_result
   notify:
     - "run_postfix: restart postfix.service"
