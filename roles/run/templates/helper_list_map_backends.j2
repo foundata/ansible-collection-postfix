@@ -24,7 +24,7 @@
      (run_postfix_transport_manage | ansible.builtin.ternary(run_postfix_transport_map_tabletype, '')),
      (run_postfix_virtual_manage | ansible.builtin.ternary(run_postfix_virtual_aliasdomains_list_tabletype, '')),
      (run_postfix_virtual_manage | ansible.builtin.ternary(run_postfix_virtual_alias_map_tabletype, ''))
-   ] | reject('match', '^$') | ansible.builtin.unique %}
+   ] | ansible.builtin.reject('match', '^$') | ansible.builtin.unique %}
 {# See https://www.postfix.org/DATABASE_README.html#types to maintain the regex list. #}
 {% set regex_list = 'btree|cdb|cidr|dbm|environ|fail|hash|inline|internal|lmdb|ldap|memcache|mongodb|mysql|netinfo|nis|nisplus|pcre|pipemap|pgsql|proxy|randmap|regexp|sdbm|socketmap|sqlite|static|tcp|texthash|unionmap|unix' %}
 {% for key, value in __run_postfix_effective_maincf_settings.items() %}
