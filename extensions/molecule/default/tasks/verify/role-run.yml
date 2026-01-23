@@ -195,7 +195,7 @@
       when:
         - run_postfix_access_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_access_db_stat['stat']['exists'] is false
+        - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
 
 
@@ -225,7 +225,7 @@
       when:
         - run_postfix_access_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_access_db_stat['stat']['exists'] is false
+        - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
 
 
@@ -263,7 +263,7 @@
       when:
         - run_postfix_aliases_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_aliases_db_stat['stat']['exists'] is false
+        - __testing_aliases_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_aliases_db_stat
 
 
@@ -301,7 +301,7 @@
       when:
         - run_postfix_canonical_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_canonical_db_stat['stat']['exists'] is false
+        - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
 
 
@@ -332,7 +332,7 @@
       when:
         - run_postfix_canonical_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_canonical_db_stat['stat']['exists'] is false
+        - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
 
 
@@ -370,7 +370,7 @@
       when:
         - run_postfix_relocated_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_relocated_db_stat['stat']['exists'] is false
+        - __testing_relocated_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_relocated_db_stat
 
 
@@ -407,7 +407,7 @@
       when:
         - run_postfix_generic_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_generic_db_stat['stat']['exists'] is false
+        - __testing_generic_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_generic_db_stat
 
 
@@ -445,7 +445,7 @@
       when:
         - run_postfix_transport_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_transport_db_stat['stat']['exists'] is false
+        - __testing_transport_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_transport_db_stat
 
 
@@ -483,7 +483,7 @@
       when:
         - run_postfix_virtual_alias_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_virtual_db_stat['stat']['exists'] is false
+        - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
 
 
@@ -514,7 +514,7 @@
       when:
         - run_postfix_virtual_aliasdomains_list_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_virtual_db_stat['stat']['exists'] is false
+        - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
 
 
@@ -552,7 +552,7 @@
       when:
         - run_postfix_smtp_sasl_password_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
-        - __testing_smtp_sasl_password_db_stat['stat']['exists'] is false
+        - __testing_smtp_sasl_password_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_smtp_sasl_password_db_stat
 
 
