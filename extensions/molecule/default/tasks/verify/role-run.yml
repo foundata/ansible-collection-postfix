@@ -177,8 +177,8 @@
     - name: "Molecule | Verify | Assert access_recipient file contents"
       ansible.builtin.assert:
         that:
-          - "'/^abuse@.+/i\t\t\tOK' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
-          - "'/^do-not-reply@example.com$/im\tREJECT' in (__testing_access_recipient_file.content | b64decode)" # noqa: no-tabs
+          - "'/^abuse@.+/i\t\t\tOK' in (__testing_access_recipient_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'/^do-not-reply@example.com$/im\tREJECT' in (__testing_access_recipient_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_access_recipient_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_access_recipient_file_path }}"
 
@@ -208,7 +208,7 @@
     - name: "Molecule | Verify | Assert access_sender file contents"
       ansible.builtin.assert:
         that:
-          - "'defines address rules used by Postfix to define sender access' in (__testing_access_sender_file.content | b64decode)" # noqa: no-tabs
+          - "'defines address rules used by Postfix to define sender access' in (__testing_access_sender_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_access_sender_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_access_sender_file_path }}"
 
@@ -245,8 +245,8 @@
     - name: "Molecule | Verify | Assert aliases file contents"
       ansible.builtin.assert:
         that:
-          - "'ANSIBLE MANAGED BLOCK' in (__testing_aliases_file.content | b64decode)" # noqa: no-tabs
-          - "'molecule:\t\t\troot' in (__testing_aliases_file.content | b64decode)" # noqa: no-tabs
+          - "'ANSIBLE MANAGED BLOCK' in (__testing_aliases_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'molecule:\t\t\troot' in (__testing_aliases_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_aliases_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_aliases_file_path }}"
 
@@ -283,8 +283,8 @@
     - name: "Molecule | Verify | Assert canonical_recipient file contents"
       ansible.builtin.assert:
         that:
-          - "'old.name@example.com\t\tnew.name@example.com' in (__testing_canonical_recipient_file.content | b64decode)" # noqa: no-tabs
-          - "'@old.example.com\t\t@example.com' in (__testing_canonical_recipient_file.content | b64decode)" # noqa: no-tabs
+          - "'old.name@example.com\t\tnew.name@example.com' in (__testing_canonical_recipient_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'@old.example.com\t\t@example.com' in (__testing_canonical_recipient_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_canonical_recipient_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_canonical_recipient_file_path }}"
 
@@ -314,8 +314,8 @@
     - name: "Molecule | Verify | Assert canonical_sender file contents"
       ansible.builtin.assert:
         that:
-          - "'/^(.+)@alias1.example.com$/im\t$1@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
-          - "'/^(.+)@alias2.example.com$/im\tdo-not-reply@example.com' in (__testing_canonical_sender_file.content | b64decode)" # noqa: no-tabs
+          - "'/^(.+)@alias1.example.com$/im\t$1@example.com' in (__testing_canonical_sender_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'/^(.+)@alias2.example.com$/im\tdo-not-reply@example.com' in (__testing_canonical_sender_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_canonical_sender_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_canonical_sender_file_path }}"
 
@@ -352,8 +352,8 @@
     - name: "Molecule | Verify | Assert relocated file contents"
       ansible.builtin.assert:
         that:
-          - "'user.old@example.com\t\tuser.new@example.net' in (__testing_relocated_file.content | b64decode)" # noqa: no-tabs
-          - "'user345@example.com\t\tto ACME Inc.; Please contact him there now.' in (__testing_relocated_file.content | b64decode)" # noqa: no-tabs
+          - "'user.old@example.com\t\tuser.new@example.net' in (__testing_relocated_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'user345@example.com\t\tto ACME Inc.; Please contact him there now.' in (__testing_relocated_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_relocated_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_relocated_file_path }}"
 
@@ -390,7 +390,7 @@
     - name: "Molecule | Verify | Assert generic file contents"
       ansible.builtin.assert:
         that:
-          - "'/^(.+)@ad\\.local$/im\t\t$1@example.com' in (__testing_generic_file.content | b64decode)" # noqa: no-tabs
+          - "'/^(.+)@ad\\.local$/im\t\t$1@example.com' in (__testing_generic_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_generic_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_generic_file_path }}"
 
@@ -427,8 +427,8 @@
     - name: "Molecule | Verify | Assert transport file contents"
       ansible.builtin.assert:
         that:
-          - "'example.org\t\t\tlmtp:unix:/var/spool/postfix/private/lmtp-dovecot' in (__testing_transport_file.content | b64decode)" # noqa: no-tabs
-          - "'foo.example.org\t\t\tsmtp:[mailrelay.foo.example.org]:123' in (__testing_transport_file.content | b64decode)" # noqa: no-tabs
+          - "'example.org\t\t\tlmtp:unix:/var/spool/postfix/private/lmtp-dovecot' in (__testing_transport_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'foo.example.org\t\t\tsmtp:[mailrelay.foo.example.org]:123' in (__testing_transport_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_transport_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_transport_file_path }}"
 
@@ -465,8 +465,8 @@
     - name: "Molecule | Verify | Assert virtual file contents"
       ansible.builtin.assert:
         that:
-          - "'distribution@example.com\tuser1@actual-destination.example.com, user2@actual-destination.example.com, user3@actual-destination.example.com, user3@actual-destination.example.com' in (__testing_virtual_file.content | b64decode)" # noqa: no-tabs yaml[line-length]
-          - "'admin@example.com\t\tadmin@actual-destination.example.com' in (__testing_virtual_file.content | b64decode)" # noqa: no-tabs
+          - "'distribution@example.com\tuser1@actual-destination.example.com, user2@actual-destination.example.com, user3@actual-destination.example.com, user3@actual-destination.example.com' in (__testing_virtual_file.content | ansible.builtin.b64decode)" # noqa: no-tabs yaml[line-length]
+          - "'admin@example.com\t\tadmin@actual-destination.example.com' in (__testing_virtual_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_virtual_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_virtual_file_path }}"
 
@@ -496,8 +496,8 @@
     - name: "Molecule | Verify | Assert virtual file (alias domains) contents"
       ansible.builtin.assert:
         that:
-          - "'alias2.example.com\t\tvirtual' in (__testing_virtual_aliasdomains_file.content | b64decode)" # noqa: no-tabs
-          - "'ad.local\t\t\tvirtual' in (__testing_virtual_aliasdomains_file.content | b64decode)" # noqa: no-tabs
+          - "'alias2.example.com\t\tvirtual' in (__testing_virtual_aliasdomains_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'ad.local\t\t\tvirtual' in (__testing_virtual_aliasdomains_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_virtual_aliasdomains_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_virtual_aliasdomains_file_path }}"
 
@@ -534,8 +534,8 @@
     - name: "Molecule | Verify | Assert SMTP SASL password credentials file contents"
       ansible.builtin.assert:
         that:
-          - "'[mailrelay.foo.example.org]:123\tuser123:pwd-1fdd4-bbbaf3' in (__testing_smtp_sasl_password_file.content | b64decode)" # noqa: no-tabs
-          - "'[relay.example.net]:25\t\tjane:Passw0rd-gcIJcft0t' in (__testing_smtp_sasl_password_file.content | b64decode)" # noqa: no-tabs
+          - "'[mailrelay.foo.example.org]:123\tuser123:pwd-1fdd4-bbbaf3' in (__testing_smtp_sasl_password_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'[relay.example.net]:25\t\tjane:Passw0rd-gcIJcft0t' in (__testing_smtp_sasl_password_file.content | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_smtpsaslpasswordmap_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_smtpsaslpasswordmap_file_path }}"
 

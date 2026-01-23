@@ -21,7 +21,7 @@
 
     - name: "Molecule | Verify (EE) | Set EE image name fact"
       ansible.builtin.set_fact:
-        __testing_ee_image_name: "{{ __testing_ee_image_name_raw['content'] | b64decode | trim }}"
+        __testing_ee_image_name: "{{ __testing_ee_image_name_raw['content'] | ansible.builtin.b64decode | trim }}"
 
 
     - name: "Molecule | Verify (EE) | Verify EE image exists"
