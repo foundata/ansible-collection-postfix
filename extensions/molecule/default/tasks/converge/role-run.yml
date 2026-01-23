@@ -172,7 +172,7 @@
           'example.org': 'lmtp:unix:/var/spool/postfix/private/lmtp-dovecot',
           'example.net': 'lmtp:127.0.0.1:24',
           'foo.example.org': 'smtp:[mailrelay.foo.example.org]:123'
-        } | combine(
+        } | ansible.builtin.combine(
           { __testing_mailto_transport_domain: ('smtp:' ~ __testing_mailto_relay) }
           if ((__testing_mailto_relay is defined) and
               (__testing_mailto_relay | length > 0) and
@@ -212,7 +212,7 @@
         {
           '[mailrelay.foo.example.org]:123': 'user123:pwd-1fdd4-bbbaf3',
           '[relay.example.net]:25': 'jane:Passw0rd-gcIJcft0t'
-        } | combine(
+        } | ansible.builtin.combine(
             { __testing_mailto_relay: (__testing_mailto_relay_credential) }
             if ((__testing_mailto_relay is defined) and
                 (__testing_mailto_relay | length > 0) and
