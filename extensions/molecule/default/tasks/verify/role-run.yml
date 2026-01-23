@@ -680,7 +680,7 @@
         timeout: 5
       changed_when: false
       failed_when:
-        - __testing_run_postfix_rcpttoexternal_result is failed
+        - __testing_run_postfix_rcpttoexternal_result is ansible.builtin.failed
         # Most (not all) versions of telnet return exit status 1 if the
         # connection was closed by the host after QUIT which is expected
         # in this case.

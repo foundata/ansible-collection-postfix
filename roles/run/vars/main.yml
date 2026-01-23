@@ -205,7 +205,7 @@ __run_postfix_maincf_settings_defaults:
     #
     # Allow our own users:
     # - permit_sasl_authenticated:
-    #   PERMIT if the request when the client is successfully authenticated via
+    #   PERMIT if the request when the client is ansible.builtin.successfully authenticated via
     #   RFC 4954 (AUTH) protocol.
     # - permit_inet_interfaces:
     #   PERMIT if the mail is from our local host itself.
