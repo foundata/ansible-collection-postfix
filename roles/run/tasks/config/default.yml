@@ -33,7 +33,7 @@
 
 - name: "Config | Default | Relay domains"
   when:
-    - run_postfix_relay_domains_manage is true
+    - run_postfix_relay_domains_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Relay domains: Inform if 'relay_domains' config value will be overwritten"
@@ -42,7 +42,7 @@
           Overwriting original "run_postfix_maincf_settings['relay_domains']"
           value "{{ run_postfix_maincf_settings['relay_domains'] }}" with
           "{{ run_postfix_relay_domains_list_tabletype }}:{{ __run_postfix_relaydomains_file_path }}"
-          as "run_postfix_relay_domains_manage" is true. Please add your domains
+          as "run_postfix_relay_domains_manage" is ansible.builtin.true. Please add your domains
           to "run_postfix_maincf_settings['relay_domains']".
       when:
         - run_postfix_maincf_settings['relay_domains'] is defined
@@ -84,7 +84,7 @@
 
 - name: "Config | Default | Lookup-table 'access'"
   when:
-    - run_postfix_access_manage is true
+    - run_postfix_access_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'access': Warn about deprecated Postfix settings"
@@ -154,7 +154,7 @@
 
 - name: "Config | Default | Lookup-table 'aliases'"
   when:
-    - run_postfix_aliases_manage is true
+    - run_postfix_aliases_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'aliases': Inform if 'alias_maps' config value gets extended"
@@ -163,7 +163,7 @@
           Extending the original "run_postfix_maincf_settings['alias_maps']"
           value "{{ run_postfix_maincf_settings['alias_maps'] }}" with
           "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
-          at the first position as "run_postfix_aliases_manage" is true.
+          at the first position as "run_postfix_aliases_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['alias_maps'] is defined
         - run_postfix_maincf_settings['alias_maps'] | ansible.builtin.length > 0
@@ -225,7 +225,7 @@
 
 - name: "Config | Default | Lookup-table 'canonical'"
   when:
-    - run_postfix_canonical_manage is true
+    - run_postfix_canonical_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'canonical': Inform if 'recipient_canonical_maps' config value gets extended"
@@ -234,7 +234,7 @@
           Extending the original "run_postfix_maincf_settings['recipient_canonical_maps']"
           value "{{ run_postfix_maincf_settings['recipient_canonical_maps'] }}" with
           "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
-          at the first position as "run_postfix_canonical_manage" is true.
+          at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['recipient_canonical_maps'] is defined
         - run_postfix_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0
@@ -273,7 +273,7 @@
           Extending the original "run_postfix_maincf_settings['sender_canonical_maps']"
           value "{{ run_postfix_maincf_settings['sender_canonical_maps'] }}" with
           "{{ run_postfix_canonical_sender_map_tabletype }}:{{ __run_postfix_table_canonical_sender_file_path }}"
-          at the first position as "run_postfix_canonical_manage" is true.
+          at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['sender_canonical_maps'] is defined
         - run_postfix_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0
@@ -318,7 +318,7 @@
 
 - name: "Config | Default | Lookup-table 'generic'"
   when:
-    - run_postfix_generic_manage is true
+    - run_postfix_generic_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'generic': Inform if 'lmtp_generic_maps' config value gets extended"
@@ -327,7 +327,7 @@
           Extending the original "run_postfix_maincf_settings['lmtp_generic_maps']"
           value "{{ run_postfix_maincf_settings['lmtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
-          at the first position as "run_postfix_generic_manage" is true.
+          at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['lmtp_generic_maps'] is defined
         - run_postfix_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0
@@ -354,7 +354,7 @@
           Extending the original "run_postfix_maincf_settings['smtp_generic_maps']"
           value "{{ run_postfix_maincf_settings['smtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
-          at the first position as "run_postfix_generic_manage" is true.
+          at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['smtp_generic_maps'] is defined
         - run_postfix_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0
@@ -391,7 +391,7 @@
 
 - name: "Config | Default | Lookup-table 'relocated'"
   when:
-    - run_postfix_relocated_manage is true
+    - run_postfix_relocated_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'relocated': Inform if 'relocated_maps' config value gets extended"
@@ -400,7 +400,7 @@
           Extending the original "run_postfix_maincf_settings['relocated_maps']"
           value "{{ run_postfix_maincf_settings['relocated_maps'] }}" with
           "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
-          at the first position as "run_postfix_relocated_manage" is true.
+          at the first position as "run_postfix_relocated_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['relocated_maps'] is defined
         - run_postfix_maincf_settings['relocated_maps'] | ansible.builtin.length > 0
@@ -437,7 +437,7 @@
 
 - name: "Config | Default | Lookup-table 'transport'"
   when:
-    - run_postfix_transport_manage is true
+    - run_postfix_transport_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'transport': Inform if 'transport_maps' config value gets extended"
@@ -446,7 +446,7 @@
           Extending the original "run_postfix_maincf_settings['transport_maps']"
           value "{{ run_postfix_maincf_settings['transport_maps'] }}" with
           "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
-          at the first position as "run_postfix_transport_manage" is true.
+          at the first position as "run_postfix_transport_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['transport_maps'] is defined
         - run_postfix_maincf_settings['transport_maps'] | ansible.builtin.length > 0
@@ -482,7 +482,7 @@
 
 - name: "Config | Default | Lookup-table 'virtual'"
   when:
-    - run_postfix_virtual_manage is true
+    - run_postfix_virtual_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | Lookup-table 'virtual': Inform if 'virtual_alias_maps' config value gets extended"
@@ -491,7 +491,7 @@
           Extending the original "run_postfix_maincf_settings['virtual_alias_maps']"
           value "{{ run_postfix_maincf_settings['virtual_alias_maps'] }}" with
           "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
-          at the first position as "run_postfix_virtual_manage" is true.
+          at the first position as "run_postfix_virtual_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['virtual_alias_maps'] is defined
         - run_postfix_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0
@@ -530,7 +530,7 @@
           Overwriting original "run_postfix_maincf_settings['virtual_alias_domains']"
           value "{{ run_postfix_maincf_settings['virtual_alias_domains'] }}" with
           "{{ run_postfix_virtual_aliasdomains_list_tabletype }}:{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
-          as "run_postfix_virtual_manage" is true. Please add your domains
+          as "run_postfix_virtual_manage" is ansible.builtin.true. Please add your domains
           to "run_postfix_maincf_settings['virtual_alias_domains']".
       when:
         - run_postfix_maincf_settings['virtual_alias_domains'] is defined
@@ -565,7 +565,7 @@
 
 - name: "Config | Default | SMTP SASL password credentials"
   when:
-    - run_postfix_smtp_sasl_password_manage is true
+    - run_postfix_smtp_sasl_password_manage is ansible.builtin.true
   block:
 
     - name: "Config | Default | SMTP SASL password credentials: Inform if 'smtp_sasl_password_maps' config value gets extended"
@@ -574,7 +574,7 @@
           Extending the original "run_postfix_maincf_settings['smtp_sasl_password_maps']"
           value "{{ run_postfix_maincf_settings['smtp_sasl_password_maps'] }}" with
           "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
-          at the first position as "run_postfix_smtp_sasl_password_manage" is true.
+          at the first position as "run_postfix_smtp_sasl_password_manage" is ansible.builtin.true.
       when:
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] is defined
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0

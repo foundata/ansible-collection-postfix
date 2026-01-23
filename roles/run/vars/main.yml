@@ -131,7 +131,7 @@ __run_postfix_paths_removal:
   #       but this role does not remove them unconditionally and therefore not
   #       listed here. They are only removed if the corresponding configuration
   #       is actually managed. For example, /etc/postfix/virtual is removed
-  #       only if run_postfix_virtual_manage is true.
+  #       only if run_postfix_virtual_manage is ansible.builtin.true.
   - "/etc/postfix/main.cf.proto" # Exists by default at least on Debian, Red Hat
   - "/etc/postfix/master.cf.proto" # Exists by default at least on Debian, Red Hat
 
@@ -226,7 +226,7 @@ __run_postfix_maincf_settings_defaults:
     #
     # Deny all other relaying:
     # - reject_unauth_destination
-    #   REJECT unless one of the following is true for RCPT TO-domain:
+    #   REJECT unless one of the following is ansible.builtin.true for RCPT TO-domain:
     #   1. Matches $relay_domains or a subdomain thereof, and contains no
     #      sender-specified routing.
     #   2. Final destination: matches $mydestination, $inet_interfaces,

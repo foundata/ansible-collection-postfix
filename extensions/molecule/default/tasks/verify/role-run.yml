@@ -165,7 +165,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'access'"
   when:
-    - run_postfix_access_manage is true
+    - run_postfix_access_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read access_recipient file"
@@ -233,7 +233,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'aliases'"
   when:
-    - run_postfix_aliases_manage is true
+    - run_postfix_aliases_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read aliases file"
@@ -271,7 +271,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'canonical'"
   when:
-    - run_postfix_canonical_manage is true
+    - run_postfix_canonical_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read canonical_recipient file"
@@ -340,7 +340,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'relocated'"
   when:
-    - run_postfix_relocated_manage is true
+    - run_postfix_relocated_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read relocated file"
@@ -378,7 +378,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'generic'"
   when:
-    - run_postfix_generic_manage is true
+    - run_postfix_generic_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read generic file"
@@ -415,7 +415,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'transport'"
   when:
-    - run_postfix_transport_manage is true
+    - run_postfix_transport_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read transport file"
@@ -453,7 +453,7 @@
 
 - name: "Molecule | Verify | Lookup-table 'virtual'"
   when:
-    - run_postfix_virtual_manage is true
+    - run_postfix_virtual_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read virtual file"
@@ -522,7 +522,7 @@
 
 - name: "Molecule | Verify | SMTP SASL password credentials"
   when:
-    - run_postfix_smtp_sasl_password_manage is true
+    - run_postfix_smtp_sasl_password_manage is ansible.builtin.true
   block:
 
     - name: "Molecule | Verify | Read SMTP SASL password credentials file"

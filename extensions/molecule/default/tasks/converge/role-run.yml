@@ -94,7 +94,7 @@
         - "reject_non_fqdn_sender"
         - "reject_non_fqdn_recipient"
         - "permit_sasl_authenticated"
-          # REJECT unless one of the following is true for RCPT TO-domain:
+          # REJECT unless one of the following is ansible.builtin.true for RCPT TO-domain:
           #   1. Matches $relay_domains or a subdomain thereof, and contains no
           #      sender-specified routing.
           #   2. Final destination: matches $mydestination, $inet_interfaces,
