@@ -9,7 +9,7 @@
 {% set paths = [] %}
 {% for key, value in __run_postfix_effective_maincf_settings.items() %}
 {#   Keys referencing files where other commands have to be used ("postmap") are excluded. #}
-{%   if (key in ['alias_database', 'alias_maps']) and (value is string) %}
+{%   if (key in ['alias_database', 'alias_maps']) and (value is ansible.builtin.string) %}
 {#     Unify whitespace separators to single space only #}
 {%     set value = (value | ansible.builtin.regex_replace('\s+', ' ') | ansible.builtin.trim) %}
 {#     Iterate over comma separated values (this loop runs one iteration if there none) #}
