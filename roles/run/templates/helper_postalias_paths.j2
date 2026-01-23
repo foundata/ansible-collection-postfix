@@ -11,7 +11,7 @@
 {#   Keys referencing files where other commands have to be used ("postmap") are excluded. #}
 {%   if (key in ['alias_database', 'alias_maps']) and (value is string) %}
 {#     Unify whitespace separators to single space only #}
-{%     set value = (value | regex_replace('\s+', ' ') | ansible.builtin.trim) %}
+{%     set value = (value | ansible.builtin.regex_replace('\s+', ' ') | ansible.builtin.trim) %}
 {#     Iterate over comma separated values (this loop runs one iteration if there none) #}
 {%     for part_csv in value.split(',') %}
 {%       set part_csv = (part_csv | ansible.builtin.trim) %}
@@ -19,13 +19,13 @@
 {%         for part in part_csv.split(' ') %}
 {#           See https://www.postfix.org/DATABASE_README.html#types to maintain the
              list in the regex (look out for "files are created with the" string). #}
-{%           if (part | regex_search('(btree|dbm|hash|lmdb|sdbm):/.+')) %}
+{%           if (part | ansible.builtin.regex_search('(btree|dbm|hash|lmdb|sdbm):/.+')) %}
 {#             Get rid of inline config in front of the path #}
-{%             set part = (part | regex_replace('^.*?(btree|dbm|hash|lmdb|sdbm)(:/[^\s]$)', '\\1\\2') | ansible.builtin.trim) %}
+{%             set part = (part | ansible.builtin.regex_replace('^.*?(btree|dbm|hash|lmdb|sdbm)(:/[^\s]$)', '\\1\\2') | ansible.builtin.trim) %}
 {#             Remove only "hash:" as database type prefix. All other database types
                have to stay to enable the "postmap" command to determine the used
                format. "hash:" has to be removed as it is the expected default. #}
-{%             set part = (part | regex_replace('^hash:(.*)$', '\\1') | ansible.builtin.trim) %}
+{%             set part = (part | ansible.builtin.regex_replace('^hash:(.*)$', '\\1') | ansible.builtin.trim) %}
 {%             set _ = paths.append(part) %}
 {%           endif %}
 {%       endfor %}

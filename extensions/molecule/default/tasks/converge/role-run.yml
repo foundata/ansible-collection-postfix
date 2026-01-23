@@ -21,8 +21,8 @@
     # or preserve the original string; then split by '@' and take the domain part.
     __testing_mailfrom_relay_domain: |-
       {{ (lookup('env', 'TEST_POSTFIX_MAILFROM', default='foo@baz.example.com')
-          | regex_replace('^.*<([^>]+)>.*$', '\1')
-          | regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
+          | ansible.builtin.regex_replace('^.*<([^>]+)>.*$', '\1')
+          | ansible.builtin.regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
     __testing_mailto_relay: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_RELAY', default='') }}"
     __testing_mailto_relay_credential: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_RELAY_CREDENTIAL', default='') }}"
     # Getting the value of TEST_POSTFIX_MAILTO, extract the email from between
@@ -30,8 +30,8 @@
     # or preserve the original string; then split by '@' and take the domain part.
     __testing_mailto_transport_domain: |-
       {{ (lookup('env', 'TEST_POSTFIX_MAILTO', default='foo@baz.example.com')
-          | regex_replace('^.*<([^>]+)>.*$', '\1')
-          | regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
+          | ansible.builtin.regex_replace('^.*<([^>]+)>.*$', '\1')
+          | ansible.builtin.regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
 
 
 - name: "Molecule | Converge | Create dummy lookup table / map file"

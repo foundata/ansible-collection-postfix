@@ -85,8 +85,8 @@
       - (ansible_facts['services'][__run_postfix_postfix_servicename] is defined and
          ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running')
         or
-        (ansible_facts['services'][__run_postfix_postfix_servicename | regex_replace('\.service$', '')] is defined and
-         ansible_facts['services'][__run_postfix_postfix_servicename | regex_replace('\.service$', '')].state == 'running')
+        (ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')] is defined and
+         ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')].state == 'running')
     fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
@@ -114,7 +114,7 @@
   ansible.builtin.command:
     argv:
       - "{{ __testing_journalctl_executable }}"
-      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
+      - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
@@ -709,7 +709,7 @@
         argv:
           - "{{ __testing_journalctl_executable }}"
           - "--since={{ __testing_postfix_verifystarttime }}"
-          - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
+          - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
       changed_when: false
       failed_when:
         # Not searching for the following  because test emails are likely to be
@@ -761,7 +761,7 @@
     argv:
       - "{{ __testing_journalctl_executable }}"
       - "--since={{ __testing_postfix_verifystarttime }}"
-      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
+      - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
@@ -801,7 +801,7 @@
     argv:
       - "{{ __testing_journalctl_executable }}"
       - "--since={{ __testing_postfix_verifystarttime }}"
-      - '--unit={{ __run_postfix_postfix_servicename | regex_replace("\.service$", "*") }}'
+      - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
   changed_when: false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or

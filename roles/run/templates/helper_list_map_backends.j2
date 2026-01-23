@@ -29,14 +29,14 @@
 {% set regex_list = 'btree|cdb|cidr|dbm|environ|fail|hash|inline|internal|lmdb|ldap|memcache|mongodb|mysql|netinfo|nis|nisplus|pcre|pipemap|pgsql|proxy|randmap|regexp|sdbm|socketmap|sqlite|static|tcp|texthash|unionmap|unix' %}
 {% for key, value in __run_postfix_effective_maincf_settings.items() %}
 {#   Unify whitespace separators to single space only #}
-{%   set value = (value | regex_replace('\s+', ' ') | ansible.builtin.trim) %}
+{%   set value = (value | ansible.builtin.regex_replace('\s+', ' ') | ansible.builtin.trim) %}
 {#   Iterate over comma separated values (this loop runs one iteration if there none) #}
 {%   for part_csv in value.split(',') %}
 {%     set part_csv = (part_csv | ansible.builtin.trim) %}
 {#       Iterate over space separated values (this loop runs one iteration if there are none) #}
 {%       for part in part_csv.split(' ') %}
-{%         if (part | regex_search('(' ~ regex_list ~ '):/.+')) %}
-{%           set _ = backends.append((part | regex_replace('(' ~ regex_list ~ '):/.+', '\\1') | ansible.builtin.trim)) %}
+{%         if (part | ansible.builtin.regex_search('(' ~ regex_list ~ '):/.+')) %}
+{%           set _ = backends.append((part | ansible.builtin.regex_replace('(' ~ regex_list ~ '):/.+', '\\1') | ansible.builtin.trim)) %}
 {%         endif %}
 {%     endfor %}
 {%   endfor %}
