@@ -11,9 +11,9 @@
     timeout: 5
   changed_when: false
   failed_when:
-    # rc is none/null on timeout
+    # rc is ansible.builtin.none/null on timeout
     # telnet exits with 1 when it reaches EOF without user input
-    - (__testing_run_postfix_smtp_basic_result['rc'] is none) or
+    - (__testing_run_postfix_smtp_basic_result['rc'] is ansible.builtin.none) or
       (__testing_run_postfix_smtp_basic_result['rc'] > 1) or
       ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_basic_result['stdout']
   register: __testing_run_postfix_smtp_basic_result
