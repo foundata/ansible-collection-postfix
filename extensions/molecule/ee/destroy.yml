@@ -37,7 +37,7 @@
         cmd: "{{ podman_executable }} rmi --force {{ __testing_ee_image_name }}"
       when:
         - __testing_ee_image_name is defined
-        - __testing_ee_image_name | length > 0
+        - __testing_ee_image_name | ansible.builtin.length > 0
       changed_when: true
       failed_when: false
 

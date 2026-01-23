@@ -175,9 +175,9 @@
         } | ansible.builtin.combine(
           { __testing_mailto_transport_domain: ('smtp:' ~ __testing_mailto_relay) }
           if ((__testing_mailto_relay is defined) and
-              (__testing_mailto_relay | length > 0) and
+              (__testing_mailto_relay | ansible.builtin.length > 0) and
               (__testing_mailto_transport_domain is defined) and
-              (__testing_mailto_transport_domain | length > 0))
+              (__testing_mailto_transport_domain | ansible.builtin.length > 0))
           else {}
         )
       }}
@@ -215,9 +215,9 @@
         } | ansible.builtin.combine(
             { __testing_mailto_relay: (__testing_mailto_relay_credential) }
             if ((__testing_mailto_relay is defined) and
-                (__testing_mailto_relay | length > 0) and
+                (__testing_mailto_relay | ansible.builtin.length > 0) and
                 (__testing_mailto_relay_credential is defined) and
-                (__testing_mailto_relay_credential | length > 0))
+                (__testing_mailto_relay_credential | ansible.builtin.length > 0))
             else {}
          )
       }}

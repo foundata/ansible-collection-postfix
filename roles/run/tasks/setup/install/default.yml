@@ -8,7 +8,7 @@
     state: "absent"
   when:
     - __run_postfix_packages_removal is defined
-    - (__run_postfix_packages_removal | length) > 0
+    - (__run_postfix_packages_removal | ansible.builtin.length) > 0
 
 
 - name: "Setup | Install | Default | Install or upgrade packages"
@@ -17,7 +17,7 @@
     state: "{{ 'latest' if run_postfix_autoupgrade else 'present' }}"
   when:
     - __run_postfix_packages_install is defined
-    - (__run_postfix_packages_install | length) > 0
+    - (__run_postfix_packages_install | ansible.builtin.length) > 0
   register: __run_postfix_package_install_result # to decide if a handler flush (config/default.yml) is necessary
 
 
@@ -33,7 +33,7 @@
     state: "{{ 'latest' if run_postfix_autoupgrade else 'present' }}"
   loop: "{{ lookup('template', 'helper_list_map_backends.j2') }}"
   when:
-    - __run_postfix_packages_install_map_backends[item] | length > 0
+    - __run_postfix_packages_install_map_backends[item] | ansible.builtin.length > 0
   register: __run_postfix_package_install_map_backends_result # to decide if a handler flush (config/default.yml) is necessary
 
 
@@ -43,5 +43,5 @@
     state: "absent"
   when:
     - __run_postfix_paths_removal is defined
-    - (__run_postfix_paths_removal | length) > 0
+    - (__run_postfix_paths_removal | ansible.builtin.length) > 0
   loop: "{{ __run_postfix_paths_removal }}"

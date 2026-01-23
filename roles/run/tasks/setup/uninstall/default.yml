@@ -8,4 +8,4 @@
     state: "absent"
   when:
     - __run_postfix_packages_uninstall is defined
-    - (__run_postfix_packages_uninstall | length) > 0
+    - (__run_postfix_packages_uninstall | ansible.builtin.length) > 0

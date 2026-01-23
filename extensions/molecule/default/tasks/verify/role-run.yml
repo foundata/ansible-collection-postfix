@@ -637,7 +637,7 @@
   changed_when: false # noqa: no-changed-when
   when:
     - __testing_missing_envvars_sendmail is defined
-    - __testing_missing_envvars_sendmail | length > 0
+    - __testing_missing_envvars_sendmail | ansible.builtin.length > 0
 
 
 - name: "Molecule | Verify | Send SASL authenticated test email: gather environment variables"
@@ -648,7 +648,7 @@
     __testing_mailto_name: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
     - __testing_missing_envvars_sendmail is not defined or
-      (__testing_missing_envvars_sendmail | length <= 0)
+      (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
 
 
 - name: "Molecule | Verify | Send SASL authenticated test email"
@@ -656,7 +656,7 @@
     - __testing_mailfrom_email is defined
     - __testing_mailto_email is defined
     - __testing_missing_envvars_sendmail is not defined or
-      (__testing_missing_envvars_sendmail | length <= 0)
+      (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
   block:
 
     - name: "Molecule | Verify | Send SASL authenticated test email: add email to queue"

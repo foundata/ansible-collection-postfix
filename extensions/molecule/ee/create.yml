@@ -50,7 +50,7 @@
     - name: "Molecule | Create (EE) | Fail if no artifact found"
       ansible.builtin.fail:
         msg: "No collection artifact found in {{ __testing_build_dir }}"
-      when: __testing_collection_artifact['files'] | length == 0
+      when: __testing_collection_artifact['files'] | ansible.builtin.length == 0
 
 
     - name: "Molecule | Create (EE) | Create execution-environment.yml for build"
