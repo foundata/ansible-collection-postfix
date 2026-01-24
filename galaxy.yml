@@ -26,8 +26,7 @@ tags:
 
 # Collections that this collection requires to be installed.
 # Note: "*" selects the latest version available (not: "any")
-dependencies:
-  {} # Remove the "{}" when adding values to this list.
+dependencies: {}
 
 # List of file glob-like patterns to filter files or directories that should
 # not be included in the build artifact. Some are always filtered by
