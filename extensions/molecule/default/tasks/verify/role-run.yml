@@ -12,8 +12,8 @@
     gather_subset:
       - "distribution"
   when:
-    - ansible_facts['distribution'] is not defined or
-      ansible_facts['os_family'] is not defined
+    - ansible_facts['distribution'] is not ansible.builtin.defined or
+      ansible_facts['os_family'] is not ansible.builtin.defined
 
 
 - name: "Molecule | Verify | Set some expected configuration data "
@@ -82,10 +82,10 @@
       #       "state": "stopped",
       #       "status": "enabled"
       #   },
-      - (ansible_facts['services'][__run_postfix_postfix_servicename] is defined and
+      - (ansible_facts['services'][__run_postfix_postfix_servicename] is ansible.builtin.defined and
          ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running')
         or
-        (ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')] is defined and
+        (ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')] is ansible.builtin.defined and
          ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')].state == 'running')
     fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
@@ -106,7 +106,7 @@
     __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):(?!.*header version mismatch: OpenSSL)'
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
-    - ansible_facts['distribution_major_version'] is defined
+    - ansible_facts['distribution_major_version'] is ansible.builtin.defined
     - ansible_facts['distribution_major_version'] is ansible.builtin.version('10', '<=')
 
 
@@ -135,7 +135,7 @@
   vars:
     __testing_hostdata: "{{ item }}"
   when:
-    __testing_hostdata is defined
+    __testing_hostdata is ansible.builtin.defined
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_smtp'] }}"
@@ -154,7 +154,7 @@
   vars:
     __testing_hostdata: "{{ item }}"
   when:
-    __testing_hostdata is defined
+    __testing_hostdata is ansible.builtin.defined
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_submission'] }}"
@@ -636,7 +636,7 @@
       required environment variables are missing or invalid: {{ __testing_missing_envvars_sendmail | join(', ') }}.
   changed_when: false # noqa: no-changed-when
   when:
-    - __testing_missing_envvars_sendmail is defined
+    - __testing_missing_envvars_sendmail is ansible.builtin.defined
     - __testing_missing_envvars_sendmail | ansible.builtin.length > 0
 
 
@@ -647,15 +647,15 @@
     __testing_mailto_email: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL') | ansible.builtin.default(omit, true) }}"
     __testing_mailto_name: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
-    - __testing_missing_envvars_sendmail is not defined or
+    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or
       (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
 
 
 - name: "Molecule | Verify | Send SASL authenticated test email"
   when:
-    - __testing_mailfrom_email is defined
-    - __testing_mailto_email is defined
-    - __testing_missing_envvars_sendmail is not defined or
+    - __testing_mailfrom_email is ansible.builtin.defined
+    - __testing_mailto_email is ansible.builtin.defined
+    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or
       (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
   block:
 

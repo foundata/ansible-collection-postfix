@@ -814,7 +814,7 @@ run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 # Dictionary structure:
 #
 # - Keys: Criterions, the destination to specify credentials for. Attention: If
-#   you specify the `[` and `]` where the relayhost destination is defined, then
+#   you specify the `[` and `]` where the relayhost destination is ansible.builtin.defined, then
 #   you must use the same form here.
 # - Values: The credentials in the `username:password` format. Note: The main.cf
 #   setting `smtp_sasl_password_result_delimiter` (which defaults to `:`) can be

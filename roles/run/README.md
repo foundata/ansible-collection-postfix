@@ -1195,7 +1195,7 @@ Dictionary structure:
 
 - Keys: Criterions, the destination to specify credentials for.
   Attention: If you specify the `[` and `]` where the relayhost destination
-             is defined, then you must use the same form here.
+             is ansible.builtin.defined, then you must use the same form here.
 - Values: The credentials in the `username:password` format.
   Note: The main.cf setting `smtp_sasl_password_result_delimiter` (which
   defaults to `:`) can be used to specify an alternative separator between

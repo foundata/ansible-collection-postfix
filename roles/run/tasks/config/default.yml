@@ -45,7 +45,7 @@
           as "run_postfix_relay_domains_manage" is ansible.builtin.true. Please add your domains
           to "run_postfix_maincf_settings['relay_domains']".
       when:
-        - run_postfix_maincf_settings['relay_domains'] is defined
+        - run_postfix_maincf_settings['relay_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relay_domains'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['relay_domains'] != (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
 
@@ -57,7 +57,7 @@
             'relay_domains': (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
           }) }}
       when:
-        - run_postfix_maincf_settings['relay_domains'] is not defined or
+        - run_postfix_maincf_settings['relay_domains'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['relay_domains'] != (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
 
 
@@ -117,11 +117,11 @@
             'sender_access': (run_postfix_access_sender_map_tabletype ~ ':' ~ __run_postfix_table_access_sender_file_path),
             'smtpd_restriction_classes': ('recipient_access, sender_access') ~
                                          (', ' ~ __run_postfix_effective_maincf_settings['smtpd_restriction_classes']
-                                          if (__run_postfix_effective_maincf_settings['smtpd_restriction_classes'] is defined) and
+                                          if (__run_postfix_effective_maincf_settings['smtpd_restriction_classes'] is ansible.builtin.defined) and
                                               (__run_postfix_effective_maincf_settings['smtpd_restriction_classes'] | ansible.builtin.length > 0)),
             'smtpd_relay_restrictions': ('recipient_access, sender_access') ~
                                         (', ' ~ __run_postfix_effective_maincf_settings['smtpd_relay_restrictions']
-                                         if (__run_postfix_effective_maincf_settings['smtpd_relay_restrictions'] is defined) and
+                                         if (__run_postfix_effective_maincf_settings['smtpd_relay_restrictions'] is ansible.builtin.defined) and
                                             (__run_postfix_effective_maincf_settings['smtpd_relay_restrictions'] | ansible.builtin.length > 0))
           }) }}
 
@@ -165,7 +165,7 @@
           "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
           at the first position as "run_postfix_aliases_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['alias_maps'] is defined
+        - run_postfix_maincf_settings['alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['alias_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['alias_maps'] != (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path)
 
@@ -176,11 +176,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'alias_maps': (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path) ~
                           (', ' ~ __run_postfix_effective_maincf_settings['alias_maps']
-                           if (__run_postfix_effective_maincf_settings['alias_maps'] is defined) and
+                           if (__run_postfix_effective_maincf_settings['alias_maps'] is ansible.builtin.defined) and
                               (__run_postfix_effective_maincf_settings['alias_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['alias_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['alias_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['alias_maps'] != (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path)
 
 
@@ -236,7 +236,7 @@
           "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
           at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['recipient_canonical_maps'] is defined
+        - run_postfix_maincf_settings['recipient_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['recipient_canonical_maps'] != (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path) # noqa: yaml[line-length]
 
@@ -247,11 +247,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'recipient_canonical_maps': (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path) ~
                                         (', ' ~ __run_postfix_effective_maincf_settings['recipient_canonical_maps']
-                                         if (__run_postfix_effective_maincf_settings['recipient_canonical_maps'] is defined) and
+                                         if (__run_postfix_effective_maincf_settings['recipient_canonical_maps'] is ansible.builtin.defined) and
                                             (__run_postfix_effective_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['recipient_canonical_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['recipient_canonical_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['recipient_canonical_maps'] != (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path) # noqa: yaml[line-length]
 
 
@@ -275,7 +275,7 @@
           "{{ run_postfix_canonical_sender_map_tabletype }}:{{ __run_postfix_table_canonical_sender_file_path }}"
           at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['sender_canonical_maps'] is defined
+        - run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['sender_canonical_maps'] != (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path)
 
@@ -286,11 +286,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'sender_canonical_maps': (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path) ~
                                      (', ' ~ __run_postfix_effective_maincf_settings['sender_canonical_maps']
-                                      if (__run_postfix_effective_maincf_settings['sender_canonical_maps'] is defined) and
+                                      if (__run_postfix_effective_maincf_settings['sender_canonical_maps'] is ansible.builtin.defined) and
                                         (__run_postfix_effective_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['sender_canonical_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['sender_canonical_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['sender_canonical_maps'] != (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path)
 
 
@@ -329,7 +329,7 @@
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
           at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['lmtp_generic_maps'] is defined
+        - run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['lmtp_generic_maps'] != (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
 
@@ -340,11 +340,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'lmtp_generic_maps': (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path) ~
                                  (', ' ~ __run_postfix_effective_maincf_settings['lmtp_generic_maps']
-                                  if (__run_postfix_effective_maincf_settings['lmtp_generic_maps'] is defined) and
+                                  if (__run_postfix_effective_maincf_settings['lmtp_generic_maps'] is ansible.builtin.defined) and
                                     (__run_postfix_effective_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['lmtp_generic_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['lmtp_generic_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['lmtp_generic_maps'] != (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
 
 
@@ -356,7 +356,7 @@
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
           at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['smtp_generic_maps'] is defined
+        - run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['smtp_generic_maps'] != (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
 
@@ -367,11 +367,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'smtp_generic_maps': (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path) ~
                                  (', ' ~ __run_postfix_effective_maincf_settings['smtp_generic_maps']
-                                  if (__run_postfix_effective_maincf_settings['smtp_generic_maps'] is defined) and
+                                  if (__run_postfix_effective_maincf_settings['smtp_generic_maps'] is ansible.builtin.defined) and
                                     (__run_postfix_effective_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['smtp_generic_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['smtp_generic_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['smtp_generic_maps'] != (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
 
 
@@ -402,7 +402,7 @@
           "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
           at the first position as "run_postfix_relocated_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['relocated_maps'] is defined
+        - run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relocated_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['relocated_maps'] != (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path)
 
@@ -413,11 +413,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'relocated_maps': (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path) ~
                               (', ' ~ __run_postfix_effective_maincf_settings['relocated_maps']
-                              if (__run_postfix_effective_maincf_settings['relocated_maps'] is defined) and
+                              if (__run_postfix_effective_maincf_settings['relocated_maps'] is ansible.builtin.defined) and
                                   (__run_postfix_effective_maincf_settings['relocated_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['relocated_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['relocated_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['relocated_maps'] != (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path)
 
 
@@ -448,7 +448,7 @@
           "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
           at the first position as "run_postfix_transport_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['transport_maps'] is defined
+        - run_postfix_maincf_settings['transport_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['transport_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['transport_maps'] != (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path)
 
@@ -459,11 +459,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'transport_maps': (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path) ~
                               (', ' ~ __run_postfix_effective_maincf_settings['transport_maps']
-                              if (__run_postfix_effective_maincf_settings['transport_maps'] is defined) and
+                              if (__run_postfix_effective_maincf_settings['transport_maps'] is ansible.builtin.defined) and
                                   (__run_postfix_effective_maincf_settings['transport_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['transport_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['transport_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['transport_maps'] != (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path)
 
 
@@ -493,7 +493,7 @@
           "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
           at the first position as "run_postfix_virtual_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['virtual_alias_maps'] is defined
+        - run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['virtual_alias_maps'] != (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path)
 
@@ -504,11 +504,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'virtual_alias_maps': (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path) ~
                                   (', ' ~ __run_postfix_effective_maincf_settings['virtual_alias_maps']
-                                   if (__run_postfix_effective_maincf_settings['virtual_alias_maps'] is defined) and
+                                   if (__run_postfix_effective_maincf_settings['virtual_alias_maps'] is ansible.builtin.defined) and
                                       (__run_postfix_effective_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['virtual_alias_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['virtual_alias_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['virtual_alias_maps'] != (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path)
 
 
@@ -533,7 +533,7 @@
           as "run_postfix_virtual_manage" is ansible.builtin.true. Please add your domains
           to "run_postfix_maincf_settings['virtual_alias_domains']".
       when:
-        - run_postfix_maincf_settings['virtual_alias_domains'] is defined
+        - run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_domains'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['virtual_alias_domains'] != (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path) # noqa: yaml[line-length]
 
@@ -545,7 +545,7 @@
             'virtual_alias_domains': (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path)
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['virtual_alias_domains'] is not defined or
+        - __run_postfix_effective_maincf_settings['virtual_alias_domains'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['virtual_alias_domains'] != (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path) # noqa: yaml[line-length]
 
 
@@ -576,7 +576,7 @@
           "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
           at the first position as "run_postfix_smtp_sasl_password_manage" is ansible.builtin.true.
       when:
-        - run_postfix_maincf_settings['smtp_sasl_password_maps'] is defined
+        - run_postfix_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] != (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path) # noqa: yaml[line-length]
 
@@ -587,11 +587,11 @@
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
             'smtp_sasl_password_maps': (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path) ~
                                        (', ' ~ __run_postfix_effective_maincf_settings['smtp_sasl_password_maps']
-                                        if (__run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is defined) and
+                                        if (__run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.defined) and
                                            (__run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is not defined or
+        - __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is not ansible.builtin.defined or
           __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] != (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path) # noqa: yaml[line-length]
 
 
@@ -632,7 +632,7 @@
 #   (command: "man 5 postconf" or on-line:  https://www.postfix.org/postconf.5.html).
 #
 # - From https://www.postfix.org/postconf.5.html:
-#   > When the same parameter is defined multiple times, only the last
+#   > When the same parameter is ansible.builtin.defined multiple times, only the last
 #   > instance is remembered. Otherwise, the order of main.cf parameter
 #   > definitions does not matter.
 #   Please note that overwriting values will produce warnings.
@@ -698,7 +698,7 @@
       exit 0
     executable: "/bin/bash" # Support for other shells untested (so far)
   when:
-    - __run_postfix_effective_maincf_settings is defined
+    - __run_postfix_effective_maincf_settings is ansible.builtin.defined
   changed_when:
     - __run_postfix_config_maincf_result['rc'] == 0
     - __run_postfix_config_maincf_result['stdout'] | ansible.builtin.trim | ansible.builtin.length > 0
@@ -787,7 +787,7 @@
       exit 0
     executable: "/bin/bash" # Support for other shells untested (so far)
   when:
-    - __run_postfix_effective_mastercf_settings is defined
+    - __run_postfix_effective_mastercf_settings is ansible.builtin.defined
   changed_when:
     - __run_postfix_config_mastercf_result['rc'] == 0
     - __run_postfix_config_mastercf_result['stdout'] | ansible.builtin.trim | ansible.builtin.length > 0
@@ -800,7 +800,7 @@
   ansible.builtin.meta: "flush_handlers"
   when:
     - run_postfix_service_state in ['enabled', 'running']
-    - (__run_postfix_package_install_result is defined and
+    - (__run_postfix_package_install_result is ansible.builtin.defined and
        __run_postfix_package_install_result is ansible.builtin.changed) or
-      (__run_postfix_package_install_map_backends_result is defined and
+      (__run_postfix_package_install_map_backends_result is ansible.builtin.defined and
        __run_postfix_package_install_map_backends_result is ansible.builtin.changed)

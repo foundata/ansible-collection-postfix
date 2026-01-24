@@ -120,7 +120,7 @@
   changed_when:
     - __testing_dummycert_create_result['rc'] == 0
   when:
-    - __testing_dummycert_stat_result is defined
+    - __testing_dummycert_stat_result is ansible.builtin.defined
     - not __testing_dummycert_stat_result['stat']['exists']
 
 

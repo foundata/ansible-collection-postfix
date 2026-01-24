@@ -24,7 +24,7 @@
       value: "{{ __run_postfix_effective_maincf_settings['myhostname'] }}"
       vtype: "string"
   when:
-    - __run_postfix_debian_debconf_postfixpkgname is defined
+    - __run_postfix_debian_debconf_postfixpkgname is ansible.builtin.defined
     - (__run_postfix_debian_debconf_postfixpkgname | ansible.builtin.length) > 0
   notify:
     - "run_postfix: restart postfix.service"

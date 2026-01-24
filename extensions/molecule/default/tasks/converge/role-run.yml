@@ -10,8 +10,8 @@
     gather_subset:
       - "distribution"
   when:
-    - ansible_facts['distribution'] is not defined or
-      ansible_facts['os_family'] is not defined
+    - ansible_facts['distribution'] is not ansible.builtin.defined or
+      ansible_facts['os_family'] is not ansible.builtin.defined
 
 
 - name: "Molecule | Converge | Gather environment variables for Postfix config verification (send mail via relay)"
@@ -174,9 +174,9 @@
           'foo.example.org': 'smtp:[mailrelay.foo.example.org]:123'
         } | ansible.builtin.combine(
           { __testing_mailto_transport_domain: ('smtp:' ~ __testing_mailto_relay) }
-          if ((__testing_mailto_relay is defined) and
+          if ((__testing_mailto_relay is ansible.builtin.defined) and
               (__testing_mailto_relay | ansible.builtin.length > 0) and
-              (__testing_mailto_transport_domain is defined) and
+              (__testing_mailto_transport_domain is ansible.builtin.defined) and
               (__testing_mailto_transport_domain | ansible.builtin.length > 0))
           else {}
         )
@@ -214,9 +214,9 @@
           '[relay.example.net]:25': 'jane:Passw0rd-gcIJcft0t'
         } | ansible.builtin.combine(
             { __testing_mailto_relay: (__testing_mailto_relay_credential) }
-            if ((__testing_mailto_relay is defined) and
+            if ((__testing_mailto_relay is ansible.builtin.defined) and
                 (__testing_mailto_relay | ansible.builtin.length > 0) and
-                (__testing_mailto_relay_credential is defined) and
+                (__testing_mailto_relay_credential is ansible.builtin.defined) and
                 (__testing_mailto_relay_credential | ansible.builtin.length > 0))
             else {}
          )
