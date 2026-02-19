@@ -113,7 +113,7 @@ __run_postfix_packages_install_map_backends:
 # software. This is usually the case if there are common dependencies like
 # "curl" or "openssl" which typically should remain installed even after
 # uninstalling the software managed by this role.
-__run_postfix_packages_uninstall: "{{ run_postfix_packages_install }}"
+__run_postfix_packages_uninstall: "{{ __run_postfix_packages_install }}"
 
 
 # List of package names to be removed unconditionally before installation
@@ -329,24 +329,21 @@ __run_postfix_mastercf_settings_defaults:
 #
 # See in run_postfix_relay_domains_list in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_relay_domains_list_defaults:
-  []
+__run_postfix_relay_domains_list_defaults: []
 
 
 # Default access recipient mappings for Postfix.
 #
 # See in run_postfix_access_recipient_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_access_recipient_map_defaults:
-  {}
+__run_postfix_access_recipient_map_defaults: {}
 
 
 # Default access sender mappings for Postfix.
 #
 # See in run_postfix_access_sender_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_access_sender_map_defaults:
-  {}
+__run_postfix_access_sender_map_defaults: {}
 
 
 # Default aliases mappings for Postfix.
@@ -363,70 +360,61 @@ __run_postfix_aliases_map_defaults:
 #
 # See in run_postfix_canonical_recipient_map in defaults/main.yml for a
 # detailled description of the structure (as this variable is using the same).
-__run_postfix_canonical_recipient_map_defaults:
-  {}
+__run_postfix_canonical_recipient_map_defaults: {}
 
 
 # Default canonical sender mappings for Postfix.
 #
 # See in run_postfix_canonical_sender_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_canonical_sender_map_defaults:
-  {}
+__run_postfix_canonical_sender_map_defaults: {}
 
 
 # Default generic mapping for Postfix.
 #
 # See in run_postfix_generic_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_generic_map_defaults:
-  {}
+__run_postfix_generic_map_defaults: {}
 
 
 # Default domain relocated mapping for Postfix.
 #
 # See in run_postfix_relocated_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_relocated_map_defaults:
-  {}
+__run_postfix_relocated_map_defaults: {}
 
 
 # Default domain transport mapping for Postfix.
 #
 # See in run_postfix_transport_map in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_transport_map_defaults:
-  {}
+__run_postfix_transport_map_defaults: {}
 
 
 # Default virtual aliases domains for Postfix.
 #
 # See in run_postfix_virtual_aliasdomains_list in defaults/main.yml for a
 # detailled description of the structure (as this variable is using the same).
-__run_postfix_virtual_aliasdomains_list_defaults:
-  []
+__run_postfix_virtual_aliasdomains_list_defaults: []
 
 
 # Default virtual aliases mappings for Postfix.
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
 # description of the structure (as this variable is using the same).
-__run_postfix_virtual_alias_map_defaults:
-  {}
+__run_postfix_virtual_alias_map_defaults: {}
 
 
 # Default SMTP SASL password mapping for Postfix.
 #
 # See in run_postfix_smtp_sasl_password_map in defaults/main.yml for a
 # detailled description of the structure (as this variable is using the same).
-__run_postfix_smtp_sasl_password_map_defaults:
-  {}
+__run_postfix_smtp_sasl_password_map_defaults: {}
 
 
-# Configuration file paths, ownership, and permissions for the Postfix daemon.
-# These variables define the different locations of configuration files, the
-# include directory, and the Ansible-managed configuration file, ensuring
-# consistent file handling across distributions.
+# Configuration file paths, ownership, and permissions. These variables define
+# the different locations of configuration files, include directories, and
+# Ansible-managed files, ensuring consistent file handling across distributions.
 __run_postfix_maincf_file_path: "/etc/postfix/main.cf"
 __run_postfix_maincf_file_owner: "root"
 __run_postfix_maincf_file_group: "root"
@@ -503,9 +491,7 @@ __run_postfix_table_virtual_aliasdomains_file_group: "root"
 __run_postfix_table_virtual_aliasdomains_file_mode: "u=rw,g=r,o=r" # 0644
 
 
-# Postfix daemon service name and executable paths.
-# These variables define the systemd service name for Postfix daemon
-# and the paths the Postfix executables for service management and validation.
+# Daemon service name and paths of executables for management and validation.
 __run_postfix_postfix_servicename: "postfix.service"
 __run_postfix_postfix_exec_path: "/usr/sbin/postfix"
 __run_postfix_postconf_exec_path: "/usr/sbin/postconf"
