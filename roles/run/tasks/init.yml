@@ -131,9 +131,9 @@
 
 
 - name: "Init | Merge user and default settings"
-  # Postfix parameter names are case-sensitive. Since Ansible dict keys are also case-sensitive,
-  # a simple dict_a | ansible.builtin.combine(dict_b) correctly allows user settings to override
-  # defaults without extra handling.
+  # Postfix parameter names are case-sensitive. Since Ansible dict keys are also
+  # case-sensitive, a simple dict_a | ansible.builtin.combine(dict_b) correctly
+  # allows user settings to override defaults without extra handling.
   ansible.builtin.set_fact:
     # Main
     __run_postfix_effective_maincf_settings: >-

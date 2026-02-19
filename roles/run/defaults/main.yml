@@ -95,8 +95,7 @@ run_postfix_service_state: "enabled"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_maincf_settings:
-  {} # see __run_postfix_maincf_settings_defaults in vars/main.yml for the defaults
+run_postfix_maincf_settings: {} # see __run_postfix_maincf_settings_defaults in vars/main.yml for the defaults
 
 # Additional configuration for Postfix master process (`master.cf`). For details
 # on the syntax of the fields/values, see the master(5) manual page (command:
@@ -131,8 +130,7 @@ run_postfix_maincf_settings:
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_mastercf_settings:
-  {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
+run_postfix_mastercf_settings: {} # see __run_postfix_mastercf_settings_defaults in vars/main.yml for the defaults
 
 # Switch to control if relay domains settings are handled by this role.
 #
@@ -183,8 +181,7 @@ run_postfix_relay_domains_list_tabletype: "lmdb"
 # - Required: No
 # - Default: []
 # - List elements: str
-run_postfix_relay_domains_list:
-  [] # see __run_postfix_relay_domains_list_defaults in vars/main.yml for the defaults
+run_postfix_relay_domains_list: [] # see __run_postfix_relay_domains_list_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `access` is controlled by dedicated
 # settings and tasks of this role.
@@ -250,8 +247,7 @@ run_postfix_access_recipient_map_tabletype: "pcre"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_access_recipient_map:
-  {} # see __run_postfix_access_recipient_map_defaults in vars/main.yml for the defaults
+run_postfix_access_recipient_map: {} # see __run_postfix_access_recipient_map_defaults in vars/main.yml for the defaults
 
 # The lookup table type to use if for the table defined by
 # `run_postfix_access_sender_map`.
@@ -291,8 +287,7 @@ run_postfix_access_sender_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_access_sender_map:
-  {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
+run_postfix_access_sender_map: {} # see __run_run_postfix_access_sender_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `aliases` is controlled by
 # dedicated settings and tasks of this role.
@@ -359,8 +354,7 @@ run_postfix_aliases_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_aliases_map:
-  {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
+run_postfix_aliases_map: {} # see __run_postfix_aliases_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `canonical` is controlled by
 # dedicated settings and tasks of this role.
@@ -417,8 +411,7 @@ run_postfix_canonical_recipient_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_canonical_recipient_map:
-  {} # see __run_postfix_canonical_recipient_map_defaults in vars/main.yml for the defaults
+run_postfix_canonical_recipient_map: {} # see __run_postfix_canonical_recipient_map_defaults in vars/main.yml for the defaults
 
 # The lookup table type to use if for the list defined by
 # `run_postfix_canonical_sender_map` Most distributions and builds dropped
@@ -450,8 +443,7 @@ run_postfix_canonical_sender_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_canonical_sender_map:
-  {} # see __run_postfix_canonical_sender_map_defaults in vars/main.yml for the defaults
+run_postfix_canonical_sender_map: {} # see __run_postfix_canonical_sender_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `generic` is controlled by
 # dedicated settings and tasks of this role.
@@ -511,8 +503,7 @@ run_postfix_generic_map_tabletype: "pcre"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_generic_map:
-  {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
+run_postfix_generic_map: {} # see __run_postfix_generic_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `relocated` is controlled by
 # dedicated settings and tasks of this role.
@@ -577,8 +568,7 @@ run_postfix_relocated_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_relocated_map:
-  {} # see __run_postfix_relocated_map_defaults in vars/main.yml for the defaults
+run_postfix_relocated_map: {} # see __run_postfix_relocated_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table `transport` is controlled by
 # dedicated settings and tasks of this role.
@@ -646,8 +636,7 @@ run_postfix_transport_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_transport_map:
-  {} # see __run_postfix_transport_map_defaults in vars/main.yml for the defaults
+run_postfix_transport_map: {} # see __run_postfix_transport_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether the lookup table "virtual" is controlled by
 # dedicated settings and tasks of this role.
@@ -712,8 +701,7 @@ run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
 # - Required: No
 # - Default: []
 # - List elements: str
-run_postfix_virtual_aliasdomains_list:
-  [] # see __run_postfix_virtual_aliasdomains_list_defaults in vars/main.yml for the defaults
+run_postfix_virtual_aliasdomains_list: [] # see __run_postfix_virtual_aliasdomains_list_defaults in vars/main.yml for the defaults
 
 # The lookup table type to use if for the list defined by
 # `run_postfix_virtual_alias_map`
@@ -763,8 +751,7 @@ run_postfix_virtual_alias_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_virtual_alias_map:
-  {} # see __run_postfix_virtual_alias_map_defaults in vars/main.yml for the defaults
+run_postfix_virtual_alias_map: {} # see __run_postfix_virtual_alias_map_defaults in vars/main.yml for the defaults
 
 # Switch to control whether SMTP SASL password credentials are controlled by
 # dedicated settings and tasks of this role.
@@ -832,5 +819,4 @@ run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 # - Type: dict
 # - Required: No
 # - Default: {}
-run_postfix_smtp_sasl_password_map:
-  {} # see __run_postfix_smtp_sasl_password_map_defaults in vars/main.yml for the defaults
+run_postfix_smtp_sasl_password_map: {} # see __run_postfix_smtp_sasl_password_map_defaults in vars/main.yml for the defaults

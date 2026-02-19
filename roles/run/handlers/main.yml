@@ -31,7 +31,8 @@
     # actually changed.
     - __run_postfix_postmap_result['rc'] == 0
   register: __run_postfix_postmap_result
-  listen: "run_postfix: update lookup tables"
+  listen:
+    - "run_postfix: update lookup tables"
 
 
 - name: "Handlers | Update aliases for smtpd (postalias)"
@@ -66,22 +67,25 @@
     # actually changed.
     - __run_postfix_postalias_result['rc'] == 0
   register: __run_postfix_postalias_result
-  listen: "run_postfix: update aliases"
+  listen:
+    - "run_postfix: update aliases"
 
 
 - name: "Handlers | postfix.service restart"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "restarted"
-  listen: "run_postfix: restart postfix.service"
   when:
     - run_postfix_service_state != 'unmanaged'
+  listen:
+    - "run_postfix: restart postfix.service"
 
 
 - name: "Handlers | postfix.service reload"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "reloaded"
-  listen: "run_postfix: reload postfix.service"
   when:
     - run_postfix_service_state != 'unmanaged'
+  listen:
+    - "run_postfix: reload postfix.service"
