@@ -10,7 +10,8 @@
       '(?i)250 .*\r?\n': "QUIT"
       '(?i)221.*\r?\n': ""
     timeout: 5
-  changed_when: false
+  changed_when:
+    - false
   register: __testing_run_postfix_smtp_starttlsopenssl_result
 
 

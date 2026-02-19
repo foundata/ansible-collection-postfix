@@ -1,11 +1,11 @@
-# Tasks for the Molecule converge stage: Execute the collection role "run"
-# against all driver-created instances.
+# Execute the collection role "run" against all driver-created instances.
 
-
-# This prevents testing whether the role itself verifies these facts'
-# availability but it avoids fragile workarounds (like parsing container
-# names) if additional platform specific preparations are needed.
-- name: "Molecule | Converge | Gather playbook-specific facts"
+# The following task avoids fragile workarounds (like parsing container names)
+# if additional platform specific preparations are needed. But it prevents
+# testing whether the role itself verifies these facts' availability (this
+# disadvantage had to be accepted; however, it was verified that the role really
+# does reload the facts when needed)
+- name: "Molecule | Converge | Gather molecule playbook-specific facts"
   ansible.builtin.setup:
     gather_subset:
       - "distribution"
@@ -41,183 +41,203 @@
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
-  changed_when: false
+
+
+- name: "Molecule | Converge | Store run_postfix_* role parameters in __testing_state"
+  ansible.builtin.include_tasks:
+    file: "../tasks/state_update.yml"
+  vars:
+    __testing_state_update:
+      run_postfix_state: "present"
+      # The following configuration is using many features ans makes no real sense
+      # from a production point of view. But it might be interesting regarding the
+      # features when tinkering out your own.
+      run_postfix_maincf_settings:
+        myhostname: "smtp.example.com"
+        mydomain: "example.com"
+        smtp_tls_security_level: "may"
+        smtpd_tls_security_level: "may"
+        smtp_tls_note_starttls_offer: "yes"
+        smtpd_tls_cert_file: |-
+          {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
+        smtpd_tls_key_file: |-
+          {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
+        # From: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
+        # With Postfix ≥ 3.7, built with OpenSSL version is 3.0.0 or later, if the
+        # parameter value is either empty or "auto" then the DH parameter selection
+        # is delegated to the OpenSSL library, which selects appropriate parameters
+        # based on the TLS handshake.
+        #
+        # This matches the following target platforms:
+        # - Enterprise Linux 9 (OpenSSL 3.2.x, Postfix 3.5)
+        # - Debian 11 (OpenSSL 1.1.x, Postfix 3.5)
+        # - Ubuntu 22.04 (OpenSSL 3.0.x, Postfix 3.6)
+        #
+        # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
+        # handling can be removed if these targets are not supported anymore.
+        smtpd_tls_dh1024_param_file: |-
+          {{ '/etc/pki/tls/certs/dhparam_ffdhe2048'
+            if ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<=')))
+            else
+              ('/etc/ssl/certs/dhparam_ffdhe2048'
+                if ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
+                  ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
+                else omit)
+          }}
+        message_size_limit: 52428800 # 50 MiB; max size of a incoming email
+        mailbox_size_limit: 0 # 0 == unlimited; max mailbox size should be controlled by the mailserver
+        relayhost: "" # empty == directly send via internet
+        header_size_limit: 4096000
+        lmtp_generic_maps: "cdb:/etc/postfix_this_is_a_dummy" # test if extending cfg values work + dependencies are getting installed
+        smtpd_relay_restrictions:
+          - "reject_non_fqdn_sender"
+          - "reject_non_fqdn_recipient"
+          - "permit_sasl_authenticated"
+            # REJECT unless one of the following is ansible.builtin.true for RCPT TO-domain:
+            #   1. Matches $relay_domains or a subdomain thereof, and contains no
+            #      sender-specified routing.
+            #   2. Final destination: matches $mydestination, $inet_interfaces,
+            #      $proxy_interfaces, $virtual_alias_domains or $virtual_mailbox_domains,
+            #      and contains no sender-specified routing
+          - "reject_unauth_destination"
+          - "permit"
+        # https://www.postfix.org/SASL_README.html#server_cyrus
+        smtpd_sasl_auth_enable: "yes"
+        smtpd_sasl_type: "cyrus"
+        smtpd_sasl_path: "smtpd"
+        smtpd_sasl_security_options: "noanonymous"
+        smtpd_sasl_tls_security_options: "$smtpd_sasl_security_options"
+      run_postfix_mastercf_settings:
+        2525: # Test if a unusual port works
+          type: "inet"
+          private: "n"
+          unpriv: "-"
+          chroot: "n"
+          wakeup: "-"
+          maxproc: "-"
+          command_args: "smtpd"
+      run_postfix_relay_domains_manage: true
+      run_postfix_relay_domains_list: |-
+        {{ [__testing_mailfrom_relay_domain] }}
+      # Mail to
+      #   user345@example.com: relocated info
+      #   user.old@example.com: relocated info
+      #   molecule: mail to root (local)
+      #   burned@example.com: REJECT (SMTP restriction)
+      #   do-not-reply@example.com: REJECT (SMTP restriction)
+      # Mail from
+      #   root@ad.local: rewrite to root@example.com (via generic)
+      #   root@alias1.example.com: rewrite to root@example.com (via canonical)
+      #   root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
+      run_postfix_access_manage: true
+      run_postfix_access_recipient_map_tabletype: "pcre"
+      run_postfix_access_recipient_map:
+        # Allow-list (whitelist) RFC 2142 address and other common service addresses:
+        # https://www.rfc-editor.org/rfc/rfc2142#section-2
+        # https://www.rfc-editor.org/rfc/rfc2142#section-5
+        "/^abuse@.+/i": "OK"
+        "/^postmaster@.+/i": "OK"
+        "/^hostmaster@.+/i": "OK"
+        # Deny-list (blacklist) other addresses
+        "/^burned@example.com$/im": "REJECT"
+        "/^do-not-reply@example.com$/im": "REJECT" # Prevent Mail-loop because of our run_postfix_canonical_sender_map
+      run_postfix_aliases_manage: true
+      run_postfix_aliases_map:
+        abuse: "root"
+        baz: "/dev/null"
+        molecule: "root" # Alias will be tested for delivery to root during verify stage
+        new.name: "root"
+      run_postfix_canonical_manage: true
+      run_postfix_canonical_recipient_map:
+        "old.name@example.com": "new.name@example.com"
+        "@old.example.com": "@example.com"
+      run_postfix_canonical_sender_map_tabletype: "pcre"
+      run_postfix_canonical_sender_map:
+        '/^(.+)@alias1.example.com$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
+        '/^(.+)@alias2.example.com$/im': "do-not-reply@example.com" # Rewrite all outgoing mail addresses form @ad.local
+      run_postfix_generic_manage: true
+      run_postfix_generic_map_tabletype: "pcre"
+      run_postfix_generic_map:
+        '/^(.+)@ad\.local$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
+      run_postfix_relocated_manage: true
+      run_postfix_relocated_map:
+        "user.old@example.com": "user.new@example.net"
+        # Postfix's default template starts with "User has moved to " so use a fitting string.
+        "user345@example.com": "to ACME Inc.; Please contact him there now."
+      run_postfix_transport_manage: true
+      run_postfix_transport_map: |-
+        {{
+          {
+            'example.org': 'lmtp:unix:/var/spool/postfix/private/lmtp-dovecot',
+            'example.net': 'lmtp:127.0.0.1:24',
+            'foo.example.org': 'smtp:[mailrelay.foo.example.org]:123'
+          } | ansible.builtin.combine(
+            { __testing_mailto_transport_domain: ('smtp:' ~ __testing_mailto_relay) }
+            if ((__testing_mailto_relay is ansible.builtin.defined) and
+                (__testing_mailto_relay | ansible.builtin.length > 0) and
+                (__testing_mailto_transport_domain is ansible.builtin.defined) and
+                (__testing_mailto_transport_domain | ansible.builtin.length > 0))
+            else {}
+          )
+        }}
+      run_postfix_virtual_manage: true
+      run_postfix_virtual_aliasdomains_list:
+        - "alias1.example.com"
+        - "alias2.example.com"
+        - "old.example.com"
+        - "ad.local"
+      run_postfix_virtual_alias_map:
+        "admin@example.com":
+          - "admin@actual-destination.example.com"
+        "distribution@example.com":
+          - "user1@actual-destination.example.com"
+          - "user2@actual-destination.example.com"
+          - "user3@actual-destination.example.com"
+          - "user3@actual-destination.example.com"
+        "@old.example.com": # Catch-all for old.example.com
+          - "office@example.com"
+        "@alias2.example.com": # Catch-all for alias2.example.com, rewrite all @alias2.example.com addresses to @example.com
+          - "example.com"
+      # Security Notice: These keys do NOT contain real credentials.
+      #
+      # This is example configuration data intended for demonstration purposes
+      # only, referencing hypothetical, non-existent mail relays. Reporting this
+      # as a vulnerability or data leak suggests a failure to properly review
+      # automated scanning results, and may reflect poorly on your professional
+      # diligence. ;-)
+      run_postfix_smtp_sasl_password_manage: true
+      run_postfix_smtp_sasl_password_map: |-
+        {{
+          {
+            '[mailrelay.foo.example.org]:123': 'user123:pwd-1fdd4-bbbaf3',
+            '[relay.example.net]:25': 'jane:Passw0rd-gcIJcft0t'
+          } | ansible.builtin.combine(
+              { __testing_mailto_relay: (__testing_mailto_relay_credential) }
+              if ((__testing_mailto_relay is ansible.builtin.defined) and
+                  (__testing_mailto_relay | ansible.builtin.length > 0) and
+                  (__testing_mailto_relay_credential is ansible.builtin.defined) and
+                  (__testing_mailto_relay_credential | ansible.builtin.length > 0))
+              else {}
+          )
+        }}
+
+
+- name: "Molecule | Converge | Set run_postfix_* parameters as facts from __testing_state"
+  ansible.builtin.set_fact:
+    "{{ item['key'] }}": "{{ item['value'] }}"
+  loop: >-
+    {{
+      (__testing_state | default({}, true))
+      | ansible.builtin.dict2items
+      | ansible.builtin.selectattr('key', 'match', '^run_postfix_')
+      | ansible.builtin.list
+    }}
 
 
 - name: "Molecule | Converge | Include the foundata.postfix.run role"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
-  vars:
-    run_postfix_state: "present"
-
-    # The following configuration is using many features ans makes no real sense
-    # from a production point of view. But it might be interesting regarding the
-    # features when tinkering out your own.
-    run_postfix_maincf_settings:
-      myhostname: "smtp.example.com"
-      mydomain: "example.com"
-      smtp_tls_security_level: "may"
-      smtpd_tls_security_level: "may"
-      smtp_tls_note_starttls_offer: "yes"
-      smtpd_tls_cert_file: |-
-        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
-      smtpd_tls_key_file: |-
-        {{ '/etc/pki/tls/certs' if (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' else '/etc/ssl/certs' }}/dummy-cert.pem
-      # From: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
-      # With Postfix ≥ 3.7, built with OpenSSL version is 3.0.0 or later, if the
-      # parameter value is either empty or "auto" then the DH parameter selection
-      # is delegated to the OpenSSL library, which selects appropriate parameters
-      # based on the TLS handshake.
-      #
-      # This matches the following target platforms:
-      # - Enterprise Linux 9 (OpenSSL 3.2.x, Postfix 3.5)
-      # - Debian 11 (OpenSSL 1.1.x, Postfix 3.5)
-      # - Ubuntu 22.04 (OpenSSL 3.0.x, Postfix 3.6)
-      #
-      # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
-      # handling can be removed if these targets are not supported anymore.
-      smtpd_tls_dh1024_param_file: |-
-        {{ '/etc/pki/tls/certs/dhparam_ffdhe2048'
-           if ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<=')))
-           else
-             ('/etc/ssl/certs/dhparam_ffdhe2048'
-              if ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
-                 ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
-              else omit)
-        }}
-      message_size_limit: 52428800 # 50 MiB; max size of a incoming email
-      mailbox_size_limit: 0 # 0 == unlimited; max mailbox size should be controlled by the mailserver
-      relayhost: "" # empty == directly send via internet
-      header_size_limit: 4096000
-      lmtp_generic_maps: "cdb:/etc/postfix_this_is_a_dummy" # test if extending cfg values work + dependencies are getting installed
-      smtpd_relay_restrictions:
-        - "reject_non_fqdn_sender"
-        - "reject_non_fqdn_recipient"
-        - "permit_sasl_authenticated"
-          # REJECT unless one of the following is ansible.builtin.true for RCPT TO-domain:
-          #   1. Matches $relay_domains or a subdomain thereof, and contains no
-          #      sender-specified routing.
-          #   2. Final destination: matches $mydestination, $inet_interfaces,
-          #      $proxy_interfaces, $virtual_alias_domains or $virtual_mailbox_domains,
-          #      and contains no sender-specified routing
-        - "reject_unauth_destination"
-        - "permit"
-      # https://www.postfix.org/SASL_README.html#server_cyrus
-      smtpd_sasl_auth_enable: "yes"
-      smtpd_sasl_type: "cyrus"
-      smtpd_sasl_path: "smtpd"
-      smtpd_sasl_security_options: "noanonymous"
-      smtpd_sasl_tls_security_options: "$smtpd_sasl_security_options"
-    run_postfix_mastercf_settings:
-      2525: # Test if a unusual port works
-        type: "inet"
-        private: "n"
-        unpriv: "-"
-        chroot: "n"
-        wakeup: "-"
-        maxproc: "-"
-        command_args: "smtpd"
-    run_postfix_relay_domains_manage: true
-    run_postfix_relay_domains_list: |-
-      {{ [__testing_mailfrom_relay_domain] }}
-    # Mail to
-    #   user345@example.com: relocated info
-    #   user.old@example.com: relocated info
-    #   molecule: mail to root (local)
-    #   burned@example.com: REJECT (SMTP restriction)
-    #   do-not-reply@example.com: REJECT (SMTP restriction)
-    # Mail from
-    #   root@ad.local: rewrite to root@example.com (via generic)
-    #   root@alias1.example.com: rewrite to root@example.com (via canonical)
-    #   root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
-    run_postfix_access_manage: true
-    run_postfix_access_recipient_map_tabletype: "pcre"
-    run_postfix_access_recipient_map:
-      # Allow-list (whitelist) RFC 2142 address and other common service addresses:
-      # https://www.rfc-editor.org/rfc/rfc2142#section-2
-      # https://www.rfc-editor.org/rfc/rfc2142#section-5
-      "/^abuse@.+/i": "OK"
-      "/^postmaster@.+/i": "OK"
-      "/^hostmaster@.+/i": "OK"
-      # Deny-list (blacklist) other addresses
-      "/^burned@example.com$/im": "REJECT"
-      "/^do-not-reply@example.com$/im": "REJECT" # Prevent Mail-loop because of our run_postfix_canonical_sender_map
-    run_postfix_aliases_manage: true
-    run_postfix_aliases_map:
-      abuse: "root"
-      baz: "/dev/null"
-      molecule: "root" # Alias will be tested for delivery to root during verify stage
-      new.name: "root"
-    run_postfix_canonical_manage: true
-    run_postfix_canonical_recipient_map:
-      "old.name@example.com": "new.name@example.com"
-      "@old.example.com": "@example.com"
-    run_postfix_canonical_sender_map_tabletype: "pcre"
-    run_postfix_canonical_sender_map:
-      '/^(.+)@alias1.example.com$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
-      '/^(.+)@alias2.example.com$/im': "do-not-reply@example.com" # Rewrite all outgoing mail addresses form @ad.local
-    run_postfix_generic_manage: true
-    run_postfix_generic_map_tabletype: "pcre"
-    run_postfix_generic_map:
-      '/^(.+)@ad\.local$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
-    run_postfix_relocated_manage: true
-    run_postfix_relocated_map:
-      "user.old@example.com": "user.new@example.net"
-      # Postfix's default template starts with "User has moved to " so use a fitting string.
-      "user345@example.com": "to ACME Inc.; Please contact him there now."
-    run_postfix_transport_manage: true
-    run_postfix_transport_map: |-
-      {{
-        {
-          'example.org': 'lmtp:unix:/var/spool/postfix/private/lmtp-dovecot',
-          'example.net': 'lmtp:127.0.0.1:24',
-          'foo.example.org': 'smtp:[mailrelay.foo.example.org]:123'
-        } | ansible.builtin.combine(
-          { __testing_mailto_transport_domain: ('smtp:' ~ __testing_mailto_relay) }
-          if ((__testing_mailto_relay is ansible.builtin.defined) and
-              (__testing_mailto_relay | ansible.builtin.length > 0) and
-              (__testing_mailto_transport_domain is ansible.builtin.defined) and
-              (__testing_mailto_transport_domain | ansible.builtin.length > 0))
-          else {}
-        )
-      }}
-    run_postfix_virtual_manage: true
-    run_postfix_virtual_aliasdomains_list:
-      - "alias1.example.com"
-      - "alias2.example.com"
-      - "old.example.com"
-      - "ad.local"
-    run_postfix_virtual_alias_map:
-      "admin@example.com":
-        - "admin@actual-destination.example.com"
-      "distribution@example.com":
-        - "user1@actual-destination.example.com"
-        - "user2@actual-destination.example.com"
-        - "user3@actual-destination.example.com"
-        - "user3@actual-destination.example.com"
-      "@old.example.com": # Catch-all for old.example.com
-        - "office@example.com"
-      "@alias2.example.com": # Catch-all for alias2.example.com, rewrite all @alias2.example.com addresses to @example.com
-        - "example.com"
-    # Security Notice: These keys do NOT contain real credentials.
-    #
-    # This is example configuration data intended for demonstration purposes
-    # only, referencing hypothetical, non-existent mail relays. Reporting this
-    # as a vulnerability or data leak suggests a failure to properly review
-    # automated scanning results, and may reflect poorly on your professional
-    # diligence. ;-)
-    run_postfix_smtp_sasl_password_manage: true
-    run_postfix_smtp_sasl_password_map: |-
-      {{
-        {
-          '[mailrelay.foo.example.org]:123': 'user123:pwd-1fdd4-bbbaf3',
-          '[relay.example.net]:25': 'jane:Passw0rd-gcIJcft0t'
-        } | ansible.builtin.combine(
-            { __testing_mailto_relay: (__testing_mailto_relay_credential) }
-            if ((__testing_mailto_relay is ansible.builtin.defined) and
-                (__testing_mailto_relay | ansible.builtin.length > 0) and
-                (__testing_mailto_relay_credential is ansible.builtin.defined) and
-                (__testing_mailto_relay_credential | ansible.builtin.length > 0))
-            else {}
-         )
-      }}
+  # vars: All run_postfix_* variables are set as facts and passed this way to
+  #       the role. This enables persisting the values in __testing_state
+  #       and restoring them in later stages (e.g. verify) without manually
+  #       duplicating data across playbooks.

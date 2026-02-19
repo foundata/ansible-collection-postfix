@@ -1,0 +1,7 @@
+# Execute the collection role "run" against all driver-created instances (cleanup / absent)
+
+- name: "Molecule | Cleanup | Include the foundata.postfix.run role"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+  vars:
+    run_postfix_state: "absent"

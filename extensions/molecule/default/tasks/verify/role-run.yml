@@ -1,4 +1,4 @@
-# Tasks for the Molecule verify stage: Check collection role "run" outcomes.
+# Check collection role "run" outcomes.
 
 - name: "Molecule | Verify | Initialize the foundata.postfix.run role (without actually running it; get and expose variables)"
   ansible.builtin.include_role:
@@ -7,34 +7,22 @@
     public: true
 
 
-- name: "Molecule | Verify | Gather playbook-specific facts"
-  ansible.builtin.setup:
-    gather_subset:
-      - "distribution"
-  when:
-    - ansible_facts['distribution'] is not ansible.builtin.defined or
-      ansible_facts['os_family'] is not ansible.builtin.defined
+## Preparation
 
-
-- name: "Molecule | Verify | Set some expected configuration data "
+- name: "Molecule | Verify | Set run_postfix_* parameters as facts from __testing_state"
   ansible.builtin.set_fact:
-    # values have to be in sync with the config set in ../converge/run-role.yml
-    run_postfix_maincf_settings:
-      myhostname: "smtp.example.com"
-    run_postfix_relay_domains_manage: true
-    run_postfix_access_manage: true
-    run_postfix_access_recipient_map_tabletype: "pcre"
-    run_postfix_aliases_manage: true
-    run_postfix_canonical_manage: true
-    run_postfix_canonical_sender_map_tabletype: "pcre"
-    run_postfix_generic_manage: true
-    run_postfix_generic_map_tabletype: "pcre"
-    run_postfix_relocated_manage: true
-    run_postfix_transport_manage: true
-    run_postfix_virtual_manage: true
-    run_postfix_virtual_alias_map_tabletype: "lmdb"
-    run_postfix_smtp_sasl_password_manage: true
-    # other testing specific values
+    "{{ item['key'] }}": "{{ item['value'] }}"
+  loop: >-
+    {{
+      (__testing_state | default({}, true))
+      | ansible.builtin.dict2items
+      | ansible.builtin.selectattr('key', 'match', '^run_postfix_')
+      | ansible.builtin.list
+    }}
+
+
+- name: "Molecule | Verify | Set other expected or needed facts"
+  ansible.builtin.set_fact:
     __testing_mastercf:
       port_smtp: 25
       port_submission: 587
@@ -54,6 +42,15 @@
     __testing_sasl_auth_password_base64: "SGFsbG8xMjNwb3N0Zml4X18=" # Hallo123postfix__
 
 
+- name: "Molecule | Verify | Gather playbook-specific facts"
+  ansible.builtin.setup:
+    gather_subset:
+      - "distribution"
+  when:
+    - ansible_facts['distribution'] is not ansible.builtin.defined or
+      ansible_facts['os_family'] is not ansible.builtin.defined
+
+
 - name: "Molecule | Verify | Gather service facts"
   ansible.builtin.service_facts:
 
@@ -63,6 +60,8 @@
     var: ansible_facts['services']
     verbosity: 3
 
+
+## General service state
 
 - name: "Molecule | Verify | Assert Postfix service is running"
   ansible.builtin.assert:
@@ -115,7 +114,8 @@
     argv:
       - "{{ __testing_journalctl_executable }}"
       - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
   register: __testing_run_postfix_journalctlcheck_result
@@ -582,7 +582,8 @@
       sleep 3 # Wait briefly for queueing
       exit 0
     executable: "/bin/bash" # Support for other shells untested (so far)
-  changed_when: true
+  changed_when:
+    - true
   failed_when:
     - __testing_sendmail_local_result['rc'] != 0
   register: __testing_sendmail_local_result
@@ -602,7 +603,8 @@
         exit 0
       fi
     executable: "/bin/bash" # Support for other shells untested (so far)
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     - __testing_check_root_mail['rc'] != 0
   register: __testing_check_root_mail
@@ -623,7 +625,8 @@
     __testing_missing_envvars_sendmail: "{{ __testing_missing_envvars_sendmail | ansible.builtin.default([]) + [item] }}"
   when:
     - lookup('env', item, default='') == ''
-  changed_when: false # noqa: no-changed-when
+  changed_when:
+    - false # noqa: no-changed-when
   loop:
     - "TEST_POSTFIX_MAILFROM_EMAIL"
     - "TEST_POSTFIX_MAILTO_EMAIL"
@@ -634,7 +637,8 @@
     msg: >
       Tests regarding sending an email to an external address will be skipped,
       required environment variables are missing or invalid: {{ __testing_missing_envvars_sendmail | join(', ') }}.
-  changed_when: false # noqa: no-changed-when
+  changed_when:
+    - false # noqa: no-changed-when
   when:
     - __testing_missing_envvars_sendmail is ansible.builtin.defined
     - __testing_missing_envvars_sendmail | ansible.builtin.length > 0
@@ -678,7 +682,8 @@
           '(?i)554.*\r?\n': "QUIT"
           '(?i)221.*\r?\n': ""
         timeout: 5
-      changed_when: false
+      changed_when:
+        - false
       failed_when:
         - __testing_run_postfix_rcpttoexternal_result is ansible.builtin.failed
         # Most (not all) versions of telnet return exit status 1 if the
@@ -710,7 +715,8 @@
           - "{{ __testing_journalctl_executable }}"
           - "--since={{ __testing_postfix_verifystarttime }}"
           - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
-      changed_when: false
+      changed_when:
+        - false
       failed_when:
         # Not searching for the following  because test emails are likely to be
         # bounced/deferred by spam filters when the testing infrastructure uses
@@ -729,7 +735,8 @@
         argv:
           - "{{ __testing_postqueue_executable }}"
           - "-p"
-      changed_when: false
+      changed_when:
+        - false
       failed_when:
         - (__testing_run_postfix_queuecheck_result['rc'] > 0) or
           (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)mail transport unavailable')) or
@@ -762,7 +769,8 @@
       - "{{ __testing_journalctl_executable }}"
       - "--since={{ __testing_postfix_verifystarttime }}"
       - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
       (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
@@ -790,7 +798,8 @@
       sleep 3 # Wait briefly for NDR
       exit 0
     executable: "/bin/bash" # Support for other shells untested (so far)
-  changed_when: true
+  changed_when:
+    - true
   failed_when:
     - __testing_sendmail_relocated_recipient_result['rc'] != 0
   register: __testing_sendmail_relocated_recipient_result
@@ -802,7 +811,8 @@
       - "{{ __testing_journalctl_executable }}"
       - "--since={{ __testing_postfix_verifystarttime }}"
       - '--unit={{ __run_postfix_postfix_servicename | ansible.builtin.regex_replace("\.service$", "*") }}'
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
       not (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)status=bounced.*User has moved to'))
@@ -823,7 +833,8 @@
         exit 0
       fi
     executable: "/bin/bash" # Support for other shells untested (so far)
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     - __testing_check_relocated_mail['rc'] != 0
   register: __testing_check_relocated_mail
@@ -848,7 +859,8 @@
       '(?i)554.*\r?\n': "QUIT"
       '(?i)221.*\r?\n': ""
     timeout: 5
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     # Most (not all) versions of telnet return exit status 1 if the
     # connection was closed by the host after QUIT which is expected

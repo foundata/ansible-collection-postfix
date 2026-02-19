@@ -9,7 +9,8 @@
       '(?i)250 .*\r?\n': "QUIT"
       '(?i)221.*\r?\n': ""
     timeout: 5
-  changed_when: false
+  changed_when:
+    - false
   failed_when:
     # rc is ansible.builtin.none/null on timeout
     # telnet exits with 1 when it reaches EOF without user input
