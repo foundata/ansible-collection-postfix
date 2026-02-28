@@ -31,7 +31,7 @@ It provides resources to manage and use the [Postfix](https://www.postfix.org/) 
 
 ### Role: `foundata.postfix.run`
 
-See the [role's `README.md`](./roles/run/README.md) for more information and usage examples.
+The primary resource in this collection to configure and maintain Postfix, including core service, mail routing, domains, relays, TLS, and related settings. See the [role's `README.md`](./roles/run/README.md) for more information and usage examples.
 
 
 
