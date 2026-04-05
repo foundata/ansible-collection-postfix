@@ -82,10 +82,10 @@
       #       "status": "enabled"
       #   },
       - (ansible_facts['services'][__run_postfix_postfix_servicename] is ansible.builtin.defined and
-         ansible_facts['services'][__run_postfix_postfix_servicename].state == 'running')
+         ansible_facts['services'][__run_postfix_postfix_servicename]['state'] == 'running')
         or
         (ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')] is ansible.builtin.defined and
-         ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')].state == 'running')
+         ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')]['state'] == 'running')
     fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
