@@ -71,7 +71,7 @@
     - "run_postfix: update aliases"
 
 
-- name: "Handlers | postfix.service restart"
+- name: "Handlers | Postfix service restart"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "restarted"
@@ -81,7 +81,7 @@
     - "run_postfix: restart postfix.service"
 
 
-- name: "Handlers | postfix.service reload"
+- name: "Handlers | Postfix service reload"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "reloaded"
