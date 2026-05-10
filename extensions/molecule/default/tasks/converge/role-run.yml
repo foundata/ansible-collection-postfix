@@ -35,12 +35,13 @@
 
 
 - name: "Molecule | Converge | Create dummy lookup table / map file"
-  ansible.builtin.file:
-    path: "/etc/postfix_this_is_a_dummy"
-    state: "touch"
+  ansible.builtin.copy:
+    content: ""
+    dest: "/etc/postfix_this_is_a_dummy"
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
+    force: false
 
 
 - name: "Molecule | Converge | Store run_postfix_* role parameters in __testing_state"
