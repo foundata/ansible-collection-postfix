@@ -74,9 +74,20 @@
     #
     # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
     # handling can be removed if these targets are not supported anymore.
-    - ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<='))) or
-      ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11', '<='))) or
-      ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('22', '<=')))
+    - ((ansible_facts['os_family']
+         | ansible.builtin.lower) == 'redhat'
+        and (ansible_facts['distribution_major_version']
+             is ansible.builtin.version('9', '<=')))
+      or
+      ((ansible_facts['distribution']
+        | ansible.builtin.lower) == 'debian'
+       and (ansible_facts['distribution_major_version']
+            is ansible.builtin.version('11', '<=')))
+      or
+      ((ansible_facts['distribution']
+        | ansible.builtin.lower) == 'ubuntu'
+       and (ansible_facts['distribution_major_version']
+            is ansible.builtin.version('22', '<=')))
 
 
 - name: "Molecule | Prepare | Certificates: Get info about dummy cert file"
@@ -146,6 +157,7 @@
   ansible.builtin.command:
     argv:
       - "/usr/sbin/update-ca-certificates"
+  changed_when: false
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
@@ -154,6 +166,7 @@
   ansible.builtin.command:
     argv:
       - "/usr/bin/update-ca-trust"
+  changed_when: false
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
