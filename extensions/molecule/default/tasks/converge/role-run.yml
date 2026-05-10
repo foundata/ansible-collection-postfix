@@ -25,11 +25,11 @@
           | ansible.builtin.regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
     __testing_mailto_relay: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_RELAY', default='') }}"
     __testing_mailto_relay_credential: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_RELAY_CREDENTIAL', default='') }}"
-    # Getting the value of TEST_POSTFIX_MAILTO, extract the email from between
+    # Getting the value of TEST_POSTFIX_MAILTO_EMAIL, extract the email from between
     # angle brackets if present (John Doe <john@example.com> -> john@example.com)
     # or preserve the original string; then split by '@' and take the domain part.
     __testing_mailto_transport_domain: |-
-      {{ (lookup('env', 'TEST_POSTFIX_MAILTO', default='foo@baz.example.com')
+      {{ (lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL', default='foo@baz.example.com')
           | ansible.builtin.regex_replace('^.*<([^>]+)>.*$', '\1')
           | ansible.builtin.regex_replace('^([^<]+)$', '\1')).split('@')[1] }}
 
