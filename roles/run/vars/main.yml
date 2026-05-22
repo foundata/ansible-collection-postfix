@@ -50,17 +50,17 @@ __run_postfix_supported_platforms:
       - "13"
   - name: "Fedora"
     versions:
-      - "44"
       - "43"
+      - "44"
   - name: "RedHat" # includes AlmaLinux, Rocky and CentOS Stream
     versions:
       - "9"
       - "10"
   - name: "Ubuntu"
     versions:
-      - "26.04"
-      - "24.04"
       - "22.04"
+      - "24.04"
+      - "26.04"
 
 
 # List of package names to be installed when run_postfix_state is
