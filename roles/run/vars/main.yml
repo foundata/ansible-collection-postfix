@@ -143,6 +143,15 @@ __run_postfix_paths_removal:
   - "/etc/postfix/master.cf.proto" # Exists by default at least on Debian, Red Hat
 
 
+# Dictionary of files to be overwritten with a managed comment instead of being
+# deleted. Keys are file paths; values are the single-line comment characters to
+# use. This is needed on platforms where the package manager reinstalls deleted
+# files on package update. Restored files would conflict with the managed
+# configuration, while modified files are preserved. For example, RPM with
+# %config(noreplace) restores missing files but preserves modified ones.
+__run_postfix_paths_neutralize: {}
+
+
 # Additional default configuration for Postfix daemon. Use standard Postfix
 # option names as keys with their corresponding values.
 #
