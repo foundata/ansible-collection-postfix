@@ -9,14 +9,14 @@
 
 ## Preparation
 
-- name: "Molecule | Verify | Set run_postfix_* parameters as facts from __testing_state"
+- name: "Molecule | Verify | Set run_postfix_* and __testing_* variables as facts from __testing_state"
   ansible.builtin.set_fact:
     "{{ item['key'] }}": "{{ item['value'] }}"
   loop: >-
     {{
       (__testing_state | default({}, true))
       | ansible.builtin.dict2items
-      | ansible.builtin.selectattr('key', 'match', '^run_postfix_')
+      | ansible.builtin.selectattr('key', 'match', '^(run_postfix_|__testing_)')
       | ansible.builtin.list
     }}
 
@@ -61,7 +61,7 @@
     verbosity: 3
 
 
-## General service state
+## Service state
 
 - name: "Molecule | Verify | Assert Postfix service is running"
   ansible.builtin.assert:
@@ -127,7 +127,7 @@
       @{{ lookup('ansible.builtin.pipe', __testing_date_executable ~ ' ' ~ ('+%s' | ansible.builtin.quote)) }}
 
 
-## Check basic service functionality (SMTP)
+## Basic service functionality (SMTP)
 
 - name: "Molecule | Verify | Run SMTP tests: basic"
   ansible.builtin.include_tasks:
@@ -161,7 +161,7 @@
       smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
 
 
-### Check lookup table results: access
+### Lookup table results: access
 
 - name: "Molecule | Verify | Lookup-table 'access'"
   when:
@@ -235,7 +235,7 @@
       register: __testing_access_db_stat
 
 
-### Check lookup table results: aliases
+### Lookup table results: aliases
 
 - name: "Molecule | Verify | Lookup-table 'aliases'"
   when:
@@ -273,7 +273,7 @@
       register: __testing_aliases_db_stat
 
 
-### Check lookup table results: canonical
+### Lookup table results: canonical
 
 - name: "Molecule | Verify | Lookup-table 'canonical'"
   when:
@@ -342,7 +342,7 @@
       register: __testing_canonical_db_stat
 
 
-### Check lookup table results: relocated
+### Lookup table results: relocated
 
 - name: "Molecule | Verify | Lookup-table 'relocated'"
   when:
@@ -382,7 +382,7 @@
       register: __testing_relocated_db_stat
 
 
-### Check lookup table results: generic
+### Lookup table results: generic
 
 - name: "Molecule | Verify | Lookup-table 'generic'"
   when:
@@ -419,7 +419,7 @@
       register: __testing_generic_db_stat
 
 
-### Check lookup table results: transport
+### Lookup table results: transport
 
 - name: "Molecule | Verify | Lookup-table 'transport'"
   when:
@@ -459,7 +459,7 @@
       register: __testing_transport_db_stat
 
 
-### Check lookup table results: virtual
+### Lookup table results: virtual
 
 - name: "Molecule | Verify | Lookup-table 'virtual'"
   when:
@@ -528,7 +528,7 @@
       register: __testing_virtual_db_stat
 
 
-### Check SMTP SASL password credentials
+### SMTP SASL password credentials
 
 - name: "Molecule | Verify | SMTP SASL password credentials"
   when:
@@ -568,7 +568,7 @@
       register: __testing_smtp_sasl_password_db_stat
 
 
-### Check local mail delivery
+### Local mail delivery
 
 - name: "Molecule | Verify | Send local test email: set subject line"
   ansible.builtin.set_fact:
@@ -630,7 +630,7 @@
     success_msg: "Email was successfully delivered to root's mailbox"
 
 
-### Check if sending emails to a real destination via Internet works
+### Sending emails to a real destination via Internet works
 
 - name: "Molecule | Verify | Send SASL authenticated test email: check for environment variables"
   ansible.builtin.set_fact:
@@ -773,7 +773,7 @@
         success_msg: "Test email for queue check was successfully found in Postfix queue"
 
 
-### Final check of logs before running tests triggering errors (like non-delivery reports (NDR))
+### Check of logs before running tests triggering errors (like non-delivery reports (NDR))
 
 - name: "Molecule | Verify | Check journal for warnings or errors logged during verify: Postfix"
   ansible.builtin.command:
@@ -854,7 +854,7 @@
   register: __testing_check_relocated_mail
 
 
-### Check if relay access is denied for deny-listed or otherwise blocked recipients
+### If relay access is denied for deny-listed or otherwise blocked recipients
 
 - name: "Molecule | Verify | Lookup-table 'access': Initiate SASL authenticated RCPT TO a deny-listed address"
   ansible.builtin.expect:
