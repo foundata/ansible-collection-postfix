@@ -129,11 +129,16 @@
 
 ### Postfix specific
 
-
-- name: "Init | Merge user and default settings"
+- name: "Init | Merge user and default main.cf settings"
   # Postfix parameter names are case-sensitive. Since Ansible dict keys are also
   # case-sensitive, a simple dict_a | ansible.builtin.combine(dict_b) correctly
   # allows user settings to override defaults without extra handling.
+  #
+  # Only __run_postfix_effective_maincf_settings is materialized here:
+  # later config tasks repeatedly re-derive it via set_fact (self-combine) to
+  # layer in computed main.cf parameters, so it must exist as a host fact before
+  # those tasks run. All the other effective merge variables are read-only and
+  # are therefore computed lazily in vars/main.yml instead.
   ansible.builtin.set_fact:
     # Main
     __run_postfix_effective_maincf_settings: >-
@@ -141,77 +146,28 @@
         __run_postfix_maincf_settings_defaults
         | ansible.builtin.combine(run_postfix_maincf_settings)
       }}
-    __run_postfix_effective_mastercf_settings: >-
-      {{
-        __run_postfix_mastercf_settings_defaults
-        | ansible.builtin.combine(run_postfix_mastercf_settings)
-      }}
-    # Relay domains
-    __run_postfix_effective_relay_domains: >-
-      {{
-        (__run_postfix_relay_domains_list_defaults + run_postfix_relay_domains_list)
-        | ansible.builtin.unique
-      }}
-    # Lookup table: access
-    __run_postfix_effective_access_recipient_map: >-
-      {{
-        run_postfix_access_recipient_map
-        | ansible.builtin.combine(__run_postfix_access_recipient_map_defaults)
-      }}
-    __run_postfix_effective_access_sender_map: >-
-      {{
-        run_postfix_access_sender_map
-        | ansible.builtin.combine(__run_postfix_access_sender_map_defaults)
-      }}
-    # Lookup table: aliases
-    __run_postfix_effective_aliases_map: >-
-      {{
-        run_postfix_aliases_map
-        | ansible.builtin.combine(__run_postfix_aliases_map_defaults)
-      }}
-    # Lookup table: canonical
-    __run_postfix_effective_canonical_recipient_map: >-
-      {{
-        run_postfix_canonical_recipient_map
-        | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults)
-      }}
-    __run_postfix_effective_canonical_sender_map: >-
-      {{
-        run_postfix_canonical_sender_map
-        | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults)
-      }}
-    # Lookup table: generic
-    __run_postfix_effective_generic_map: >-
-      {{
-        __run_postfix_generic_map_defaults
-        | ansible.builtin.combine(run_postfix_generic_map)
-      }}
-    # Lookup table: relocated
-    __run_postfix_effective_relocated_map: >-
-      {{
-        __run_postfix_relocated_map_defaults
-        | ansible.builtin.combine(run_postfix_relocated_map)
-      }}
-    # Lookup table: transport
-    __run_postfix_effective_transport_map: >-
-      {{
-        __run_postfix_transport_map_defaults
-        | ansible.builtin.combine(run_postfix_transport_map)
-      }}
-    # Lookup table: virtual
-    __run_postfix_effective_virtual_alias_domains: >-
-      {{
-        (__run_postfix_virtual_aliasdomains_list_defaults + run_postfix_virtual_aliasdomains_list)
-        | ansible.builtin.unique
-      }}
-    __run_postfix_effective_virtual_alias_map: >-
-      {{
-        __run_postfix_virtual_alias_map_defaults
-        | ansible.builtin.combine(run_postfix_virtual_alias_map)
-      }}
-    # SMTP
-    __run_postfix_effective_smtp_sasl_password_map: >-
-      {{
-        __run_postfix_smtp_sasl_password_map_defaults
-        | ansible.builtin.combine(run_postfix_smtp_sasl_password_map)
-      }}
+
+
+# The remaining effective merge variables are used read-only, computed lazily
+# in vars/main.yml.
+- name: "Init | Show effective merged variables (computed lazily in vars/main.yml)"
+  ansible.builtin.debug:
+    msg: "{{ __run_postfix_effective_var }} = {{ lookup('ansible.builtin.vars', __run_postfix_effective_var) }}"
+    verbosity: 3
+  loop:
+    - "__run_postfix_effective_mastercf_settings"
+    - "__run_postfix_effective_relay_domains"
+    - "__run_postfix_effective_access_recipient_map"
+    - "__run_postfix_effective_access_sender_map"
+    - "__run_postfix_effective_aliases_map"
+    - "__run_postfix_effective_canonical_recipient_map"
+    - "__run_postfix_effective_canonical_sender_map"
+    - "__run_postfix_effective_generic_map"
+    - "__run_postfix_effective_relocated_map"
+    - "__run_postfix_effective_transport_map"
+    - "__run_postfix_effective_virtual_alias_domains"
+    - "__run_postfix_effective_virtual_alias_map"
+    - "__run_postfix_effective_smtp_sasl_password_map"
+  loop_control:
+    loop_var: "__run_postfix_effective_var"
+    label: "{{ __run_postfix_effective_var }}"

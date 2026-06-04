@@ -429,6 +429,84 @@ __run_postfix_virtual_alias_map_defaults: {}
 __run_postfix_smtp_sasl_password_map_defaults: {}
 
 
+# Effective (merged) values derived from the *_defaults above and the matching
+# public run_postfix_* user variables. Postfix parameter names are
+# case-sensitive, as are Ansible dict keys, so a plain combine() applies the
+# intended precedence without extra handling.
+#
+# __run_postfix_effective_maincf_settings is deliberately NOT here: it is
+# materialized in tasks/init.yml because later config tasks re-derive it
+# via set_fact and rely on it existing as a host fact.
+#
+# Lazy / late-bound evaluation: Jinja renders these variables on access,
+# after tasks/init.yml loads the platform vars file that sets the inputs.
+__run_postfix_effective_mastercf_settings: >-
+  {{
+    __run_postfix_mastercf_settings_defaults
+    | ansible.builtin.combine(run_postfix_mastercf_settings)
+  }}
+__run_postfix_effective_relay_domains: >-
+  {{
+    (__run_postfix_relay_domains_list_defaults + run_postfix_relay_domains_list)
+    | ansible.builtin.unique
+  }}
+__run_postfix_effective_access_recipient_map: >-
+  {{
+    run_postfix_access_recipient_map
+    | ansible.builtin.combine(__run_postfix_access_recipient_map_defaults)
+  }}
+__run_postfix_effective_access_sender_map: >-
+  {{
+    run_postfix_access_sender_map
+    | ansible.builtin.combine(__run_postfix_access_sender_map_defaults)
+  }}
+__run_postfix_effective_aliases_map: >-
+  {{
+    run_postfix_aliases_map
+    | ansible.builtin.combine(__run_postfix_aliases_map_defaults)
+  }}
+__run_postfix_effective_canonical_recipient_map: >-
+  {{
+    run_postfix_canonical_recipient_map
+    | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults)
+  }}
+__run_postfix_effective_canonical_sender_map: >-
+  {{
+    run_postfix_canonical_sender_map
+    | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults)
+  }}
+__run_postfix_effective_generic_map: >-
+  {{
+    __run_postfix_generic_map_defaults
+    | ansible.builtin.combine(run_postfix_generic_map)
+  }}
+__run_postfix_effective_relocated_map: >-
+  {{
+    __run_postfix_relocated_map_defaults
+    | ansible.builtin.combine(run_postfix_relocated_map)
+  }}
+__run_postfix_effective_transport_map: >-
+  {{
+    __run_postfix_transport_map_defaults
+    | ansible.builtin.combine(run_postfix_transport_map)
+  }}
+__run_postfix_effective_virtual_alias_domains: >-
+  {{
+    (__run_postfix_virtual_aliasdomains_list_defaults + run_postfix_virtual_aliasdomains_list)
+    | ansible.builtin.unique
+  }}
+__run_postfix_effective_virtual_alias_map: >-
+  {{
+    __run_postfix_virtual_alias_map_defaults
+    | ansible.builtin.combine(run_postfix_virtual_alias_map)
+  }}
+__run_postfix_effective_smtp_sasl_password_map: >-
+  {{
+    __run_postfix_smtp_sasl_password_map_defaults
+    | ansible.builtin.combine(run_postfix_smtp_sasl_password_map)
+  }}
+
+
 # Configuration file paths, ownership, and permissions. These variables define
 # the different locations of configuration files, include directories, and
 # Ansible-managed files, ensuring consistent file handling across distributions.

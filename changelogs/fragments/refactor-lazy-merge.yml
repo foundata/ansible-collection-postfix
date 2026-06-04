@@ -1,0 +1,12 @@
+---
+trivial:
+  - >
+    ``run`` role - Internal refactor: the 13 read-only effective merge variables
+    (master.cf settings, relay domains, the access/aliases/canonical/generic/
+    relocated/transport/virtual lookup maps and lists, and the SMTP SASL
+    password map) are now computed lazily in ``vars/main.yml`` instead of via the
+    ``set_fact`` in ``tasks/init.yml``, preserving each operand order
+    exactly. ``__run_postfix_effective_maincf_settings`` is intentionally kept
+    (later config tasks re-derive it via ``set_fact``). No user-facing
+    behaviour change. Added Molecule init-only regression tests covering the
+    three merge shapes.

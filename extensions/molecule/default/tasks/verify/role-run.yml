@@ -899,3 +899,71 @@
       - ('Recipient address rejected') in __testing_run_postfix_rcpttodeny_result['stdout']
       - ('Access denied') in __testing_run_postfix_rcpttodeny_result['stdout']
     fail_msg: "Initiate RCPT TO a deny-listed address: Expected proper responses to SMTP commands"
+
+
+## Regression tests: init-only merged variable evaluation
+#
+# Re-run the role's init with controlled inputs and assert representative merged
+# variables directly (now computed lazily in vars/main.yml). These cover the
+# three merge shapes used by the role and verify the preserved operand order:
+#   - mastercf settings: defaults | combine(user) -> user/new keys win
+#   - aliases map: user | combine(defaults) -> defaults intentionally win
+#   - relay domains:  (defaults + user) | unique -> concatenation
+#
+# Inputs are set via set_fact so they outrank the converge-time facts restored
+# at the top of this file and stay in scope when the assertions dereference the
+# (lazily evaluated) effective variables.
+
+- name: "Molecule | Verify | Validate effective merged variables (init-only)"
+  block:
+
+    - name: "Molecule | Verify | Set controlled inputs for the merge checks"
+      ansible.builtin.set_fact:
+        run_postfix_mastercf_settings:
+          customservice:
+            type: "unix"
+        run_postfix_aliases_map:
+          abuse: "someoneelse"
+          customalias: "root"
+        run_postfix_relay_domains_list:
+          - "relay.example.test"
+
+
+    - name: "Molecule | Verify | Re-initialize postfix with controlled inputs"
+      ansible.builtin.include_role:
+        name: "foundata.postfix.run"
+        tasks_from: "init"
+        public: true
+
+
+    - name: "Molecule | Verify | Assert effective master.cf settings merged correctly"
+      ansible.builtin.assert:
+        that:
+          # an untouched default service survives
+          - __run_postfix_effective_mastercf_settings['smtp']['type'] == "inet"
+          # the user-supplied service is added
+          - __run_postfix_effective_mastercf_settings['customservice']['type'] == "unix"
+        fail_msg: "__run_postfix_effective_mastercf_settings did not merge defaults and user settings as expected."
+        success_msg: "__run_postfix_effective_mastercf_settings merged defaults and user settings correctly."
+
+
+    - name: "Molecule | Verify | Assert effective aliases map preserves defaults-win operand order"
+      ansible.builtin.assert:
+        that:
+          # operand order is run_postfix_aliases_map | combine(defaults): the
+          # default intentionally wins over the user value for the same key
+          - __run_postfix_effective_aliases_map['abuse'] == "root"
+          # the default-only key is present
+          - __run_postfix_effective_aliases_map['postmaster'] == "root"
+          # the user-only key survives
+          - __run_postfix_effective_aliases_map['customalias'] == "root"
+        fail_msg: "__run_postfix_effective_aliases_map did not preserve the defaults-win operand order."
+        success_msg: "__run_postfix_effective_aliases_map preserved the defaults-win operand order."
+
+
+    - name: "Molecule | Verify | Assert effective relay domains concatenated correctly"
+      ansible.builtin.assert:
+        that:
+          - "'relay.example.test' in __run_postfix_effective_relay_domains"
+        fail_msg: "__run_postfix_effective_relay_domains did not include the user-supplied relay domain."
+        success_msg: "__run_postfix_effective_relay_domains includes the user-supplied relay domain."
