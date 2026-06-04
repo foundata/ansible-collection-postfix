@@ -155,7 +155,7 @@ __run_postfix_paths_neutralize: {}
 # Additional default configuration for Postfix daemon. Use standard Postfix
 # option names as keys with their corresponding values.
 #
-# See run_postfix_maincf_settings in defaults/main.yml for a detailled
+# See run_postfix_maincf_settings in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_maincf_settings_defaults:
   compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
@@ -305,7 +305,7 @@ __run_postfix_maincf_settings_defaults:
 
 # Additional default configuration for Postfix master process (master.cf)
 #
-# See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
+# See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_mastercf_settings_defaults:
   smtp: # Service for standard SMTP (Port 25)
@@ -344,28 +344,28 @@ __run_postfix_mastercf_settings_defaults:
 
 # Default relay domains for Postfix.
 #
-# See in run_postfix_relay_domains_list in defaults/main.yml for a detailled
+# See in run_postfix_relay_domains_list in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_relay_domains_list_defaults: []
 
 
 # Default access recipient mappings for Postfix.
 #
-# See in run_postfix_access_recipient_map in defaults/main.yml for a detailled
+# See in run_postfix_access_recipient_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_access_recipient_map_defaults: {}
 
 
 # Default access sender mappings for Postfix.
 #
-# See in run_postfix_access_sender_map in defaults/main.yml for a detailled
+# See in run_postfix_access_sender_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_access_sender_map_defaults: {}
 
 
 # Default aliases mappings for Postfix.
 #
-# See in run_postfix_aliases_map in defaults/main.yml for a detailled
+# See in run_postfix_aliases_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_aliases_map_defaults:
   abuse: "root"
@@ -376,34 +376,34 @@ __run_postfix_aliases_map_defaults:
 # Default canonical recipient mappings for Postfix.
 #
 # See in run_postfix_canonical_recipient_map in defaults/main.yml for a
-# detailled description of the structure (as this variable is using the same).
+# detailed description of the structure (as this variable is using the same).
 __run_postfix_canonical_recipient_map_defaults: {}
 
 
 # Default canonical sender mappings for Postfix.
 #
-# See in run_postfix_canonical_sender_map in defaults/main.yml for a detailled
+# See in run_postfix_canonical_sender_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_canonical_sender_map_defaults: {}
 
 
 # Default generic mapping for Postfix.
 #
-# See in run_postfix_generic_map in defaults/main.yml for a detailled
+# See in run_postfix_generic_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_generic_map_defaults: {}
 
 
 # Default domain relocated mapping for Postfix.
 #
-# See in run_postfix_relocated_map in defaults/main.yml for a detailled
+# See in run_postfix_relocated_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_relocated_map_defaults: {}
 
 
 # Default domain transport mapping for Postfix.
 #
-# See in run_postfix_transport_map in defaults/main.yml for a detailled
+# See in run_postfix_transport_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_transport_map_defaults: {}
 
@@ -411,13 +411,13 @@ __run_postfix_transport_map_defaults: {}
 # Default virtual aliases domains for Postfix.
 #
 # See in run_postfix_virtual_aliasdomains_list in defaults/main.yml for a
-# detailled description of the structure (as this variable is using the same).
+# detailed description of the structure (as this variable is using the same).
 __run_postfix_virtual_aliasdomains_list_defaults: []
 
 
 # Default virtual aliases mappings for Postfix.
 #
-# See in run_postfix_virtual_aliases in defaults/main.yml for a detailled
+# See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_virtual_alias_map_defaults: {}
 
@@ -425,7 +425,7 @@ __run_postfix_virtual_alias_map_defaults: {}
 # Default SMTP SASL password mapping for Postfix.
 #
 # See in run_postfix_smtp_sasl_password_map in defaults/main.yml for a
-# detailled description of the structure (as this variable is using the same).
+# detailed description of the structure (as this variable is using the same).
 __run_postfix_smtp_sasl_password_map_defaults: {}
 
 
