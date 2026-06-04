@@ -905,9 +905,10 @@
 #
 # Re-run the role's init with controlled inputs and assert representative merged
 # variables directly (now computed lazily in vars/main.yml). These cover the
-# three merge shapes used by the role and verify the preserved operand order:
+# three merge shapes used by the role; every map merges defaults | combine(user)
+# so the user wins and the defaults act as a fallback:
 #   - mastercf settings: defaults | combine(user) -> user/new keys win
-#   - aliases map: user | combine(defaults) -> defaults intentionally win
+#   - aliases map: defaults | combine(user) -> user overrides default aliases
 #   - relay domains:  (defaults + user) | unique -> concatenation
 #
 # Inputs are set via set_fact so they outrank the converge-time facts restored
@@ -947,18 +948,18 @@
         success_msg: "__run_postfix_effective_mastercf_settings merged defaults and user settings correctly."
 
 
-    - name: "Molecule | Verify | Assert effective aliases map preserves defaults-win operand order"
+    - name: "Molecule | Verify | Assert effective aliases map lets user values win over defaults"
       ansible.builtin.assert:
         that:
-          # operand order is run_postfix_aliases_map | combine(defaults): the
-          # default intentionally wins over the user value for the same key
-          - __run_postfix_effective_aliases_map['abuse'] == "root"
-          # the default-only key is present
+          # operand order is defaults | combine(run_postfix_aliases_map): the
+          # user value overrides the default for the same key
+          - __run_postfix_effective_aliases_map['abuse'] == "someoneelse"
+          # a default-only key survives as a fallback
           - __run_postfix_effective_aliases_map['postmaster'] == "root"
           # the user-only key survives
           - __run_postfix_effective_aliases_map['customalias'] == "root"
-        fail_msg: "__run_postfix_effective_aliases_map did not preserve the defaults-win operand order."
-        success_msg: "__run_postfix_effective_aliases_map preserved the defaults-win operand order."
+        fail_msg: "__run_postfix_effective_aliases_map did not let the user value override the default."
+        success_msg: "__run_postfix_effective_aliases_map let the user value override the default (defaults as fallback)."
 
 
     - name: "Molecule | Verify | Assert effective relay domains concatenated correctly"

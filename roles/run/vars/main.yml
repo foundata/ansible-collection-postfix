@@ -432,7 +432,10 @@ __run_postfix_smtp_sasl_password_map_defaults: {}
 # Effective (merged) values derived from the *_defaults above and the matching
 # public run_postfix_* user variables. Postfix parameter names are
 # case-sensitive, as are Ansible dict keys, so a plain combine() applies the
-# intended precedence without extra handling.
+# precedence without extra handling. Every map uses the same operand order,
+# `<defaults> | combine(<user>)`, so user-supplied values win and the defaults
+# act as a fallback (e.g. a user can override the default abuse/postmaster/
+# mailer-daemon aliases). Lists are concatenated and de-duplicated.
 #
 # __run_postfix_effective_maincf_settings is deliberately NOT here: it is
 # materialized in tasks/init.yml because later config tasks re-derive it
@@ -452,28 +455,28 @@ __run_postfix_effective_relay_domains: >-
   }}
 __run_postfix_effective_access_recipient_map: >-
   {{
-    run_postfix_access_recipient_map
-    | ansible.builtin.combine(__run_postfix_access_recipient_map_defaults)
+    __run_postfix_access_recipient_map_defaults
+    | ansible.builtin.combine(run_postfix_access_recipient_map)
   }}
 __run_postfix_effective_access_sender_map: >-
   {{
-    run_postfix_access_sender_map
-    | ansible.builtin.combine(__run_postfix_access_sender_map_defaults)
+    __run_postfix_access_sender_map_defaults
+    | ansible.builtin.combine(run_postfix_access_sender_map)
   }}
 __run_postfix_effective_aliases_map: >-
   {{
-    run_postfix_aliases_map
-    | ansible.builtin.combine(__run_postfix_aliases_map_defaults)
+    __run_postfix_aliases_map_defaults
+    | ansible.builtin.combine(run_postfix_aliases_map)
   }}
 __run_postfix_effective_canonical_recipient_map: >-
   {{
-    run_postfix_canonical_recipient_map
-    | ansible.builtin.combine(__run_postfix_canonical_recipient_map_defaults)
+    __run_postfix_canonical_recipient_map_defaults
+    | ansible.builtin.combine(run_postfix_canonical_recipient_map)
   }}
 __run_postfix_effective_canonical_sender_map: >-
   {{
-    run_postfix_canonical_sender_map
-    | ansible.builtin.combine(__run_postfix_canonical_sender_map_defaults)
+    __run_postfix_canonical_sender_map_defaults
+    | ansible.builtin.combine(run_postfix_canonical_sender_map)
   }}
 __run_postfix_effective_generic_map: >-
   {{

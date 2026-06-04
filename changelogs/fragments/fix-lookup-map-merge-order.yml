@@ -1,0 +1,13 @@
+---
+bugfixes:
+  - >
+    ``run`` role - The ``run_postfix_aliases_map``, ``run_postfix_access_recipient_map``,
+    ``run_postfix_access_sender_map``, ``run_postfix_canonical_recipient_map`` and
+    ``run_postfix_canonical_sender_map`` lookup maps were merged in the wrong
+    operand order (``user | combine(defaults)``), so the internal defaults won
+    over user-supplied values. In practice this silently discarded user overrides
+    of the default ``abuse`` / ``postmaster`` / ``mailer-daemon`` aliases. These
+    maps now merge as ``defaults | combine(user)`` like every other map in the
+    role, so user values win and the defaults act as a fallback. The access and
+    canonical maps have empty defaults, so their behavior therefore remains effectively
+    unchanged as the bug did not manifest for them.
