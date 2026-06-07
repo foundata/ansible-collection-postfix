@@ -1,6 +1,6 @@
 version = 1
 SPDX-PackageName = "Ansible collection: foundata.postfix"
-SPDX-PackageDownloadLocation = "https://github.com/foundata/ansible-collection-postfix"
+SPDX-PackageDownloadLocation = "https://foundata.com/en/projects/ansible-collection-postfix/#releases"
 SPDX-PackageSupplier = "foundata GmbH"
 SPDX-PackageComment = """
 This project may include calls to Application Programming Interfaces
