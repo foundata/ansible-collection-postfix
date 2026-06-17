@@ -1,0 +1,15 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The managed lookup-map references (``alias_maps``,
+    ``recipient_canonical_maps``, ``sender_canonical_maps``, ``lmtp_generic_maps``,
+    ``smtp_generic_maps``, ``relocated_maps``, ``transport_maps``,
+    ``virtual_alias_maps``, ``relay_domains``, ``virtual_alias_domains`` and
+    ``smtp_sasl_password_maps``) are no longer prepended to the corresponding
+    main.cf setting when they are already present. The guards used an exact
+    inequality (``!= managed``) instead of a containment check, so a value that
+    already listed the role-managed map alongside another map (e.g.
+    ``hash:/etc/aliases, lmdb:/other``) had the managed map prepended again,
+    producing a duplicate entry. The guards (and the matching "is being
+    extended" notices) now test list membership.
