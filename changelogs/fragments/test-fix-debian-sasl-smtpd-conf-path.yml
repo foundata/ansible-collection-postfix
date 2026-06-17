@@ -1,0 +1,11 @@
+---
+
+trivial:
+  - >
+    Molecule - Fixed the Cyrus SASL test setup on Debian. Newer Debian releases
+    (e.g. Trixie) make postfix read the SASL smtpd config from the default
+    ``/etc/sasl2/smtpd.conf`` rather than ``/etc/postfix/sasl/smtpd.conf``; with
+    the ``pwcheck_method: saslauthd`` config only in the old location, SASL fell
+    back to the sasldb auxprop and failed with "generic failure" on
+    ``/etc/sasldb2`` permissions. The prepare step now writes the config to both
+    locations so the SASL-authenticated verify tests pass across Debian releases.

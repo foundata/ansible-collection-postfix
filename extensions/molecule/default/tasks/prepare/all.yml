@@ -191,7 +191,15 @@
       - "sasl2-bin" # Cyrus SASL - administration programs for SASL users database
     __testing_run_sasl_saslauthd_config_file: "/etc/default/saslauthd"
     __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
-    __testing_run_sasl_smtpd_config_file: "/etc/postfix/sasl/smtpd.conf" # Provided by Postfix packages
+    # Debian historically read the SASL smtpd config from
+    # /etc/postfix/sasl/smtpd.conf, but on newer releases (e.g. Trixie) Cyrus
+    # SASL reads it from the default /etc/sasl2/ instead. Without it there, SASL
+    # falls back to the sasldb auxprop and fails on /etc/sasldb2 permissions
+    # ("generic failure"). Provide both so pwcheck_method:saslauthd is picked up
+    # regardless of the release.
+    __testing_run_sasl_smtpd_config_files:
+      - "/etc/postfix/sasl/smtpd.conf" # Provided by Postfix packages
+      - "/etc/sasl2/smtpd.conf"
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
@@ -203,7 +211,8 @@
       - "cyrus-sasl-plain"
     __testing_run_sasl_saslauthd_config_file: "/etc/sysconfig/saslauthd"
     __testing_run_sasl_saslauthd_socket_directory: "/var/run/saslauthd" # The socket is "mux" in this directory
-    __testing_run_sasl_smtpd_config_file: "/etc/sasl2/smtpd.conf" # Provided by Postfix packages
+    __testing_run_sasl_smtpd_config_files:
+      - "/etc/sasl2/smtpd.conf" # Provided by Postfix packages
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
@@ -224,18 +233,19 @@
     - { regexp: '^MECHANISMS=', line: 'MECHANISMS=pam' }
 
 
-- name: "Molecule | Prepare | Ensure existence of Cyrus SASL smtpd.conf parent directory"
+- name: "Molecule | Prepare | Ensure existence of Cyrus SASL smtpd.conf parent directories"
   ansible.builtin.file:
-    path: "{{ __testing_run_sasl_smtpd_config_file | ansible.builtin.dirname }}"
+    path: "{{ item | ansible.builtin.dirname }}"
     state: "directory"
     owner: "root"
     group: "root"
     mode: "u=rwx,g=rx,o=rx" # 0755
+  loop: "{{ __testing_run_sasl_smtpd_config_files }}"
 
 
 - name: "Molecule | Prepare | Create Cyrus SASL smtpd.conf"
   ansible.builtin.copy:
-    dest: "{{ __testing_run_sasl_smtpd_config_file }}"
+    dest: "{{ item }}"
     content: |
       log_level: 3
       pwcheck_method: saslauthd
@@ -244,6 +254,7 @@
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
+  loop: "{{ __testing_run_sasl_smtpd_config_files }}"
 
 
 - name: "Molecule | Prepare | Ensure service state: saslauthd"
