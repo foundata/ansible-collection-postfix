@@ -195,6 +195,9 @@
       run_postfix_generic_map:
         '/^(.+)@ad\.local$/im': "$1@example.com" # Rewrite all outgoing mail addresses form @ad.local
       run_postfix_relocated_manage: true
+      # Use the cdb backend here so the postmap handler (and helper_postmap_paths)
+      # are exercised for cdb
+      run_postfix_relocated_map_tabletype: "cdb"
       run_postfix_relocated_map:
         "user.old@example.com": "user.new@example.net"
         # Postfix's default template starts with "User has moved to " so use a fitting string.

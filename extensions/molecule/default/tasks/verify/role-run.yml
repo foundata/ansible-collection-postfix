@@ -422,7 +422,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_relocated_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_relocated_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_relocated_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_relocated_db_stat

@@ -1,0 +1,17 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The ``postmap``/``postalias`` path helpers
+    (``helper_postmap_paths.j2`` and ``helper_postalias_paths.j2``) now detect
+    ``cdb`` maps. The role installs ``postfix-cdb`` and offers ``cdb`` as a table
+    type, but the "needs indexing" regex omitted it, so ``cdb:`` lookup tables
+    were never compiled with ``postmap``/``postalias`` and stayed unusable at
+    runtime.
+  - >
+    ``run`` role - The ``postmap``/``postalias`` path helpers stripped an inline
+    prefix (e.g. ``proxy:``) from a lookup-table value with a regex anchored as
+    ``:/[^\s]$``, which only matched a single-character path and therefore left
+    real paths untouched. Prefixed values such as ``proxy:lmdb:/etc/postfix/map``
+    reached the handler uncleaned, so ``postmap proxy:...`` failed. The path is
+    now matched with ``:/[^\s]+$``.
