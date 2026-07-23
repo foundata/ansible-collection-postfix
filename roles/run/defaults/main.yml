@@ -87,8 +87,9 @@ run_postfix_service_state: "enabled"
 #
 # Please note that you do not need own handler for postmap when using
 # `hash|btree|dbm:` somewhere. The role's handler is intelligent enough to scan
-# the config for hash|btree|dbm:/path values. Just notify `run_postfix: update
-# lookup tables` on changes when writing additional, own tasks.
+# the config for hash|btree|dbm:/path values. Just notify
+# `run_postfix: update lookup tables` on changes when writing additional, own
+# tasks.
 #
 # For a complete list of options, see https://www.postfix.org/postconf.5.html
 #
@@ -113,9 +114,9 @@ run_postfix_maincf_settings: {}
 # `run_postfix_maincf_settings`, e.g. `smtpd_tls_security_level`,
 # `smtpd_tls_cert_file` and `smtpd_tls_key_file`) and should enforce TLS and
 # client authentication. Opt in to them here and pass the required per-service
-# overrides through `command_args` (the daemon name followed by any `-o` options),
-# as shown below. Enabling `smtps` without `smtpd_tls_wrappermode=yes` leaves
-# port 465 unusable for conforming clients.
+# overrides through `command_args` (the daemon name followed by any `-o`
+# options), as shown below. Enabling `smtps` without `smtpd_tls_wrappermode=yes`
+# leaves port 465 unusable for conforming clients.
 #
 # Example:
 #
@@ -218,13 +219,15 @@ run_postfix_relay_domains_list: []
 #      - `run_postfix_access_recipient_map`
 #      - `run_postfix_access_sender_map`
 # 2. Set or change `main.cf` settings accordingly:
-#      - `smtpd_relay_restrictions:` The role will introduce new
-#        `smtpd_restriction_classes`:
-#        - `recipient_access: {{ run_postfix_access_recipient_map_tabletype
-#          }}:/etc/postfix/access-sender`
-#        - `sender_access: {{ run_postfix_access_sender_map_tabletype
-#          }}:/etc/postfix/access-recipient` and add them at before all other
-#          `smtpd_relay_restrictions` rules.
+#      - `smtpd_relay_restrictions:` The role will introduce two new
+#        `smtpd_restriction_classes` and prepend them before all other
+#        `smtpd_relay_restrictions` rules:
+#        - `recipient_access: check_recipient_access {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access_recipient`
+#        - `sender_access: check_sender_access {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access_sender`
+#          The explicit `check_recipient_access` / `check_sender_access` are
+#          required: a bare `<type>:<path>` in a restriction class inherits the
+#          recipient context of `smtpd_relay_restrictions`, so a sender table would
+#          be looked up by the recipient address and never match.
 #
 # When `false`, you'll need to configure these settings or functionality
 # manually through `run_postfix_maincf_settings` or other means.

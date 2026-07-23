@@ -115,8 +115,8 @@
       ansible.builtin.set_fact:
         __run_postfix_effective_maincf_settings: >-
           {{ __run_postfix_effective_maincf_settings | ansible.builtin.combine({
-            'recipient_access': (run_postfix_access_recipient_map_tabletype ~ ':' ~ __run_postfix_table_access_recipient_file_path),
-            'sender_access': (run_postfix_access_sender_map_tabletype ~ ':' ~ __run_postfix_table_access_sender_file_path),
+            'recipient_access': ('check_recipient_access ' ~ run_postfix_access_recipient_map_tabletype ~ ':' ~ __run_postfix_table_access_recipient_file_path),
+            'sender_access': ('check_sender_access ' ~ run_postfix_access_sender_map_tabletype ~ ':' ~ __run_postfix_table_access_sender_file_path),
             'smtpd_restriction_classes': ('recipient_access, sender_access') ~
                                          (', ' ~ __run_postfix_effective_maincf_settings['smtpd_restriction_classes']
                                           if (__run_postfix_effective_maincf_settings['smtpd_restriction_classes'] is ansible.builtin.defined) and

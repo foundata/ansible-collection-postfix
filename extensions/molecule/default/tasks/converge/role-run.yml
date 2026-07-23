@@ -153,6 +153,11 @@
       #   root@alias1.example.com: rewrite to root@example.com (via canonical)
       #   root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
       run_postfix_access_manage: true
+      run_postfix_access_sender_map:
+        # Exercised by the verify stage: proves the sender restriction class
+        # blocks by SENDER address. With the previous bare "<type>:<path>" class
+        # body this rule was looked up by the recipient and never matched.
+        "spammy@evil.example": "REJECT sender is blocked (molecule test)"
       run_postfix_access_recipient_map_tabletype: "pcre"
       run_postfix_access_recipient_map:
         # Allow-list (whitelist) RFC 2142 address and other common service addresses:

@@ -1,0 +1,14 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The ``recipient_access`` and ``sender_access``
+    ``smtpd_restriction_classes`` are now defined with an explicit
+    ``check_recipient_access`` / ``check_sender_access`` restriction instead of a
+    bare ``<type>:<path>`` map. A bare table in a restriction class inherits the
+    recipient context of ``smtpd_relay_restrictions``, so the sender table was
+    looked up by the recipient address and sender access rules
+    (``run_postfix_access_sender_map``) never took effect. Recipient rules were
+    unaffected, which is why the behaviour went unnoticed. The molecule verify
+    stage now probes sender and recipient rejection over SMTP to guard against a
+    regression.

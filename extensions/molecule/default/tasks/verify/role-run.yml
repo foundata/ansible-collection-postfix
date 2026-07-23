@@ -235,6 +235,52 @@
       register: __testing_access_db_stat
 
 
+    # Behavioural probe (not just file content): a bare "<type>:<path>" in the
+    # sender restriction class inherits the recipient context of
+    # smtpd_relay_restrictions, so the sender table would be looked up by the
+    # recipient address and never match. This talks SMTP and asserts that a
+    # blocked SENDER is rejected (would pass silently before the
+    # check_sender_access fix), a blocked RECIPIENT is rejected, and a clean
+    # envelope is accepted.
+    - name: "Molecule | Verify | Lookup-table 'access': Probe sender/recipient rejection over SMTP"
+      ansible.builtin.command:
+        argv:
+          - "/usr/bin/python3"
+          - "-c"
+          - "{{ __testing_access_probe_script }}"
+      vars:
+        __testing_access_probe_script: |
+          import smtplib, sys
+          hn = "{{ run_postfix_maincf_settings['myhostname'] }}"
+          # (envelope sender, envelope recipient, label, expect_reject)
+          cases = [
+              # root@<myhostname> matches no OK rule in the recipient map and is a
+              # local destination, so it isolates the sender check (an OK recipient
+              # like postmaster@ would short-circuit the list before sender_access).
+              ("spammy@evil.example", "root@" + hn, "blocked-sender", True),
+              ("clean@example.net", "do-not-reply@example.com", "blocked-recipient", True),
+              ("clean@example.net", "root@" + hn, "clean-envelope", False),
+          ]
+          failures = []
+          for frm, rcpt, label, expect_reject in cases:
+              smtp = smtplib.SMTP("127.0.0.1", 25, timeout=10)
+              smtp.ehlo("verify.molecule.local")
+              code, _ = smtp.mail(frm)
+              if code < 300:
+                  code, _ = smtp.rcpt(rcpt)
+              smtp.quit()
+              rejected = code >= 500
+              if rejected != expect_reject:
+                  failures.append(
+                      "%s: from=%s to=%s code=%s expected_reject=%s"
+                      % (label, frm, rcpt, code, expect_reject))
+          if failures:
+              sys.stderr.write("ACCESS PROBE FAILURES: " + "; ".join(failures) + "\n")
+              sys.exit(1)
+          print("ACCESS PROBE OK: sender and recipient restrictions enforced by address type")
+      changed_when: false
+
+
 ### Lookup table results: aliases
 
 - name: "Molecule | Verify | Lookup-table 'aliases'"

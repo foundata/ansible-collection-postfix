@@ -360,6 +360,18 @@ Dictionary structure:
 - Keys: service names (e.g., smtp, submission, 127.0.0.1:smtp, 12345)
 - Values: configuration parameters for that service
 
+By default the role only manages the standard SMTP receiving service
+(port 25) and the anvil helper. The message submission services
+`submission` (port 587, STARTTLS) and `smtps` (port 465, implicit TLS per
+RFC 8314) are NOT enabled by default: both require a working TLS setup
+(configured via `run_postfix_maincf_settings`, e.g.
+`smtpd_tls_security_level`, `smtpd_tls_cert_file` and
+`smtpd_tls_key_file`) and should enforce TLS and client authentication.
+Opt in to them here and pass the required per-service overrides through
+`command_args` (the daemon name followed by any `-o` options), as shown
+below. Enabling `smtps` without `smtpd_tls_wrappermode=yes` leaves port
+465 unusable for conforming clients.
+
 Example:
 
 ```
@@ -371,14 +383,22 @@ smtp: # Service for standard SMTP (Port 25)
   wakeup: "-" # Wakeup time
   maxproc: "-" # Max processes
   command_args: "smtpd" # Command and arguments
-submission: # Service for submission (Port 587)
+submission: # Message submission (Port 587, STARTTLS); enforce TLS and auth:
   type: "inet"
   private: "n"
   unpriv: "-"
   chroot: "n"
   wakeup: "-"
   maxproc: "-"
-  command_args: "smtpd"
+  command_args: "smtpd -o smtpd_tls_security_level=encrypt -o smtpd_sasl_auth_enable=yes"
+smtps: # Implicit-TLS submission (Port 465); wrappermode is mandatory here:
+  type: "inet"
+  private: "n"
+  unpriv: "-"
+  chroot: "n"
+  wakeup: "-"
+  maxproc: "-"
+  command_args: "smtpd -o smtpd_tls_wrappermode=yes -o smtpd_sasl_auth_enable=yes"
 ```
 
 - **Type**: `dict`
@@ -468,10 +488,15 @@ When set to `true` (which is the default), the role will:
    - `run_postfix_access_recipient_map`
    - `run_postfix_access_sender_map`
 2. Set or change `main.cf` settings accordingly:
-   - `smtpd_relay_restrictions:` The role will introduce new `smtpd_restriction_classes`:
-      - `recipient_access: {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access-sender`
-      - `sender_access: {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access-recipient`
-      and add them at before all other `smtpd_relay_restrictions` rules.
+   - `smtpd_relay_restrictions:` The role will introduce two new
+     `smtpd_restriction_classes` and prepend them before all other
+     `smtpd_relay_restrictions` rules:
+      - `recipient_access: check_recipient_access {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access_recipient`
+      - `sender_access: check_sender_access {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access_sender`
+     The explicit `check_recipient_access` / `check_sender_access` are
+     required: a bare `<type>:<path>` in a restriction class inherits the
+     recipient context of `smtpd_relay_restrictions`, so a sender table
+     would be looked up by the recipient address and never match.
 
 When `false`, you'll need to configure these settings or functionality manually
 through `run_postfix_maincf_settings` or other means.
