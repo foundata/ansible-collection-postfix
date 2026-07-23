@@ -305,26 +305,23 @@ __run_postfix_maincf_settings_defaults:
 
 # Additional default configuration for Postfix master process (master.cf)
 #
+# Only the standard SMTP receiving service (port 25) and the anvil helper are
+# enabled by default. The submission (587) and smtps (465) services are
+# deliberately NOT shipped here, mirroring the commented-out entries in the
+# stock distribution master.cf: both only make sense with a working TLS setup,
+# which this role does not configure on its own. Enabling them unconditionally
+# would open a submission port on every host that neither enforces TLS nor
+# client authentication; smtps additionally serves implicit TLS (RFC 8314) and
+# needs "-o smtpd_tls_wrappermode=yes" to work at all, so without it port 465
+# is a plaintext STARTTLS listener no conforming client can use. Configure TLS
+# via run_postfix_maincf_settings and then opt in to these services through
+# run_postfix_mastercf_settings (see the example in defaults/main.yml, which
+# shows the required per-service "-o" overrides).
+#
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_mastercf_settings_defaults:
   smtp: # Service for standard SMTP (Port 25)
-    type: "inet"
-    private: "n"
-    unpriv: "-"
-    chroot: "n"
-    wakeup: "-"
-    maxproc: "-"
-    command_args: "smtpd"
-  smtps: # Service for secure SMTP (Port 465)
-    type: "inet"
-    private: "n"
-    unpriv: "-"
-    chroot: "n"
-    wakeup: "-"
-    maxproc: "-"
-    command_args: "smtpd"
-  submission: # Service for submission (Port 587)
     type: "inet"
     private: "n"
     unpriv: "-"

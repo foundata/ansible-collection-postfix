@@ -1,0 +1,26 @@
+---
+
+security_fixes:
+  - >
+    ``run`` role - The ``smtps`` (port 465) and ``submission`` (port 587)
+    services are no longer part of the default ``master.cf`` configuration.
+    Previously they were enabled on every host with a bare ``smtpd`` and no
+    per-service overrides, even though the role configures no TLS by default:
+    port 465 (implicit TLS, RFC 8314) was served as a STARTTLS listener without
+    ``smtpd_tls_wrappermode=yes`` (unusable by conforming clients and, absent a
+    certificate, plaintext only), and port 587 was an unauthenticated submission
+    port that did not enforce TLS. Both services are now opt-in via
+    ``run_postfix_mastercf_settings`` and should be configured with a working
+    TLS setup (``run_postfix_maincf_settings``) and the appropriate ``-o``
+    overrides (see the example in ``defaults/main.yml``).
+
+breaking_changes:
+  - >
+    ``run`` role - Ports 465 (``smtps``) and 587 (``submission``) are no longer
+    opened by the default ``master.cf`` settings. Deployments that relied on the
+    previous defaults must now enable these services explicitly through
+    ``run_postfix_mastercf_settings``. As with every ``master.cf`` service, the
+    role manages entries additively (upsert via ``postconf -M``) and by design
+    never removes services it does not declare, so hosts that already have
+    ``smtps``/``submission`` entries from an earlier run keep them. Remove them
+    manually if desired (e.g. ``postconf -MX smtps/inet``).

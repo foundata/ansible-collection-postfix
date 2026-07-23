@@ -106,6 +106,17 @@ run_postfix_maincf_settings: {}
 # - Keys: service names (e.g., smtp, submission, 127.0.0.1:smtp, 12345)
 # - Values: configuration parameters for that service
 #
+# By default the role only manages the standard SMTP receiving service (port 25)
+# and the anvil helper. The message submission services `submission` (port 587,
+# STARTTLS) and `smtps` (port 465, implicit TLS per RFC 8314) are NOT enabled by
+# default: both require a working TLS setup (configured via
+# `run_postfix_maincf_settings`, e.g. `smtpd_tls_security_level`,
+# `smtpd_tls_cert_file` and `smtpd_tls_key_file`) and should enforce TLS and
+# client authentication. Opt in to them here and pass the required per-service
+# overrides through `command_args` (the daemon name followed by any `-o` options),
+# as shown below. Enabling `smtps` without `smtpd_tls_wrappermode=yes` leaves
+# port 465 unusable for conforming clients.
+#
 # Example:
 #
 # ```
@@ -117,14 +128,22 @@ run_postfix_maincf_settings: {}
 #   wakeup: "-" # Wakeup time
 #   maxproc: "-" # Max processes
 #   command_args: "smtpd" # Command and arguments
-# submission: # Service for submission (Port 587)
+# submission: # Message submission (Port 587, STARTTLS); enforce TLS and auth:
 #   type: "inet"
 #   private: "n"
 #   unpriv: "-"
 #   chroot: "n"
 #   wakeup: "-"
 #   maxproc: "-"
-#   command_args: "smtpd"
+#   command_args: "smtpd -o smtpd_tls_security_level=encrypt -o smtpd_sasl_auth_enable=yes"
+# smtps: # Implicit-TLS submission (Port 465); wrappermode is mandatory here:
+#   type: "inet"
+#   private: "n"
+#   unpriv: "-"
+#   chroot: "n"
+#   wakeup: "-"
+#   maxproc: "-"
+#   command_args: "smtpd -o smtpd_tls_wrappermode=yes -o smtpd_sasl_auth_enable=yes"
 # ```
 #
 # - Type: dict

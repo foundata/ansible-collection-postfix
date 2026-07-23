@@ -119,6 +119,18 @@
         smtpd_sasl_security_options: "noanonymous"
         smtpd_sasl_tls_security_options: "$smtpd_sasl_security_options"
       run_postfix_mastercf_settings:
+        # The submission service (587) needs a working TLS setup, which the
+        # role does not configure on its own. It is opted in here so the verify
+        # stage keeps probing it; the TLS/SASL settings it relies on come from
+        # run_postfix_maincf_settings above.
+        submission:
+          type: "inet"
+          private: "n"
+          unpriv: "-"
+          chroot: "n"
+          wakeup: "-"
+          maxproc: "-"
+          command_args: "smtpd"
         2525: # Test if a unusual port works
           type: "inet"
           private: "n"
