@@ -256,12 +256,28 @@ run_postfix_access_recipient_map_tabletype: "pcre"
 
 # Lookup-table `access`: Recipient address restriction rules.
 #
+# The action values follow access(5): `REJECT`, `DISCARD`, a numeric reply,
+# `DUNNO` (no decision, keep evaluating) and `OK` (accept now).
+#
+# Security note on `OK`: this class is prepended before
+# `reject_unauth_destination`, so an `OK` accepts the mail immediately and
+# bypasses the relay guard. An `OK` on an unscoped pattern (e.g. `/^abuse@.+/`)
+# therefore turns the server into an open relay for that pattern on ANY domain.
+# Prefer `DUNNO` to allow-list without forcing acceptance (RFC 2142/5321
+# addresses such as postmaster@ and abuse@ are delivered as normal valid
+# destinations anyway). Only use `OK` to force acceptance past other checks
+# (RBLs, HELO checks, ...), and then scope the key to the domains you actually
+# host so it can never relay.
+#
 # Examples:
 #
 # ```
-# "abuse@example.com": "OK" # Whitelist RFC 2142 address
-# "postmaster@example.com": "OK" # Whitelist RFC 2142 address
-# "burned@example.com": "REJECT" # User is gone, address get mass of spam
+# # Force-accept RFC 2142 service addresses for your OWN domains, past any
+# # anti-spam checks, without relaying (note the anchored, domain-scoped
+# # pattern; requires the pcre/regexp table type):
+# "/^(abuse|postmaster|hostmaster)@(example\.com|example\.net)$/i": "OK"
+# # Do NOT do this: "/^abuse@.+/i": "OK" would relay to abuse@ on any domain.
+# "burned@example.com": "REJECT" # User is gone, address gets mass of spam
 # ```
 #
 # Will be ignored if `run_postfix_access_manage` is set to `false`.
@@ -295,13 +311,19 @@ run_postfix_access_sender_map_tabletype: "lmdb"
 # - https://www.postfix.org/access.5.html
 # - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
 #
+# Security note on `OK`: as with the recipient map, this class is prepended
+# before `reject_unauth_destination`, so an `OK` on a sender accepts the mail
+# regardless of destination and turns the server into an open relay for that
+# sender. Prefer `DUNNO` unless you deliberately want that sender to bypass the
+# relay guard.
+#
 # Examples:
 #
 # ```
 # "@microsoft.com": "500 Deal with it"
 # "spammy@example.com": "REJECT"
 # "spammy2@example.com": "DISCARD" # Attention: silent drop
-# "important@example.net": "OK"
+# "important@example.net": "DUNNO" # allow-list without bypassing relay control
 # ```
 #
 # Will be ignored if `run_postfix_access_manage` is set to `false`.

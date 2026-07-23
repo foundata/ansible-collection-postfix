@@ -193,6 +193,8 @@ There are also tags usually not meant to be called directly but listed for the s
 
 ## Role variables<a id="variables"></a>
 
+Main entry point for the foundata.postfix.run role
+
 The following variables can be configured for this role:
 
 | Variable | Type | Required | Default | Description (abstract) |
@@ -204,18 +206,18 @@ The following variables can be configured for this role:
 | `run_postfix_mastercf_settings` | `dict` | No | `{}` | Additional configuration for Postfix master process (`master.cf`). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: http://www.postfix.org/master.5.html).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
 | `run_postfix_relay_domains_manage` | `bool` | No | `false` | Switch to control if relay domains settings are handled by this role.<br><br>When set to `true` (which is the default), the role will:<br><br>1. Create and manage a config file for relay domains using the `run_postfix_relay_domains_list` variable for […](#variable-run_postfix_relay_domains_manage) |
 | `run_postfix_relay_domains_list_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_relay_domains_list` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relay_domains_list_tabletype) |
-| `run_postfix_relay_domains_list` | `list` | No | `[]` | Relay domains for Postfix. This list of relay domains for which Postfix will accept mail for relaying to their final destinations.<br><br>Example:<br><br>``` - "example.com" - "example.net" - "example.org" - "foo.example.org" ```<br><br>Will be […](#variable-run_postfix_relay_domains_list) |
+| `run_postfix_relay_domains_list` | `list` | No | `[]` | Relay domains for Postfix. This list of relay domains for which Postfix will accept mail for relaying to their final destinations.<br><br>Example:<br><br>``` - "example.com" - "example.net" - "example.org" - "foo.example.org" […](#variable-run_postfix_relay_domains_list) |
 | `run_postfix_access_manage` | `bool` | No | `false` | Switch to control whether the lookup table `access` is controlled by dedicated settings and tasks of this role.<br><br>More information: - https://www.postfix.org/access.5.html - https://www.postfix.org/SMTPD_ACCESS_README.html - […](#variable-run_postfix_access_manage) |
 | `run_postfix_access_recipient_map_tabletype` | `str` | No | `"pcre"` | The lookup table type to use if for the table defined by `run_postfix_access_recipient_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_access_recipient_map_tabletype) |
-| `run_postfix_access_recipient_map` | `dict` | No | `{}` | Lookup-table `access`: Recipient address restriction rules.<br><br>Examples:<br><br>``` "abuse@example.com": "OK" # Whitelist RFC 2142 address "postmaster@example.com": "OK" # Whitelist RFC 2142 address "burned@example.com": "REJECT" # User is gone, […](#variable-run_postfix_access_recipient_map) |
+| `run_postfix_access_recipient_map` | `dict` | No | `{}` | Lookup-table `access`: Recipient address restriction rules.<br><br>The action values follow access(5): `REJECT`, `DISCARD`, a numeric reply, `DUNNO` (no decision, keep evaluating) and `OK` (accept now).<br><br>Security note on `OK`: this class is […](#variable-run_postfix_access_recipient_map) |
 | `run_postfix_access_sender_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the table defined by `run_postfix_access_sender_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_access_sender_map_tabletype) |
-| `run_postfix_access_sender_map` | `dict` | No | `{}` | Lookup-table `access`: Sender address restriction rules.<br><br>More information: - https://www.postfix.org/access.5.html - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes<br><br>Examples:<br><br>``` "@microsoft.com": "500 Deal with […](#variable-run_postfix_access_sender_map) |
+| `run_postfix_access_sender_map` | `dict` | No | `{}` | Lookup-table `access`: Sender address restriction rules.<br><br>More information: - https://www.postfix.org/access.5.html - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes<br><br>Security note on `OK`: as with the recipient map, this […](#variable-run_postfix_access_sender_map) |
 | `run_postfix_aliases_manage` | `bool` | No | `false` | Switch to control whether the lookup table `aliases` is controlled by dedicated settings and tasks of this role.<br><br>`aliases` can rewrite local(!) addresses (no domain part) and redirect mails to other mailboxes, files or commands: - […](#variable-run_postfix_aliases_manage) |
 | `run_postfix_aliases_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_aliases_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. […](#variable-run_postfix_aliases_map_tabletype) |
 | `run_postfix_aliases_map` | `dict` | No | `{}` | Lookup-table `alias`: address mappings.<br><br>More information: - https://www.postfix.org/access.5.html - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes<br><br>Examples:<br><br>``` abuse: "root" deamon123: "root, tux" foo: […](#variable-run_postfix_aliases_map) |
 | `run_postfix_canonical_manage` | `bool` | No | `false` | Switch to control whether the lookup table `canonical` is controlled by dedicated settings and tasks of this role.<br><br>`canonical` can rewrite mail addresses before mail is stored into the queue: - https://www.postfix.org/canonical.5.html - […](#variable-run_postfix_canonical_manage) |
 | `run_postfix_canonical_recipient_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_canonical_recipient_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_recipient_map_tabletype) |
-| `run_postfix_canonical_recipient_map` | `dict` | No | `{}` | Lookup-table `canonical`: Recipient address mappings / rewrite rules.<br><br>Examples:<br><br>``` "old.name@example.com": "new.name@example.com" "root": "user123@example.com" "@example.com": "@example.net" ```<br><br>Will be ignored if […](#variable-run_postfix_canonical_recipient_map) |
+| `run_postfix_canonical_recipient_map` | `dict` | No | `{}` | Lookup-table `canonical`: Recipient address mappings / rewrite rules.<br><br>Examples:<br><br>``` "old.name@example.com": "new.name@example.com" "root": "user123@example.com" "@example.com": "@example.net" […](#variable-run_postfix_canonical_recipient_map) |
 | `run_postfix_canonical_sender_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_canonical_sender_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_sender_map_tabletype) |
 | `run_postfix_canonical_sender_map` | `dict` | No | `{}` | Lookup-table `canonical`: Sender address mappings / rewrite rules.<br><br>Examples:<br><br>``` "old.name@example.com": "new.name@example.com" "root": "user123@example.com" "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses […](#variable-run_postfix_canonical_sender_map) |
 | `run_postfix_generic_manage` | `bool` | No | `false` | Switch to control whether the lookup table `generic` is controlled by dedicated settings and tasks of this role.<br><br>`generic` is used to rewrite sender addresses in emails leaving the system via SMTP/LMTP only: - […](#variable-run_postfix_generic_manage) |
@@ -229,7 +231,7 @@ The following variables can be configured for this role:
 | `run_postfix_transport_map` | `dict` | No | `{}` | Domain transport mapping for Postfix. This defines where to send emails to for the listed domains in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe domains. - Values: Lists of destinations, usually […](#variable-run_postfix_transport_map) |
 | `run_postfix_virtual_manage` | `bool` | No | `false` | Switch to control whether the lookup table "virtual" is controlled by dedicated settings and tasks of this role.<br><br>"virtual" defines the address mappings used by Postfix to redirect email addresses in virtual alias domains to other local or […](#variable-run_postfix_virtual_manage) |
 | `run_postfix_virtual_aliasdomains_list_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_virtual_aliasdomains_list`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be […](#variable-run_postfix_virtual_aliasdomains_list_tabletype) |
-| `run_postfix_virtual_aliasdomains_list` | `list` | No | `[]` | Virtual alias domains for Postfix. This tells Postfix to accept incoming emails for a list of virtual domains. Mappings for them are defined via `run_postfix_virtual_alias_map`.<br><br>``` Example: - "example.com" - "example.net" ```<br><br>Will be […](#variable-run_postfix_virtual_aliasdomains_list) |
+| `run_postfix_virtual_aliasdomains_list` | `list` | No | `[]` | Virtual alias domains for Postfix. This tells Postfix to accept incoming emails for a list of virtual domains. Mappings for them are defined via `run_postfix_virtual_alias_map`.<br><br>``` Example: - "example.com" - "example.net" […](#variable-run_postfix_virtual_aliasdomains_list) |
 | `run_postfix_virtual_alias_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_virtual_alias_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_virtual_alias_map_tabletype) |
 | `run_postfix_virtual_alias_map` | `dict` | No | `{}` | Virtual alias mappings for Postfix. This defines email forwarding rules in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe the virtual address(es) Attention: Do not forget to list handled domains in […](#variable-run_postfix_virtual_alias_map) |
 | `run_postfix_smtp_sasl_password_manage` | `bool` | No | `false` | Switch to control whether SMTP SASL password credentials are controlled by dedicated settings and tasks of this role.<br><br>They are used to authenticate Postfix when sending emails through a relay server that requires authentication: - […](#variable-run_postfix_smtp_sasl_password_manage) |
@@ -535,12 +537,28 @@ Will be ignored if `run_postfix_access_manage` is set to `false`.
 
 Lookup-table `access`: Recipient address restriction rules.
 
+The action values follow access(5): `REJECT`, `DISCARD`, a numeric
+reply, `DUNNO` (no decision, keep evaluating) and `OK` (accept now).
+
+Security note on `OK`: this class is prepended before
+`reject_unauth_destination`, so an `OK` accepts the mail immediately and
+bypasses the relay guard. An `OK` on an unscoped pattern (e.g.
+`/^abuse@.+/`) therefore turns the server into an open relay for that
+pattern on ANY domain. Prefer `DUNNO` to allow-list without forcing
+acceptance (RFC 2142/5321 addresses such as postmaster@ and abuse@ are
+delivered as normal valid destinations anyway). Only use `OK` to force
+acceptance past other checks (RBLs, HELO checks, ...), and then scope the
+key to the domains you actually host so it can never relay.
+
 Examples:
 
 ```
-"abuse@example.com": "OK" # Whitelist RFC 2142 address
-"postmaster@example.com": "OK" # Whitelist RFC 2142 address
-"burned@example.com": "REJECT" # User is gone, address get mass of spam
+# Force-accept RFC 2142 service addresses for your OWN domains, past any
+# anti-spam checks, without relaying (note the anchored, domain-scoped
+# pattern; requires the pcre/regexp table type):
+"/^(abuse|postmaster|hostmaster)@(example\.com|example\.net)$/i": "OK"
+# Do NOT do this: "/^abuse@.+/i": "OK" would relay to abuse@ on any domain.
+"burned@example.com": "REJECT" # User is gone, address gets mass of spam
 ```
 
 Will be ignored if `run_postfix_access_manage` is set to `false`.
@@ -583,13 +601,19 @@ More information:
 - https://www.postfix.org/access.5.html
 - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
 
+Security note on `OK`: as with the recipient map, this class is prepended
+before `reject_unauth_destination`, so an `OK` on a sender accepts the
+mail regardless of destination and turns the server into an open relay
+for that sender. Prefer `DUNNO` unless you deliberately want that sender
+to bypass the relay guard.
+
 Examples:
 
 ```
 "@microsoft.com": "500 Deal with it"
 "spammy@example.com": "REJECT"
 "spammy2@example.com": "DISCARD" # Attention: silent drop
-"important@example.net": "OK"
+"important@example.net": "DUNNO" # allow-list without bypassing relay control
 ```
 
 Will be ignored if `run_postfix_access_manage` is set to `false`.
