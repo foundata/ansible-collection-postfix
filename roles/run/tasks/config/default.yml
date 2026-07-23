@@ -786,7 +786,7 @@
 
       set -e # Exit on errors (incl. tests in if/while)
       {% for service, fields in __run_postfix_effective_mastercf_settings.items() %}
-      {{ __run_postfix_postconf_exec_path }} -M {{ service ~ '/' ~ fields['type'] | ansible.builtin.quote }}={{
+      {{ __run_postfix_postconf_exec_path }} -M {{ (service ~ '/' ~ fields['type']) | ansible.builtin.quote }}={{
         (
           service ~ ' ' ~
           fields['type'] ~ ' ' ~

@@ -1,0 +1,9 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The ``master.cf`` update task quoted only the service type
+    when building the ``postconf -M <service>/<type>=...`` argument, because the
+    Jinja ``| quote`` filter binds tighter than ``~`` and applied to
+    ``fields['type']`` alone. The whole ``<service>/<type>`` expression is now
+    quoted.
