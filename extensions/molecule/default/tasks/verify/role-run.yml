@@ -177,7 +177,7 @@
     - name: "Molecule | Verify | Assert access_recipient file contents"
       ansible.builtin.assert:
         that:
-          - "'/^abuse@.+/i\t\t\tOK' in (__testing_access_recipient_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
+          - "'/^abuse@.+/i\t\t\tDUNNO' in (__testing_access_recipient_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
           - "'/^do-not-reply@example.com$/im\tREJECT' in (__testing_access_recipient_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_access_recipient_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_access_recipient_file_path }}"
@@ -260,6 +260,11 @@
               ("spammy@evil.example", "root@" + hn, "blocked-sender", True),
               ("clean@example.net", "do-not-reply@example.com", "blocked-recipient", True),
               ("clean@example.net", "root@" + hn, "clean-envelope", False),
+              # Anti-open-relay: abuse@<foreign domain> matches the RFC 2142
+              # allow-list pattern in the recipient map. With DUNNO it must fall
+              # through to reject_unauth_destination and be refused; an unscoped
+              # "OK" there would relay it (open relay), which this catches.
+              ("clean@example.net", "abuse@relay-probe.foreign.example", "open-relay-rfc2142", True),
           ]
           failures = []
           for frm, rcpt, label, expect_reject in cases:

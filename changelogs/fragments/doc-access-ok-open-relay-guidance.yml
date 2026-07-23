@@ -1,0 +1,13 @@
+---
+
+minor_changes:
+  - >
+    ``run`` role - Documented that the ``recipient_access`` / ``sender_access``
+    restriction classes are prepended before ``reject_unauth_destination``, so an
+    ``OK`` action in ``run_postfix_access_recipient_map`` /
+    ``run_postfix_access_sender_map`` accepts the mail immediately and bypasses
+    the relay guard. An unscoped ``OK`` (e.g. ``/^abuse@.+/``) therefore relays to
+    that pattern on any domain (open relay). The examples now use ``DUNNO`` for
+    allow-listing and show a domain-scoped ``OK`` for force-accepting RFC 2142
+    addresses without relaying. No role behaviour changed; the molecule tests now
+    include an anti-open-relay probe.

@@ -167,12 +167,18 @@
         "spammy@evil.example": "REJECT sender is blocked (molecule test)"
       run_postfix_access_recipient_map_tabletype: "pcre"
       run_postfix_access_recipient_map:
-        # Allow-list (whitelist) RFC 2142 address and other common service addresses:
+        # Allow-list RFC 2142 service addresses. DUNNO (not OK) on purpose: these
+        # classes are prepended before reject_unauth_destination, so an unscoped
+        # "OK" would relay to abuse@/postmaster@/hostmaster@ on ANY domain (open
+        # relay). DUNNO keeps them as normal valid destinations. To force-accept
+        # past anti-spam checks without relaying, scope an OK to your own domains
+        # instead (see run_postfix_access_recipient_map docs). The verify stage
+        # asserts abuse@<foreign-domain> is NOT relayed.
         # https://www.rfc-editor.org/rfc/rfc2142#section-2
         # https://www.rfc-editor.org/rfc/rfc2142#section-5
-        "/^abuse@.+/i": "OK"
-        "/^postmaster@.+/i": "OK"
-        "/^hostmaster@.+/i": "OK"
+        "/^abuse@.+/i": "DUNNO"
+        "/^postmaster@.+/i": "DUNNO"
+        "/^hostmaster@.+/i": "DUNNO"
         # Deny-list (blacklist) other addresses
         "/^burned@example.com$/im": "REJECT"
         "/^do-not-reply@example.com$/im": "REJECT" # Prevent Mail-loop because of our run_postfix_canonical_sender_map
