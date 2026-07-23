@@ -48,7 +48,9 @@
         - run_postfix_maincf_settings['relay_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relay_domains'] | ansible.builtin.length > 0
         - (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
-          not in run_postfix_maincf_settings['relay_domains'].split(', ')
+          not in (run_postfix_maincf_settings['relay_domains'].split(', ')
+                  if run_postfix_maincf_settings['relay_domains'] is string
+                  else run_postfix_maincf_settings['relay_domains'])
 
 
     - name: "Config | Default | Relay domains: Set 'relay_domains' config value"
@@ -170,7 +172,9 @@
         - run_postfix_maincf_settings['alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['alias_maps'] | ansible.builtin.length > 0
         - (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path)
-          not in run_postfix_maincf_settings['alias_maps'].split(', ')
+          not in (run_postfix_maincf_settings['alias_maps'].split(', ')
+                  if run_postfix_maincf_settings['alias_maps'] is string
+                  else run_postfix_maincf_settings['alias_maps'])
 
 
     - name: "Config | Default | Lookup-table 'aliases': Set 'alias_maps' setting"
@@ -243,7 +247,9 @@
         - run_postfix_maincf_settings['recipient_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0
         - (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path)
-          not in run_postfix_maincf_settings['recipient_canonical_maps'].split(', ')
+          not in (run_postfix_maincf_settings['recipient_canonical_maps'].split(', ')
+                  if run_postfix_maincf_settings['recipient_canonical_maps'] is string
+                  else run_postfix_maincf_settings['recipient_canonical_maps'])
 
 
     - name: "Config | Default | Lookup-table 'canonical': Set 'recipient_canonical_maps' setting"
@@ -284,7 +290,9 @@
         - run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0
         - (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path)
-          not in run_postfix_maincf_settings['sender_canonical_maps'].split(', ')
+          not in (run_postfix_maincf_settings['sender_canonical_maps'].split(', ')
+                  if run_postfix_maincf_settings['sender_canonical_maps'] is string
+                  else run_postfix_maincf_settings['sender_canonical_maps'])
 
 
     - name: "Config | Default | Lookup-table 'canonical': Set 'sender_canonical_maps' config value"
@@ -340,7 +348,9 @@
         - run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0
         - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in run_postfix_maincf_settings['lmtp_generic_maps'].split(', ')
+          not in (run_postfix_maincf_settings['lmtp_generic_maps'].split(', ')
+                  if run_postfix_maincf_settings['lmtp_generic_maps'] is string
+                  else run_postfix_maincf_settings['lmtp_generic_maps'])
 
 
     - name: "Config | Default | Lookup-table 'generic': Set 'lmtp_generic_maps' setting"
@@ -369,7 +379,9 @@
         - run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0
         - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in run_postfix_maincf_settings['smtp_generic_maps'].split(', ')
+          not in (run_postfix_maincf_settings['smtp_generic_maps'].split(', ')
+                  if run_postfix_maincf_settings['smtp_generic_maps'] is string
+                  else run_postfix_maincf_settings['smtp_generic_maps'])
 
 
     - name: "Config | Default | Lookup-table 'generic': Set 'smtp_generic_maps' setting"
@@ -417,7 +429,9 @@
         - run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relocated_maps'] | ansible.builtin.length > 0
         - (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path)
-          not in run_postfix_maincf_settings['relocated_maps'].split(', ')
+          not in (run_postfix_maincf_settings['relocated_maps'].split(', ')
+                  if run_postfix_maincf_settings['relocated_maps'] is string
+                  else run_postfix_maincf_settings['relocated_maps'])
 
 
     - name: "Config | Default | Lookup-table 'relocated': Set 'relocated_maps' setting"
@@ -465,7 +479,9 @@
         - run_postfix_maincf_settings['transport_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['transport_maps'] | ansible.builtin.length > 0
         - (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path)
-          not in run_postfix_maincf_settings['transport_maps'].split(', ')
+          not in (run_postfix_maincf_settings['transport_maps'].split(', ')
+                  if run_postfix_maincf_settings['transport_maps'] is string
+                  else run_postfix_maincf_settings['transport_maps'])
 
 
     - name: "Config | Default | Lookup-table 'transport': Set 'transport_maps' setting"
@@ -512,7 +528,9 @@
         - run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0
         - (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path)
-          not in run_postfix_maincf_settings['virtual_alias_maps'].split(', ')
+          not in (run_postfix_maincf_settings['virtual_alias_maps'].split(', ')
+                  if run_postfix_maincf_settings['virtual_alias_maps'] is string
+                  else run_postfix_maincf_settings['virtual_alias_maps'])
 
 
     - name: "Config | Default | Lookup-table 'virtual': Set 'virtual_alias_maps' setting"
@@ -554,7 +572,9 @@
         - run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_domains'] | ansible.builtin.length > 0
         - (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path)
-          not in run_postfix_maincf_settings['virtual_alias_domains'].split(', ')
+          not in (run_postfix_maincf_settings['virtual_alias_domains'].split(', ')
+                  if run_postfix_maincf_settings['virtual_alias_domains'] is string
+                  else run_postfix_maincf_settings['virtual_alias_domains'])
 
 
     - name: "Config | Default | Lookup-table 'virtual': Set 'virtual_alias_domains' config value"
@@ -599,7 +619,9 @@
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0
         - (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path)
-          not in run_postfix_maincf_settings['smtp_sasl_password_maps'].split(', ')
+          not in (run_postfix_maincf_settings['smtp_sasl_password_maps'].split(', ')
+                  if run_postfix_maincf_settings['smtp_sasl_password_maps'] is string
+                  else run_postfix_maincf_settings['smtp_sasl_password_maps'])
 
 
     - name: "Config | Default | SMTP SASL password credentials: Set 'smtp_sasl_password_maps' setting"

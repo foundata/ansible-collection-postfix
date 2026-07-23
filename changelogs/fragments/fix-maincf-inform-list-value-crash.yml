@@ -1,0 +1,10 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The "...config value will be overwritten" notices called
+    ``.split(', ')`` directly on the raw ``run_postfix_maincf_settings`` value.
+    When such a value was supplied as a YAML list (which the documentation
+    explicitly allows), the task failed with "'list object' has no attribute
+    'split'". The membership check now only splits string values and uses list
+    values as-is.

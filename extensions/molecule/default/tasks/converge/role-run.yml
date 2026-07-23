@@ -56,6 +56,13 @@
       run_postfix_maincf_settings:
         myhostname: "smtp.example.com"
         mydomain: "example.com"
+        # Supplied as a YAML list (explicitly allowed by the docs) to exercise the
+        # "Inform ... will be overwritten" when: clauses, which previously crashed
+        # on a list value via .split(', '). The value is otherwise overwritten by
+        # the relay_domains management task, so it only drives the notice.
+        relay_domains:
+          - "list-form.example.org"
+          - "list-form.example.net"
         smtp_tls_security_level: "may"
         smtpd_tls_security_level: "may"
         smtp_tls_note_starttls_offer: "yes"
