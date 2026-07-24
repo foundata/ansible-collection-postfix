@@ -31,7 +31,57 @@ It provides resources to manage and use the [Postfix](https://www.postfix.org/) 
 
 ### Role: `foundata.postfix.run`
 
-The primary resource in this collection to configure and maintain Postfix, including core service, mail routing, domains, relays, TLS, and related settings. See the [role's `README.md`](./roles/run/README.md) for more information and usage examples.
+The primary role in this collection to configure and maintain Postfix, including core service, mail routing, domains, relays, TLS, and related settings. [Its `README.md`](./roles/run/README.md) covers configuration, usage examples, and more:
+
+<!-- ANSIBLE DOCSMITH TOC-FULL run START -->
+- [Ansible role: `foundata.postfix.run`](roles/run/README.md#ansible-role-foundatapostfixrun)
+  - [Table of contents](roles/run/README.md#toc)
+  - [Features](roles/run/README.md#features)
+  - [Example playbooks, using this role](roles/run/README.md#examples)
+  - [Supported tags](roles/run/README.md#tags)
+  - [Role variables](roles/run/README.md#variables)
+    - [`run_postfix_state`](roles/run/README.md#variable-run_postfix_state)
+    - [`run_postfix_autoupgrade`](roles/run/README.md#variable-run_postfix_autoupgrade)
+    - [`run_postfix_service_state`](roles/run/README.md#variable-run_postfix_service_state)
+    - [`run_postfix_maincf_settings`](roles/run/README.md#variable-run_postfix_maincf_settings)
+    - [`run_postfix_mastercf_settings`](roles/run/README.md#variable-run_postfix_mastercf_settings)
+    - [`run_postfix_relay_domains_manage`](roles/run/README.md#variable-run_postfix_relay_domains_manage)
+    - [`run_postfix_relay_domains_list_tabletype`](roles/run/README.md#variable-run_postfix_relay_domains_list_tabletype)
+    - [`run_postfix_relay_domains_list`](roles/run/README.md#variable-run_postfix_relay_domains_list)
+    - [`run_postfix_access_manage`](roles/run/README.md#variable-run_postfix_access_manage)
+    - [`run_postfix_access_recipient_map_tabletype`](roles/run/README.md#variable-run_postfix_access_recipient_map_tabletype)
+    - [`run_postfix_access_recipient_map`](roles/run/README.md#variable-run_postfix_access_recipient_map)
+    - [`run_postfix_access_sender_map_tabletype`](roles/run/README.md#variable-run_postfix_access_sender_map_tabletype)
+    - [`run_postfix_access_sender_map`](roles/run/README.md#variable-run_postfix_access_sender_map)
+    - [`run_postfix_aliases_manage`](roles/run/README.md#variable-run_postfix_aliases_manage)
+    - [`run_postfix_aliases_map_tabletype`](roles/run/README.md#variable-run_postfix_aliases_map_tabletype)
+    - [`run_postfix_aliases_map`](roles/run/README.md#variable-run_postfix_aliases_map)
+    - [`run_postfix_canonical_manage`](roles/run/README.md#variable-run_postfix_canonical_manage)
+    - [`run_postfix_canonical_recipient_map_tabletype`](roles/run/README.md#variable-run_postfix_canonical_recipient_map_tabletype)
+    - [`run_postfix_canonical_recipient_map`](roles/run/README.md#variable-run_postfix_canonical_recipient_map)
+    - [`run_postfix_canonical_sender_map_tabletype`](roles/run/README.md#variable-run_postfix_canonical_sender_map_tabletype)
+    - [`run_postfix_canonical_sender_map`](roles/run/README.md#variable-run_postfix_canonical_sender_map)
+    - [`run_postfix_generic_manage`](roles/run/README.md#variable-run_postfix_generic_manage)
+    - [`run_postfix_generic_map_tabletype`](roles/run/README.md#variable-run_postfix_generic_map_tabletype)
+    - [`run_postfix_generic_map`](roles/run/README.md#variable-run_postfix_generic_map)
+    - [`run_postfix_relocated_manage`](roles/run/README.md#variable-run_postfix_relocated_manage)
+    - [`run_postfix_relocated_map_tabletype`](roles/run/README.md#variable-run_postfix_relocated_map_tabletype)
+    - [`run_postfix_relocated_map`](roles/run/README.md#variable-run_postfix_relocated_map)
+    - [`run_postfix_transport_manage`](roles/run/README.md#variable-run_postfix_transport_manage)
+    - [`run_postfix_transport_map_tabletype`](roles/run/README.md#variable-run_postfix_transport_map_tabletype)
+    - [`run_postfix_transport_map`](roles/run/README.md#variable-run_postfix_transport_map)
+    - [`run_postfix_virtual_manage`](roles/run/README.md#variable-run_postfix_virtual_manage)
+    - [`run_postfix_virtual_aliasdomains_list_tabletype`](roles/run/README.md#variable-run_postfix_virtual_aliasdomains_list_tabletype)
+    - [`run_postfix_virtual_aliasdomains_list`](roles/run/README.md#variable-run_postfix_virtual_aliasdomains_list)
+    - [`run_postfix_virtual_alias_map_tabletype`](roles/run/README.md#variable-run_postfix_virtual_alias_map_tabletype)
+    - [`run_postfix_virtual_alias_map`](roles/run/README.md#variable-run_postfix_virtual_alias_map)
+    - [`run_postfix_smtp_sasl_password_manage`](roles/run/README.md#variable-run_postfix_smtp_sasl_password_manage)
+    - [`run_postfix_smtp_sasl_password_map_tabletype`](roles/run/README.md#variable-run_postfix_smtp_sasl_password_map_tabletype)
+    - [`run_postfix_smtp_sasl_password_map`](roles/run/README.md#variable-run_postfix_smtp_sasl_password_map)
+  - [Dependencies](roles/run/README.md#dependencies)
+  - [Compatibility](roles/run/README.md#compatibility)
+  - [External requirements](roles/run/README.md#requirements)
+<!-- ANSIBLE DOCSMITH TOC-FULL run END -->
 
 
 
