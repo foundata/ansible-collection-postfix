@@ -568,6 +568,16 @@ __run_postfix_table_aliases_file_owner: "root"
 __run_postfix_table_aliases_file_group: "root"
 __run_postfix_table_aliases_file_mode: "u=rw,g=r,o=r" # 0644
 
+# Prefix used to disable pre-existing entries in the aliases file that would
+# otherwise conflict with the Ansible managed block.
+#
+# /etc/aliases is a system file shared with any other local MTA, so the role
+# must be able to tell its own edits apart from the administrator's. A plain "#"
+# could not be distinguished from an entry the administrator disabled on
+# purpose, and restoring it on uninstall would silently re-enable an alias that
+# was meant to stay off. Only lines carrying this marker are restored again.
+__run_postfix_table_aliases_disabled_marker: "#ANSIBLE_DISABLED "
+
 __run_postfix_table_canonical_recipient_file_path: "/etc/postfix/canonical_recipient"
 __run_postfix_table_canonical_recipient_file_owner: "root"
 __run_postfix_table_canonical_recipient_file_group: "root"

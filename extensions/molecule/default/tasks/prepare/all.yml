@@ -314,3 +314,26 @@
     group: "sasl"
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
+
+
+## Fixtures for the aliases handling of the foundata.postfix.run role.
+#
+# /etc/aliases is a system file, so the role must only ever revert its own edits
+# to it. Two entries are seeded here, both listed in run_postfix_aliases_map
+# during the converge so the role considers them:
+#
+# - molecule_predisabled: already disabled by the "administrator". The role must
+#   not touch it and the uninstall must not resurrect it.
+# - molecule_preexisting: active, so the role disables it (with its marker) and
+#   the uninstall has to restore it byte for byte.
+- name: "Molecule | Prepare | Seed pre-existing entries in the aliases file"
+  ansible.builtin.blockinfile:
+    path: "/etc/aliases"
+    create: true
+    marker: "# {mark} MOLECULE ALIASES FIXTURE"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r" # 0644
+    block: |
+      #molecule_predisabled: root
+      molecule_preexisting: root

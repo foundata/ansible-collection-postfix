@@ -225,7 +225,9 @@
         # (e.g. "new.name" or "user+tag"), which would otherwise match unrelated
         # lines and miss the intended one.
         regexp: '^({{ item | ansible.builtin.regex_escape }}:\s*.*)'
-        replace: '#\1'
+        # The marker records that this role disabled the entry, so the uninstall
+        # can restore it without touching entries the administrator disabled.
+        replace: '{{ __run_postfix_table_aliases_disabled_marker }}\1'
         before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
       loop: "{{ __run_postfix_effective_aliases_map.keys() | ansible.builtin.list }}"
       notify:

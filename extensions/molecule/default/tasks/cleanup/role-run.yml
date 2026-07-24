@@ -46,3 +46,27 @@
          | ansible.builtin.map(attribute='invocation.module_args.path')
          | ansible.builtin.join(', ') }}
     success_msg: "No role-created lookup table files remain after run_postfix_state=absent"
+
+
+- name: "Molecule | Cleanup | Read the aliases file after the uninstall"
+  ansible.builtin.slurp:
+    src: "/etc/aliases"
+  register: __testing_aliases_after_uninstall
+
+
+- name: "Molecule | Cleanup | Check the aliases file was reverted without touching foreign entries"
+  ansible.builtin.assert:
+    that:
+      # the entry the role disabled is active again, marker gone
+      - "'molecule_preexisting: root' in __testing_aliases_decoded"
+      - "__run_postfix_table_aliases_disabled_marker not in __testing_aliases_decoded"
+      # the entry the administrator disabled is still disabled, untouched
+      - "'#molecule_predisabled: root' in __testing_aliases_decoded"
+      # the managed block is gone
+      - "'ANSIBLE MANAGED BLOCK' not in __testing_aliases_decoded"
+    fail_msg: >-
+      The aliases file was not reverted correctly after run_postfix_state=absent:
+      {{ __testing_aliases_decoded }}
+    success_msg: "Aliases file reverted: role-disabled entry restored, administrator-disabled entry untouched, managed block removed"
+  vars:
+    __testing_aliases_decoded: "{{ __testing_aliases_after_uninstall['content'] | ansible.builtin.b64decode }}"

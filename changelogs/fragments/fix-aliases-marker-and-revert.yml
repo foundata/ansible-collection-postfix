@@ -1,0 +1,21 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - Pre-existing entries in ``/etc/aliases`` that conflict with
+    the managed block are now disabled with an ``#ANSIBLE_DISABLED`` marker
+    instead of a plain ``#``, and ``run_postfix_state: absent`` restores them and
+    removes the managed block again. Previously the uninstall left the file as
+    the role had rewritten it, so aliases the role had commented out stayed
+    disabled. The marker is what makes the restore safe: a plain ``#`` cannot be
+    told apart from an entry the administrator disabled on purpose, so restoring
+    those would silently re-enable them. ``/etc/aliases`` itself is never
+    removed, it is a system file shared with any other local MTA.
+
+known_issues:
+  - >
+    ``run`` role - Aliases entries that an earlier version of this role disabled
+    carry a plain ``#`` instead of the ``#ANSIBLE_DISABLED`` marker and can
+    therefore not be told apart from entries disabled by the administrator. They
+    are left untouched by ``run_postfix_state: absent`` and have to be re-enabled
+    manually if wanted.

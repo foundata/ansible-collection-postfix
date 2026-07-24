@@ -184,6 +184,11 @@
         "/^do-not-reply@example.com$/im": "REJECT" # Prevent Mail-loop because of our run_postfix_canonical_sender_map
       run_postfix_aliases_manage: true
       run_postfix_aliases_map:
+        # Both are seeded into /etc/aliases by the prepare stage: one already
+        # disabled by the "administrator", one still active. See the aliases
+        # assertions in the verify and cleanup stages.
+        molecule_predisabled: "root"
+        molecule_preexisting: "root"
         abuse: "root"
         baz: "/dev/null"
         molecule: "root" # Alias will be tested for delivery to root during verify stage

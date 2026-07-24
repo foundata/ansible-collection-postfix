@@ -21,6 +21,25 @@
     label: "{{ item[0] }}{{ item[1] }}"
 
 
+# /etc/aliases itself is a system file shared with any other local MTA, so it is
+# not removed. Only what this role added to it is reverted: first the entries it
+# disabled (identified by the marker, never a "#" the administrator put there),
+# then its managed block. Restoring before removing the block keeps the file
+# usable at every point in between.
+- name: "Setup | Uninstall | Restore the aliases entries this role disabled"
+  ansible.builtin.replace:
+    path: "{{ __run_postfix_table_aliases_file_path }}"
+    regexp: '^{{ __run_postfix_table_aliases_disabled_marker | ansible.builtin.regex_escape }}(.*)$'
+    replace: '\1'
+
+
+- name: "Setup | Uninstall | Remove the managed block from the aliases file"
+  ansible.builtin.blockinfile:
+    path: "{{ __run_postfix_table_aliases_file_path }}"
+    marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
+    state: "absent"
+
+
 - name: "Setup | Uninstall | Remove packages"
   ansible.builtin.package:
     name: "{{ __run_postfix_packages_uninstall }}"

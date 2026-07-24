@@ -308,6 +308,22 @@
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_aliases_file_path }}"
 
 
+    # /etc/aliases is a system file: the role may only disable entries it manages,
+    # and must mark them so the uninstall can tell them from the administrator's.
+    - name: "Molecule | Verify | Assert pre-existing aliases entries were handled correctly"
+      ansible.builtin.assert:
+        that:
+          # active entry -> disabled, carrying the role marker
+          - "(__run_postfix_table_aliases_disabled_marker ~ 'molecule_preexisting: root') in __testing_aliases_decoded"
+          # entry the administrator had disabled -> left exactly as it was
+          - "'#molecule_predisabled: root' in __testing_aliases_decoded"
+          - "(__run_postfix_table_aliases_disabled_marker ~ 'molecule_predisabled') not in __testing_aliases_decoded"
+        fail_msg: "Pre-existing aliases entries were not handled as expected"
+        success_msg: "Pre-existing aliases entries disabled with the marker, administrator-disabled entry untouched"
+      vars:
+        __testing_aliases_decoded: "{{ __testing_aliases_file['content'] | ansible.builtin.b64decode }}"
+
+
     - name: "Molecule | Verify | Check if aliases database file exists / handler worked"
       ansible.builtin.stat:
         path: |-
