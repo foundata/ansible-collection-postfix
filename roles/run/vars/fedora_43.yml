@@ -1,8 +1,0 @@
-# Internal role variables specific to: Fedora 43 (distribution)
-#
-# Only values specific to the platform and its functionality should be included
-# here. Variables in this file override those defined in vars/main.yml.
-
----
-
-__run_postfix_postconf_exec_path: "/usr/bin/postconf"
