@@ -1,0 +1,14 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - ``run_postfix_state: absent`` only removed the packages and
+    left every lookup table file the role had created on disk, contradicting the
+    documented "reverts changes as much as possible". The uninstall now removes
+    the files it created (``relay_domains``, ``access_recipient``,
+    ``access_sender``, ``canonical_recipient``, ``canonical_sender``,
+    ``generic``, ``relocated``, ``transport``, ``virtual``, ``virtual_domains``
+    and ``smtp_sasl_password``) together with any compiled database built from
+    them. ``main.cf``, ``master.cf``, ``/etc/aliases`` and ``/etc/mailname`` are
+    left untouched: the role only edits those in place and they belong to the
+    package or the system.

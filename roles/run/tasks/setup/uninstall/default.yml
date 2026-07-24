@@ -3,21 +3,22 @@
 ---
 
 # Done before the packages are removed so the paths are still the ones this role
-# managed. The file holds relay credentials in clear text, so leaving it (and its
-# compiled database) behind would keep secrets on a host the role was told to
-# revert. All known database suffixes are covered because the table type may have
-# changed since the file was written.
-- name: "Setup | Uninstall | Remove the SMTP SASL password file and its compiled databases"
+# managed. Leaving these behind would contradict "revert as much as possible",
+# and the SMTP SASL password file additionally holds relay credentials in clear
+# text. See __run_postfix_uninstall_file_paths in vars/main.yml for what is
+# covered and which files are deliberately left alone.
+- name: "Setup | Uninstall | Remove the lookup table files created by this role and their compiled databases"
   ansible.builtin.file:
-    path: "{{ __run_postfix_smtpsaslpasswordmap_file_path }}{{ item }}"
+    path: "{{ item[0] }}{{ item[1] }}"
     state: "absent"
-  loop:
-    - "" # the clear text source file
-    - ".db" # hash, btree
-    - ".dir" # dbm, sdbm
-    - ".pag" # dbm, sdbm
-    - ".lmdb" # lmdb
-    - ".cdb" # cdb
+  loop: >-
+    {{
+      __run_postfix_uninstall_file_paths
+      | ansible.builtin.product(__run_postfix_uninstall_file_suffixes)
+      | ansible.builtin.list
+    }}
+  loop_control:
+    label: "{{ item[0] }}{{ item[1] }}"
 
 
 - name: "Setup | Uninstall | Remove packages"

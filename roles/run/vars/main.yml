@@ -609,6 +609,43 @@ __run_postfix_table_virtual_aliasdomains_file_group: "root"
 __run_postfix_table_virtual_aliasdomains_file_mode: "u=rw,g=r,o=r" # 0644
 
 
+# Lookup table files created by this role, removed again when run_postfix_state
+# is "absent" so the role reverts what it added.
+#
+# Deliberately excluded are files the role only edits in place instead of
+# creating, because they belong to the package or the system and other software
+# may rely on them:
+#
+# - main.cf and master.cf (shipped by the Postfix package, changed via postconf)
+# - /etc/aliases (a system file used by any local MTA; the role only maintains a
+#   marked block inside it)
+# - /etc/mailname (a Debian system file, also maintained by the package debconf)
+__run_postfix_uninstall_file_paths:
+  - "{{ __run_postfix_relaydomains_file_path }}"
+  - "{{ __run_postfix_table_access_recipient_file_path }}"
+  - "{{ __run_postfix_table_access_sender_file_path }}"
+  - "{{ __run_postfix_table_canonical_recipient_file_path }}"
+  - "{{ __run_postfix_table_canonical_sender_file_path }}"
+  - "{{ __run_postfix_table_generic_file_path }}"
+  - "{{ __run_postfix_table_relocated_file_path }}"
+  - "{{ __run_postfix_table_transport_file_path }}"
+  - "{{ __run_postfix_table_virtual_file_path }}"
+  - "{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
+  - "{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
+
+
+# Suffixes of the compiled databases "postmap" may have created next to a lookup
+# table file. All of them are covered on removal because the configured table
+# type may have changed since a file was last written.
+__run_postfix_uninstall_file_suffixes:
+  - "" # the source file itself
+  - ".db" # hash, btree
+  - ".dir" # dbm, sdbm
+  - ".pag" # dbm, sdbm
+  - ".lmdb" # lmdb
+  - ".cdb" # cdb
+
+
 # Daemon service name and paths of executables for management and validation.
 __run_postfix_postfix_servicename: "postfix.service"
 __run_postfix_postfix_exec_path: "/usr/sbin/postfix"

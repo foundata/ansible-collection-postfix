@@ -7,34 +7,42 @@
     run_postfix_state: "absent"
 
 
-# The converge writes relay credentials to this file, so "absent" has to take
-# them (and any compiled database built from them) off the host again.
-- name: "Molecule | Cleanup | Stat the SMTP SASL password file and its compiled databases"
+# "absent" has to take the lookup table files this role created (and any compiled
+# database built from them) off the host again; the SMTP SASL password file
+# additionally holds relay credentials.
+- name: "Molecule | Cleanup | Initialize the foundata.postfix.run role (without running it; expose internal variables)"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+    tasks_from: "init"
+    public: true
+
+
+- name: "Molecule | Cleanup | Stat the lookup table files the role created"
   ansible.builtin.stat:
-    path: "/etc/postfix/smtp_sasl_password{{ item }}"
+    path: "{{ item[0] }}{{ item[1] }}"
     get_attributes: false
     get_checksum: false
-  register: __testing_saslpw_leftovers
-  loop:
-    - ""
-    - ".db"
-    - ".dir"
-    - ".pag"
-    - ".lmdb"
-    - ".cdb"
+  register: __testing_uninstall_leftovers
+  loop: >-
+    {{
+      __run_postfix_uninstall_file_paths
+      | ansible.builtin.product(__run_postfix_uninstall_file_suffixes)
+      | ansible.builtin.list
+    }}
+  loop_control:
+    label: "{{ item[0] }}{{ item[1] }}"
 
 
-- name: "Molecule | Cleanup | Check no SMTP SASL credentials are left behind"
+- name: "Molecule | Cleanup | Check no role-created lookup table files are left behind"
   ansible.builtin.assert:
     that:
-      - (__testing_saslpw_leftovers['results']
+      - (__testing_uninstall_leftovers['results']
          | ansible.builtin.selectattr('stat.exists')
          | ansible.builtin.list | ansible.builtin.length) == 0
     fail_msg: >-
-      run_postfix_state=absent left credential file(s) on the host:
-      {{ __testing_saslpw_leftovers['results']
+      run_postfix_state=absent left role-created file(s) on the host:
+      {{ __testing_uninstall_leftovers['results']
          | ansible.builtin.selectattr('stat.exists')
-         | ansible.builtin.map(attribute='item')
-         | ansible.builtin.map('regex_replace', '^', '/etc/postfix/smtp_sasl_password')
+         | ansible.builtin.map(attribute='invocation.module_args.path')
          | ansible.builtin.join(', ') }}
-    success_msg: "No SMTP SASL credential files remain after run_postfix_state=absent"
+    success_msg: "No role-created lookup table files remain after run_postfix_state=absent"
