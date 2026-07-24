@@ -327,6 +327,20 @@ __run_postfix_maincf_settings_defaults:
 # run_postfix_mastercf_settings (see the example in defaults/main.yml, which
 # shows the required per-service "-o" overrides).
 #
+# Fields every master.cf service definition has to provide (see master(5)).
+# The "Update master.cf" task builds the postconf argument from all of them, so
+# a service missing one would otherwise abort with a raw templating error that
+# does not name the offending service.
+__run_postfix_mastercf_service_fields:
+  - "type"
+  - "private"
+  - "unpriv"
+  - "chroot"
+  - "wakeup"
+  - "maxproc"
+  - "command_args"
+
+
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_mastercf_settings_defaults:

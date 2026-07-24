@@ -221,7 +221,10 @@
     - name: "Config | Default | Lookup-table 'aliases': Comment out existing aliases before Ansible managed block"
       ansible.builtin.replace:
         path: "{{ __run_postfix_table_aliases_file_path }}"
-        regexp: '^({{ item }}:\s*.*)'
+        # regex_escape: alias names may contain regular expression metacharacters
+        # (e.g. "new.name" or "user+tag"), which would otherwise match unrelated
+        # lines and miss the intended one.
+        regexp: '^({{ item | ansible.builtin.regex_escape }}:\s*.*)'
         replace: '#\1'
         before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
       loop: "{{ __run_postfix_effective_aliases_map.keys() | ansible.builtin.list }}"
@@ -766,6 +769,27 @@
 #   warnings.
 #
 # - The shipped master.cf on platforms vary a lot.
+- name: "Config | Default | Check master.cf service definitions are complete and fail if unmet"
+  ansible.builtin.assert:
+    that:
+      - (__run_postfix_mastercf_service_fields
+         | ansible.builtin.difference(__run_postfix_mastercf_service['value'] | ansible.builtin.list)
+         | ansible.builtin.length) == 0
+    fail_msg: >-
+      The master.cf service "{{ __run_postfix_mastercf_service['key'] }}" is missing the
+      field(s): {{ __run_postfix_mastercf_service_fields
+                   | ansible.builtin.difference(__run_postfix_mastercf_service['value'] | ansible.builtin.list)
+                   | ansible.builtin.join(', ') }}.
+      Every service in run_postfix_mastercf_settings needs all of:
+      {{ __run_postfix_mastercf_service_fields | ansible.builtin.join(', ') }}.
+      See the master(5) manual page for their meaning.
+    quiet: true
+  loop: "{{ __run_postfix_effective_mastercf_settings | ansible.builtin.dict2items }}"
+  loop_control:
+    loop_var: "__run_postfix_mastercf_service"
+    label: "{{ __run_postfix_mastercf_service['key'] }}"
+
+
 - name: "Config | Default | Update master.cf"
   # The command or shell module is used here. This approach is justified:
   #
@@ -788,10 +812,16 @@
       set -u # Fail on unset vars
       set -o pipefail # Fail if any pipe cmd fails
 
-      # Ensure file existence
+      # Ensure file existence. Every supported platform ships a complete
+      # master.cf with the internal services Postfix needs to deliver mail
+      # (pickup, cleanup, qmgr, local, ...). Creating an empty one here and then
+      # adding only the managed services would leave a Postfix that cannot
+      # deliver at all, so fail loudly instead of papering over it.
       if ! [ -f {{ __run_postfix_mastercf_file_path | ansible.builtin.quote }} ]
       then
-        {{ __run_postfix_touch_exec_path }} {{ __run_postfix_mastercf_file_path | ansible.builtin.quote }}
+        printf 'ERROR: %s is missing. It ships with the Postfix package and holds the services Postfix needs; reinstall the package.\n' \
+          {{ __run_postfix_mastercf_file_path | ansible.builtin.quote }} >&2
+        exit 1
       fi
 
       # Ensure file ownership

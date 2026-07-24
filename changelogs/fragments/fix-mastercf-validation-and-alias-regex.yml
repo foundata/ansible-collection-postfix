@@ -1,0 +1,24 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - Alias names were interpolated unescaped into the regular
+    expression that comments out pre-existing entries in the aliases file, so
+    metacharacters were interpreted: an alias such as ``new.name`` also commented
+    out unrelated entries like ``new-name``, and one such as ``user+tag`` matched
+    ``usertag`` while missing the intended line. The alias is now passed through
+    ``regex_escape``.
+
+minor_changes:
+  - >
+    ``run`` role - ``run_postfix_mastercf_settings`` service definitions are now
+    validated before ``master.cf`` is written. A service missing one of the
+    required fields (``type``, ``private``, ``unpriv``, ``chroot``, ``wakeup``,
+    ``maxproc``, ``command_args``) previously aborted with a raw templating error
+    that did not name the offending service; the role now reports the service and
+    the missing fields.
+  - >
+    ``run`` role - The ``master.cf`` update no longer creates an empty file when
+    ``/etc/postfix/master.cf`` is missing. Doing so produced a Postfix with only
+    the role-managed services and none of the internal ones needed to deliver
+    mail. The task now fails with a message pointing at the Postfix package.
