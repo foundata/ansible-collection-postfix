@@ -5,3 +5,36 @@
     name: "foundata.postfix.run"
   vars:
     run_postfix_state: "absent"
+
+
+# The converge writes relay credentials to this file, so "absent" has to take
+# them (and any compiled database built from them) off the host again.
+- name: "Molecule | Cleanup | Stat the SMTP SASL password file and its compiled databases"
+  ansible.builtin.stat:
+    path: "/etc/postfix/smtp_sasl_password{{ item }}"
+    get_attributes: false
+    get_checksum: false
+  register: __testing_saslpw_leftovers
+  loop:
+    - ""
+    - ".db"
+    - ".dir"
+    - ".pag"
+    - ".lmdb"
+    - ".cdb"
+
+
+- name: "Molecule | Cleanup | Check no SMTP SASL credentials are left behind"
+  ansible.builtin.assert:
+    that:
+      - (__testing_saslpw_leftovers['results']
+         | ansible.builtin.selectattr('stat.exists')
+         | ansible.builtin.list | ansible.builtin.length) == 0
+    fail_msg: >-
+      run_postfix_state=absent left credential file(s) on the host:
+      {{ __testing_saslpw_leftovers['results']
+         | ansible.builtin.selectattr('stat.exists')
+         | ansible.builtin.map(attribute='item')
+         | ansible.builtin.map('regex_replace', '^', '/etc/postfix/smtp_sasl_password')
+         | ansible.builtin.join(', ') }}
+    success_msg: "No SMTP SASL credential files remain after run_postfix_state=absent"

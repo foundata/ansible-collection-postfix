@@ -168,7 +168,18 @@
     - "__run_postfix_effective_transport_map"
     - "__run_postfix_effective_virtual_alias_domains"
     - "__run_postfix_effective_virtual_alias_map"
-    - "__run_postfix_effective_smtp_sasl_password_map"
+    # __run_postfix_effective_smtp_sasl_password_map is deliberately NOT listed
+    # here: its values are relay credentials. Only its keys are shown below.
   loop_control:
     loop_var: "__run_postfix_effective_var"
     label: "{{ __run_postfix_effective_var }}"
+
+
+# Values are relay credentials, so only the lookup keys (the relay hosts) are
+# shown. Use "postmap -q <host> <table>" on the target to inspect a single entry.
+- name: "Init | Show effective SMTP SASL password map entries (keys only, values are credentials)"
+  ansible.builtin.debug:
+    msg: >-
+      __run_postfix_effective_smtp_sasl_password_map keys =
+      {{ __run_postfix_effective_smtp_sasl_password_map.keys() | ansible.builtin.list }}
+    verbosity: 3

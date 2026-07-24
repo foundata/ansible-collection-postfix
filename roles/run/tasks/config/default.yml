@@ -649,6 +649,8 @@
         owner: "{{ __run_postfix_smtpsaslpasswordmap_file_owner }}"
         group: "{{ __run_postfix_smtpsaslpasswordmap_file_group }}"
         mode: "{{ __run_postfix_smtpsaslpasswordmap_file_mode }}"
+      # The rendered file contains the relay credentials
+      no_log: true
       notify:
         - "run_postfix: update lookup tables"
 

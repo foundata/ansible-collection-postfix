@@ -1227,4 +1227,5 @@ argument_specs:
 
           will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
         type: "dict"
+        no_log: true # contains credentials, keep them out of Ansible output and logs
         default: {} # see __run_postfix_smtp_sasl_password_map_defaults in vars/main.yml for the defaults
