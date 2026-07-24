@@ -1,0 +1,12 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The optimization that skips re-gathering facts in
+    ``tasks/init.yml`` never triggered. ``__run_postfix_used_facts`` was a flat
+    list used both as the ``setup`` module's ``gather_subset`` and as a presence
+    check against ``ansible_facts.keys()``. It contained the gather_subset name
+    ``platform``, which is never a key in ``ansible_facts`` (that subset yields
+    ``hostname``, ``fqdn``, …), so the check was always false and ``setup`` ran on
+    every invocation. The variable is now a mapping of gather_subset name to the
+    ``ansible_facts`` keys it provides, so each side gets the data it needs.
