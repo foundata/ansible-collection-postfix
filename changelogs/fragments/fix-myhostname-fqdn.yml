@@ -1,0 +1,14 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The default for the ``myhostname`` main.cf setting used
+    ``ansible_facts['hostname']``, which Ansible deliberately truncates at the
+    first dot, so on a host such as ``mail.example.com`` Postfix was configured
+    with the short name ``mail``. Postfix announces ``myhostname`` as the
+    EHLO/HELO name, so remote MTAs using ``reject_non_fqdn_helo_hostname``
+    rejected the mail; the value also seeds ``/etc/mailname`` and the Debian
+    debconf ``mailname``, and Postfix derives ``$mydomain`` from it. The default
+    now uses ``ansible_facts['fqdn']``. Hosts without a resolvable domain still
+    yield a short name, in which case ``myhostname`` should be set explicitly
+    via ``run_postfix_maincf_settings``.

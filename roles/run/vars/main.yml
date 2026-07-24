@@ -24,7 +24,7 @@ __run_postfix_used_facts:
     - "os_family"
   # Provides the myhostname default in __run_postfix_maincf_settings_defaults.
   platform:
-    - "hostname"
+    - "fqdn"
 
 
 # List of platforms this role supports and was designed for.
@@ -161,7 +161,14 @@ __run_postfix_paths_neutralize: {}
 # description of the structure (as this variable is using the same).
 __run_postfix_maincf_settings_defaults:
   compatibility_level: 3.9 # config was designed for Postfix 3.9, keep its default behavior and log differences (if any) for newer versions
-  myhostname: "{{ ansible_facts['hostname'] | ansible.builtin.default(inventory_hostname) }}"
+  # Must be fully qualified: it is announced as the EHLO/HELO name, so remote
+  # MTAs using reject_non_fqdn_helo_hostname refuse mail from a short name. It
+  # also seeds /etc/mailname and the Debian debconf mailname, and Postfix
+  # derives $mydomain from it. ansible_facts['hostname'] is deliberately
+  # truncated at the first dot by Ansible, so use the FQDN fact instead. Hosts
+  # without a resolvable domain still yield a short name here; set myhostname
+  # explicitly via run_postfix_maincf_settings in that case.
+  myhostname: "{{ ansible_facts['fqdn'] | ansible.builtin.default(inventory_hostname) }}"
   mynetworks:
     - "127.0.0.0/8"
     - "[::ffff:127.0.0.0]/104"
