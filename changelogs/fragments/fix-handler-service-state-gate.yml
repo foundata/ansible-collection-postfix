@@ -1,0 +1,10 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The service restart and reload handlers were gated only on
+    ``run_postfix_service_state != 'unmanaged'``. With ``run_postfix_service_state: "disabled"`` a
+    configuration change still notified them and, because handlers run after the
+    service management tasks, the restart started the just-stopped unit again (and the reload failed on the inactive unit),
+    leaving a running service although the declared state is stopped. The
+    handlers are now gated on ``run_postfix_service_state in ['enabled', 'running']``.

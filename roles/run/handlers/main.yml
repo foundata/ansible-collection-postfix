@@ -76,7 +76,7 @@
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "restarted"
   when:
-    - run_postfix_service_state != 'unmanaged'
+    - run_postfix_service_state in ['enabled', 'running']
   listen:
     - "run_postfix: restart postfix.service"
 
@@ -86,6 +86,6 @@
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "reloaded"
   when:
-    - run_postfix_service_state != 'unmanaged'
+    - run_postfix_service_state in ['enabled', 'running']
   listen:
     - "run_postfix: reload postfix.service"
