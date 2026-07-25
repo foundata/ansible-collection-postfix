@@ -236,7 +236,7 @@ The following variables can be configured for this role:
 | `run_postfix_virtual_alias_map` | `dict` | No | `{}` | Virtual alias mappings for Postfix. This defines email forwarding rules in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe the virtual address(es) Attention: Do not forget to list handled domains in […](#variable-run_postfix_virtual_alias_map) |
 | `run_postfix_smtp_sasl_password_manage` | `bool` | No | `false` | Switch to control whether SMTP SASL password credentials are controlled by dedicated settings and tasks of this role.<br><br>They are used to authenticate Postfix when sending emails through a relay server that requires authentication: - […](#variable-run_postfix_smtp_sasl_password_manage) |
 | `run_postfix_smtp_sasl_password_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_smtp_sasl_password_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_smtp_sasl_password_map_tabletype) |
-| `run_postfix_smtp_sasl_password_map` | `dict` | No | `{}` | SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP server (and optionally a port) to a username and password.<br><br>Dictionary structure:<br><br>- Keys: Criterions, the destination to specify credentials for. Attention: If you […](#variable-run_postfix_smtp_sasl_password_map) |
+| `run_postfix_smtp_sasl_password_map` | `dict` | No | `{}` | SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP server (and optionally a port) to a username and password.<br><br>Dictionary structure:<br><br>- Keys: Criterions, the destination to specify credentials for. Attention: If the […](#variable-run_postfix_smtp_sasl_password_map) |
 
 ### `run_postfix_state`<a id="variable-run_postfix_state"></a>
 
@@ -1243,8 +1243,8 @@ server (and optionally a port) to a username and password.
 Dictionary structure:
 
 - Keys: Criterions, the destination to specify credentials for.
-  Attention: If you specify the `[` and `]` where the relayhost destination
-             is ansible.builtin.defined, then you must use the same form here.
+  Attention: If the relayhost destination is enclosed in `[` and `]`,
+             then you must use the same form here.
 - Values: The credentials in the `username:password` format.
   Note: The main.cf setting `smtp_sasl_password_result_delimiter` (which
   defaults to `:`) can be used to specify an alternative separator between

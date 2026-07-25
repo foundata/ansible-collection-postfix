@@ -42,7 +42,7 @@
           Overwriting original "run_postfix_maincf_settings['relay_domains']"
           value "{{ run_postfix_maincf_settings['relay_domains'] }}" with
           "{{ run_postfix_relay_domains_list_tabletype }}:{{ __run_postfix_relaydomains_file_path }}"
-          as "run_postfix_relay_domains_manage" is ansible.builtin.true. Please add your domains
+          as "run_postfix_relay_domains_manage" is true. Please add your domains
           to "run_postfix_maincf_settings['relay_domains']".
       when:
         - run_postfix_maincf_settings['relay_domains'] is ansible.builtin.defined
@@ -167,7 +167,7 @@
           Extending the original "run_postfix_maincf_settings['alias_maps']"
           value "{{ run_postfix_maincf_settings['alias_maps'] }}" with
           "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
-          at the first position as "run_postfix_aliases_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_aliases_manage" is true.
       when:
         - run_postfix_maincf_settings['alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['alias_maps'] | ansible.builtin.length > 0
@@ -247,7 +247,7 @@
           Extending the original "run_postfix_maincf_settings['recipient_canonical_maps']"
           value "{{ run_postfix_maincf_settings['recipient_canonical_maps'] }}" with
           "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
-          at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_canonical_manage" is true.
       when:
         - run_postfix_maincf_settings['recipient_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0
@@ -290,7 +290,7 @@
           Extending the original "run_postfix_maincf_settings['sender_canonical_maps']"
           value "{{ run_postfix_maincf_settings['sender_canonical_maps'] }}" with
           "{{ run_postfix_canonical_sender_map_tabletype }}:{{ __run_postfix_table_canonical_sender_file_path }}"
-          at the first position as "run_postfix_canonical_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_canonical_manage" is true.
       when:
         - run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0
@@ -348,7 +348,7 @@
           Extending the original "run_postfix_maincf_settings['lmtp_generic_maps']"
           value "{{ run_postfix_maincf_settings['lmtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
-          at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_generic_manage" is true.
       when:
         - run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0
@@ -379,7 +379,7 @@
           Extending the original "run_postfix_maincf_settings['smtp_generic_maps']"
           value "{{ run_postfix_maincf_settings['smtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
-          at the first position as "run_postfix_generic_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_generic_manage" is true.
       when:
         - run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0
@@ -429,7 +429,7 @@
           Extending the original "run_postfix_maincf_settings['relocated_maps']"
           value "{{ run_postfix_maincf_settings['relocated_maps'] }}" with
           "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
-          at the first position as "run_postfix_relocated_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_relocated_manage" is true.
       when:
         - run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relocated_maps'] | ansible.builtin.length > 0
@@ -479,7 +479,7 @@
           Extending the original "run_postfix_maincf_settings['transport_maps']"
           value "{{ run_postfix_maincf_settings['transport_maps'] }}" with
           "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
-          at the first position as "run_postfix_transport_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_transport_manage" is true.
       when:
         - run_postfix_maincf_settings['transport_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['transport_maps'] | ansible.builtin.length > 0
@@ -528,7 +528,7 @@
           Extending the original "run_postfix_maincf_settings['virtual_alias_maps']"
           value "{{ run_postfix_maincf_settings['virtual_alias_maps'] }}" with
           "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
-          at the first position as "run_postfix_virtual_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_virtual_manage" is true.
       when:
         - run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0
@@ -571,7 +571,7 @@
           Overwriting original "run_postfix_maincf_settings['virtual_alias_domains']"
           value "{{ run_postfix_maincf_settings['virtual_alias_domains'] }}" with
           "{{ run_postfix_virtual_aliasdomains_list_tabletype }}:{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
-          as "run_postfix_virtual_manage" is ansible.builtin.true. Please add your domains
+          as "run_postfix_virtual_manage" is true. Please add your domains
           to "run_postfix_maincf_settings['virtual_alias_domains']".
       when:
         - run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.defined
@@ -619,7 +619,7 @@
           Extending the original "run_postfix_maincf_settings['smtp_sasl_password_maps']"
           value "{{ run_postfix_maincf_settings['smtp_sasl_password_maps'] }}" with
           "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
-          at the first position as "run_postfix_smtp_sasl_password_manage" is ansible.builtin.true.
+          at the first position as "run_postfix_smtp_sasl_password_manage" is true.
       when:
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0
@@ -683,7 +683,7 @@
 #   (command: "man 5 postconf" or on-line:  https://www.postfix.org/postconf.5.html).
 #
 # - From https://www.postfix.org/postconf.5.html:
-#   > When the same parameter is ansible.builtin.defined multiple times, only the last
+#   > When the same parameter is defined multiple times, only the last
 #   > instance is remembered. Otherwise, the order of main.cf parameter
 #   > definitions does not matter.
 #   Please note that overwriting values will produce warnings.
