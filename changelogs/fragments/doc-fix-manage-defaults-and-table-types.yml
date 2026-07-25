@@ -1,0 +1,22 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - Corrected the documentation of the nine ``*_manage`` options
+    (``run_postfix_relay_domains_manage``, ``run_postfix_access_manage``,
+    ``run_postfix_aliases_manage``, ``run_postfix_canonical_manage``,
+    ``run_postfix_generic_manage``, ``run_postfix_relocated_manage``,
+    ``run_postfix_transport_manage``, ``run_postfix_virtual_manage`` and
+    ``run_postfix_smtp_sasl_password_manage``), which stated that ``true`` was
+    the default while all of them ship ``false``. Readers had to assume that the
+    role managed the corresponding lookup tables out of the box. Only the
+    documentation was wrong, the behaviour is unchanged.
+  - >
+    ``run`` role - The lookup table type descriptions no longer refer to a
+    ``regex`` table type. Postfix calls it ``regexp``, which is also the value
+    listed in the ``choices`` of the affected options.
+  - >
+    ``run`` role - Fixed two misleading comments in generated table files: the
+    header of ``access_sender`` described its contents as recipient patterns, and
+    ``canonical_recipient`` linked to the ``sender_canonical_maps`` documentation
+    although the file is wired to ``recipient_canonical_maps``.

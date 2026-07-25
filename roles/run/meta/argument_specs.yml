@@ -163,7 +163,7 @@ argument_specs:
         description: |
           Switch to control if relay domains settings are handled by this role.
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage a config file for relay domains using the
              `run_postfix_relay_domains_list` variable for the contents
@@ -184,7 +184,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_relay_domains_manage` is set to `false`.
         type: "str"
@@ -252,7 +252,7 @@ argument_specs:
           - https://www.postfix.org/SMTPD_ACCESS_README.html
           - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -283,7 +283,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. `hash` and `btree` are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_access_manage` is set to `false`.
         type: "str"
@@ -363,7 +363,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. `hash` and `btree` are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_access_manage` is set to `false`.
         type: "str"
@@ -441,7 +441,7 @@ argument_specs:
           - https://www.postfix.org/postconf.5.html#alias_database
           - https://www.postfix.org/postconf.5.html#alias_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -463,7 +463,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_aliases_manage` is set to `false`.
         type: "str"
@@ -535,7 +535,7 @@ argument_specs:
           - https://www.postfix.org/canonical.5.html
           - https://www.postfix.org/postconf.5.html#sender_canonical_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -559,7 +559,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_canonical_manage` is set to `false`.
         type: "str"
@@ -623,7 +623,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_canonical_manage` is set to `false`.
         type: "str"
@@ -690,7 +690,7 @@ argument_specs:
           - https://www.postfix.org/postconf.5.html#lmtp_generic_maps
           - https://www.postfix.org/postconf.5.html#smtp_generic_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -713,7 +713,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_generic_manage` is set to `false`.
         type: "str"
@@ -779,7 +779,7 @@ argument_specs:
           - https://www.postfix.org/relocated.5.html
           - https://www.postfix.org/postconf.5.html#relocated_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -801,7 +801,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_relocated_manage` is set to `false`.
         type: "str"
@@ -871,7 +871,7 @@ argument_specs:
           - https://www.postfix.org/transport.5.html
           - https://www.postfix.org/postconf.5.html#transport_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -893,7 +893,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_transport_manage` is set to `false`.
         type: "str"
@@ -972,7 +972,7 @@ argument_specs:
           - https://www.postfix.org/postconf.5.html#virtual_alias_maps
           - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -996,7 +996,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_virtual_manage` is set to `false`.
         type: "str"
@@ -1061,7 +1061,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_virtual_manage` is set to `false`.
         type: "str"
@@ -1142,7 +1142,7 @@ argument_specs:
           - https://www.postfix.org/SASL_README.html#client_sasl
           - https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
 
-          When set to `true` (which is the default), the role will:
+          When set to `true` (the default is `false`), the role will:
 
           1. Create and manage table file(s) to manage mappings. It uses variables
              for the contents:
@@ -1164,7 +1164,7 @@ argument_specs:
           Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be
           the best default. "hash" and "btree" are available on systems with support for
           Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster
-          than `regex`.
+          than `regexp`.
 
           Will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
         type: "str"
