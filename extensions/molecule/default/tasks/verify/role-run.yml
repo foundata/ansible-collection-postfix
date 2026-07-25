@@ -193,7 +193,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_access_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_access_recipient_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
@@ -229,7 +229,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_access_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_access_sender_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
@@ -334,7 +334,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_aliases_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_aliases_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_aliases_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_aliases_db_stat
@@ -372,7 +372,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_canonical_recipient_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_canonical_recipient_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
@@ -403,7 +403,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_canonical_sender_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_canonical_sender_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
@@ -480,7 +480,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_generic_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_generic_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_generic_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_generic_db_stat
@@ -520,7 +520,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_transport_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_transport_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_transport_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_transport_db_stat
@@ -558,7 +558,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_virtual_alias_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_virtual_alias_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
@@ -589,7 +589,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_virtual_aliasdomains_list_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_virtual_aliasdomains_list_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
@@ -629,7 +629,7 @@
         get_attributes: false
         get_checksum: false
       when:
-        - run_postfix_smtp_sasl_password_map_tabletype in ['btree', 'dbm', 'hash', 'lmdb', 'sdbm']
+        - run_postfix_smtp_sasl_password_map_tabletype in ['btree', 'cdb', 'dbm', 'hash', 'lmdb', 'sdbm']
       failed_when:
         - __testing_smtp_sasl_password_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_smtp_sasl_password_db_stat
@@ -966,6 +966,147 @@
       - ('Recipient address rejected') in __testing_run_postfix_rcpttodeny_result['stdout']
       - ('Access denied') in __testing_run_postfix_rcpttodeny_result['stdout']
     fail_msg: "Initiate RCPT TO a deny-listed address: Expected proper responses to SMTP commands"
+
+
+## Effective configuration state
+#
+# Everything above proves what the role wrote into files. Postfix does not read
+# those files at delivery time though: main.cf parameters are what "postconf"
+# reports, and the lookup tables it consults are the compiled artefacts, not
+# their plain-text sources. A stale compiled table or an overlap block that
+# dropped a value therefore stays invisible to file-content assertions, and the
+# existence checks above only prove that some artefact is present, not that it
+# holds current data.
+#
+# Ask Postfix itself instead: "postconf -h <param>" for the effective main.cf
+# value and "postmap -q" / "postalias -q" for a lookup through the compiled
+# table.
+
+- name: "Molecule | Verify | Define the managed main.cf parameters and their expected lookup tables"
+  ansible.builtin.set_fact:
+    __testing_managed_maincf_params:
+      - param: "relay_domains"
+        expect: "{{ run_postfix_relay_domains_list_tabletype }}:{{ __run_postfix_relaydomains_file_path }}"
+      - param: "alias_maps"
+        expect: "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
+      - param: "recipient_canonical_maps"
+        expect: "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
+      - param: "sender_canonical_maps"
+        expect: "{{ run_postfix_canonical_sender_map_tabletype }}:{{ __run_postfix_table_canonical_sender_file_path }}"
+      - param: "lmtp_generic_maps"
+        expect: "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
+      - param: "smtp_generic_maps"
+        expect: "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
+      - param: "relocated_maps"
+        expect: "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
+      - param: "transport_maps"
+        expect: "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
+      - param: "virtual_alias_maps"
+        expect: "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
+      - param: "virtual_alias_domains"
+        expect: "{{ run_postfix_virtual_aliasdomains_list_tabletype }}:{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
+      - param: "smtp_sasl_password_maps"
+        expect: "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
+
+
+- name: "Molecule | Verify | Get the effective values of the managed main.cf parameters from Postfix"
+  ansible.builtin.command:
+    argv:
+      - "{{ __run_postfix_postconf_exec_path }}"
+      - "-h"
+      - "{{ __testing_postconf_item['param'] }}"
+  register: __testing_postconf_results
+  changed_when:
+    - false
+  loop: "{{ __testing_managed_maincf_params }}"
+  loop_control:
+    loop_var: "__testing_postconf_item"
+    label: "{{ __testing_postconf_item['param'] }}"
+
+
+- name: "Molecule | Verify | Assert the managed lookup tables are active in the effective main.cf"
+  ansible.builtin.assert:
+    that:
+      - __testing_postconf_result['__testing_postconf_item']['expect']
+        in __testing_postconf_result['stdout']
+    fail_msg: >-
+      Postfix reports '{{ __testing_postconf_result['__testing_postconf_item']['param'] }} =
+      {{ __testing_postconf_result['stdout'] | ansible.builtin.trim }}', which does not contain the
+      managed table '{{ __testing_postconf_result['__testing_postconf_item']['expect'] }}'. The
+      overlap handling either overwrote it or never added it.
+    success_msg: >-
+      '{{ __testing_postconf_result['__testing_postconf_item']['param'] }}' is effective as
+      '{{ __testing_postconf_result['stdout'] | ansible.builtin.trim }}'.
+  loop: "{{ __testing_postconf_results['results'] }}"
+  loop_control:
+    loop_var: "__testing_postconf_result"
+    label: "{{ __testing_postconf_result['__testing_postconf_item']['param'] }}"
+
+
+# One representative key per compiled table, taken from the converge fixtures.
+# Querying through the table proves the handler compiled the current source: a
+# missing or stale artefact answers with nothing (or with the previous value)
+# instead of the expected result.
+- name: "Molecule | Verify | Look up representative keys through the compiled lookup tables"
+  ansible.builtin.command:
+    argv:
+      - "{{ __testing_table_query['cmd'] }}"
+      - "-q"
+      - "{{ __testing_table_query['key'] }}"
+      - "{{ __testing_table_query['table'] }}"
+  register: __testing_table_query_results
+  changed_when:
+    - false
+  failed_when:
+    - false
+  loop:
+    - cmd: "{{ __run_postfix_postmap_exec_path }}"
+      table: "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
+      key: "example.net"
+      expect: "lmtp:127.0.0.1:24"
+    - cmd: "{{ __run_postfix_postmap_exec_path }}"
+      table: "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
+      key: "admin@example.com"
+      expect: "admin@actual-destination.example.com"
+    # the cdb backend, which only this table exercises
+    - cmd: "{{ __run_postfix_postmap_exec_path }}"
+      table: "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
+      key: "user.old@example.com"
+      expect: "user.new@example.net"
+    - cmd: "{{ __run_postfix_postmap_exec_path }}"
+      table: "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
+      key: "old.name@example.com"
+      expect: "new.name@example.com"
+    # compiled by postalias instead of postmap
+    - cmd: "{{ __run_postfix_postalias_exec_path }}"
+      table: "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
+      key: "molecule"
+      expect: "root"
+  loop_control:
+    loop_var: "__testing_table_query"
+    label: "{{ __testing_table_query['table'] }} ({{ __testing_table_query['key'] }})"
+
+
+- name: "Molecule | Verify | Assert the compiled lookup tables answer with the configured values"
+  ansible.builtin.assert:
+    that:
+      - __testing_table_query_result['rc'] == 0
+      - __testing_table_query_result['__testing_table_query']['expect']
+        in __testing_table_query_result['stdout']
+    fail_msg: >-
+      Looking up '{{ __testing_table_query_result['__testing_table_query']['key'] }}' in
+      '{{ __testing_table_query_result['__testing_table_query']['table'] }}' returned
+      rc={{ __testing_table_query_result['rc'] }} and
+      '{{ __testing_table_query_result['stdout'] | ansible.builtin.trim }}' instead of
+      '{{ __testing_table_query_result['__testing_table_query']['expect'] }}'. The compiled table is
+      missing or does not reflect the current source file.
+    success_msg: >-
+      '{{ __testing_table_query_result['__testing_table_query']['key'] }}' resolves to
+      '{{ __testing_table_query_result['stdout'] | ansible.builtin.trim }}' through the compiled table.
+  loop: "{{ __testing_table_query_results['results'] }}"
+  loop_control:
+    loop_var: "__testing_table_query_result"
+    label: "{{ __testing_table_query_result['__testing_table_query']['table'] }}"
 
 
 ## Regression tests: init-only merged variable evaluation
