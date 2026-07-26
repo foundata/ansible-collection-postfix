@@ -53,10 +53,10 @@
     __run_postfix_matched_versions: >-
       {{
         __run_postfix_supported_platforms
-        | ansible.builtin.selectattr('name', 'match', __run_postfix_platform_names_regex, ignorecase=true)
+        | ansible.builtin.selectattr('name', 'ansible.builtin.match', __run_postfix_platform_names_regex, ignorecase=true)
         | ansible.builtin.map(attribute='versions')
         | ansible.builtin.flatten
-        | ansible.builtin.select('match', __run_postfix_platform_versions_regex, ignorecase=true)
+        | ansible.builtin.select('ansible.builtin.match', __run_postfix_platform_versions_regex, ignorecase=true)
         | ansible.builtin.list
       }}
   when:

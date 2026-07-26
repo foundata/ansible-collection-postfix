@@ -18,5 +18,5 @@
 # - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
 {% for domain in __run_postfix_effective_virtual_alias_domains %}
-{{ domain }}{% if domain|length < 16 %}{{ "\t\t\t" }}{% elif domain|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}virtual
+{{ domain }}{% if domain|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif domain|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}virtual
 {% endfor %}

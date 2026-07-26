@@ -10,5 +10,5 @@
 # - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
 
 {% for key, value in __run_postfix_effective_access_sender_map.items() %}
-{{ key }}{% if key|length < 16 %}{{ "\t\t\t" }}{% elif key|length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
+{{ key }}{% if key|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif key|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}
