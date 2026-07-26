@@ -146,6 +146,14 @@
           wakeup: "-"
           maxproc: "-"
           command_args: "smtpd"
+        smtps: # Implicit TLS (wrapper mode) on port 465; probed in the verify stage
+          type: "inet"
+          private: "n"
+          unpriv: "-"
+          chroot: "n"
+          wakeup: "-"
+          maxproc: "-"
+          command_args: "smtpd -o smtpd_tls_wrappermode=yes"
       run_postfix_relay_domains_manage: true
       run_postfix_relay_domains_list: |-
         {{ [__testing_mailfrom_relay_domain] }}

@@ -27,6 +27,7 @@
       port_smtp: 25
       port_submission: 587
       port_smtp_unusual: 2525
+      port_smtps: 465
     __testing_telnet_executable: "/usr/bin/telnet"
     __testing_openssl_executable: "/usr/bin/openssl"
     __testing_sendmail_executable: "/usr/sbin/sendmail"
@@ -158,6 +159,19 @@
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_submission'] }}"
+      smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
+
+
+- name: "Molecule | Verify | Run SMTP tests: implicit TLS (smtps)"
+  ansible.builtin.include_tasks:
+    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-implicit-tls.yml"
+  vars:
+    __testing_hostdata: "{{ item }}"
+  when:
+    __testing_hostdata is ansible.builtin.defined
+  loop:
+    - host: "127.0.0.1"
+      port: "{{ __testing_mastercf['port_smtps'] }}"
       smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
 
 
