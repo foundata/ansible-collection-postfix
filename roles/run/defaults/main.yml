@@ -180,7 +180,10 @@ run_postfix_relay_domains_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_relay_domains_list_tabletype: "lmdb"
 
 # Relay domains for Postfix. This list of relay domains for which Postfix will
@@ -251,7 +254,10 @@ run_postfix_access_manage: false
 # - Type: str
 # - Required: No
 # - Default: pcre
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_access_recipient_map_tabletype: "pcre"
 
 # Lookup-table `access`: Recipient address restriction rules.
@@ -301,7 +307,10 @@ run_postfix_access_recipient_map: {}
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_access_sender_map_tabletype: "lmdb"
 
 # Lookup-table `access`: Sender address restriction rules.
@@ -371,7 +380,10 @@ run_postfix_aliases_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_aliases_map_tabletype: "lmdb"
 
 # Lookup-table `alias`: address mappings.
@@ -437,7 +449,10 @@ run_postfix_canonical_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_canonical_recipient_map_tabletype: "lmdb"
 
 # Lookup-table `canonical`: Recipient address mappings / rewrite rules.
@@ -468,7 +483,10 @@ run_postfix_canonical_recipient_map: {}
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_canonical_sender_map_tabletype: "lmdb"
 
 # Lookup-table `canonical`: Sender address mappings / rewrite rules.
@@ -530,7 +548,10 @@ run_postfix_generic_manage: false
 # - Type: str
 # - Required: No
 # - Default: pcre
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_generic_map_tabletype: "pcre"
 
 # Lookup-table 'generic': Sender address mappings / rewrite rules.
@@ -590,7 +611,10 @@ run_postfix_relocated_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_relocated_map_tabletype: "lmdb"
 
 # Lookup-table `relocated`: old-address new-address-info mappings / rules.
@@ -653,7 +677,10 @@ run_postfix_transport_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_transport_map_tabletype: "lmdb"
 
 # Domain transport mapping for Postfix. This defines where to send emails to for
@@ -726,7 +753,10 @@ run_postfix_virtual_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
 
 # Virtual alias domains for Postfix. This tells Postfix to accept incoming
@@ -761,7 +791,10 @@ run_postfix_virtual_aliasdomains_list: []
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_virtual_alias_map_tabletype: "lmdb"
 
 # Virtual alias mappings for Postfix. This defines email forwarding rules in a
@@ -836,7 +869,10 @@ run_postfix_smtp_sasl_password_manage: false
 # - Type: str
 # - Required: No
 # - Default: lmdb
-# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb, ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql, proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash, unionmap, unix
+# - Choices: btree, cdb, cidr, dbm, environ, fail, hash, inline, internal, lmdb,
+#   ldap, memcache, mongodb, mysql, netinfo, nis, nisplus, pcre, pipemap, pgsql,
+#   proxy, randmap, regexp, sdbm, socketmap, sqlite, static, tcp, texthash,
+#   unionmap, unix
 run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 
 # SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP
@@ -862,5 +898,6 @@ run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
 #
 # - Type: dict
 # - Required: No
+# - Sensitive: Yes (no_log, values are masked in logs)
 # - Default: {}
 run_postfix_smtp_sasl_password_map: {}
