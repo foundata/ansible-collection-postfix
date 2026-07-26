@@ -19,6 +19,10 @@
     - __run_postfix_packages_install is ansible.builtin.defined
     - (__run_postfix_packages_install | ansible.builtin.length) > 0
   register: __run_postfix_package_install_result # to decide if a handler flush (config/default.yml) is necessary
+  notify:
+    # new or upgraded binaries only take effect with a full restart (a restart
+    # of a stopped service is a start, so this is also safe on fresh installs)
+    - "run_postfix: restart postfix.service"
 
 
 - name: "Setup | Install | Default | Print additional map backends (extracted from main.cf and default settings)"

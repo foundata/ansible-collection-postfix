@@ -1,0 +1,14 @@
+---
+
+minor_changes:
+  - >
+    ``run`` role - Configuration changes (``main.cf``, ``master.cf`` and the
+    Debian mailname file) now notify a service reload instead of a restart,
+    so established connections and the queue manager survive ordinary
+    reconfiguration. Package installations and upgrades now notify a restart
+    instead (new binaries only take effect with one). The previously
+    unreachable reload handler skips services that are not running yet: on
+    fresh installs the service phase then starts Postfix with the new
+    configuration. Documented Postfix exception (see ``postconf(5)``):
+    ``inet_interfaces`` and ``inet_protocols`` changes still require a manual
+    stop/start, a plain "postfix reload" is not sufficient either.

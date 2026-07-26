@@ -81,11 +81,24 @@
     - "run_postfix: restart postfix.service"
 
 
+# systemd refuses to reload an inactive service. On fresh installs the config
+# handlers fire (handler flush after package installation) before the service
+# phase has ever started Postfix — skipping the reload is correct there: the
+# service phase afterwards starts Postfix with the new configuration.
+- name: "Handlers | Gather service facts (reload pre-check)"
+  ansible.builtin.service_facts:
+  when:
+    - run_postfix_service_state in ['enabled', 'running']
+  listen:
+    - "run_postfix: reload postfix.service"
+
+
 - name: "Handlers | Postfix service reload"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
     state: "reloaded"
   when:
     - run_postfix_service_state in ['enabled', 'running']
+    - (ansible_facts['services'][__run_postfix_postfix_servicename]['state'] | ansible.builtin.default('')) == 'running'
   listen:
     - "run_postfix: reload postfix.service"

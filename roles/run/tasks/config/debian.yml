@@ -15,4 +15,4 @@
     group: "{{ __run_postfix_mailname_file_group }}"
     mode: "{{ __run_postfix_mailname_file_mode }}"
   notify:
-    - "run_postfix: restart postfix.service"
+    - "run_postfix: reload postfix.service"

@@ -1126,6 +1126,15 @@
 - name: "Molecule | Verify | Validate effective merged variables (init-only)"
   block:
 
+    # The controlled inputs replace converge-time facts, so save and restore
+    # them: later stages (e.g. the handler integration checks) run the full
+    # role again and must not pick up these incomplete merge-check values.
+    - name: "Molecule | Verify | Save the converge-time values of the merge check inputs"
+      ansible.builtin.set_fact:
+        __testing_merge_saved_mastercf: "{{ run_postfix_mastercf_settings }}"
+        __testing_merge_saved_aliases: "{{ run_postfix_aliases_map }}"
+        __testing_merge_saved_relay_domains: "{{ run_postfix_relay_domains_list }}"
+
     - name: "Molecule | Verify | Set controlled inputs for the merge checks"
       ansible.builtin.set_fact:
         run_postfix_mastercf_settings:
@@ -1176,3 +1185,185 @@
           - "'relay.example.test' in __run_postfix_effective_relay_domains"
         fail_msg: "__run_postfix_effective_relay_domains did not include the user-supplied relay domain."
         success_msg: "__run_postfix_effective_relay_domains includes the user-supplied relay domain."
+
+  always:
+
+    - name: "Molecule | Verify | Restore the converge-time values of the merge check inputs"
+      ansible.builtin.set_fact:
+        run_postfix_mastercf_settings: "{{ __testing_merge_saved_mastercf }}"
+        run_postfix_aliases_map: "{{ __testing_merge_saved_aliases }}"
+        run_postfix_relay_domains_list: "{{ __testing_merge_saved_relay_domains }}"
+
+
+## Handlers: config changes reload, never restart (integration)
+#
+# A main.cf change must reach the running service via reload: the master
+# process stays (ExecMainStartTimestamp unchanged), queued and active
+# deliveries survive. The service-state gate must keep handlers away from
+# unmanaged services. The sequence reconfigures the running service (changed
+# SMTP banner), checks the runtime picked it up without a restart, then
+# proves a change under "unmanaged" reaches neither the service nor its
+# runtime configuration, and finally reverts - all without a single restart.
+
+- name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp before reconfiguration"
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/systemctl"
+      - "show"
+      - "--property=ExecMainStartTimestamp"
+      - "--value"
+      - "{{ __run_postfix_postfix_servicename }}"
+  changed_when: false
+  register: __testing_handlers_ts_before
+
+
+- name: "Molecule | Verify | Handlers | Save the current parameters and apply a changed SMTP banner"
+  ansible.builtin.set_fact:
+    __testing_handlers_saved_maincf: "{{ run_postfix_maincf_settings }}"
+    __testing_handlers_saved_service_state: "{{ run_postfix_service_state }}"
+    run_postfix_maincf_settings: >-
+      {{ run_postfix_maincf_settings | ansible.builtin.combine({'smtpd_banner': '$myhostname ESMTP molecule-reload-check'}) }}
+
+
+- name: "Molecule | Verify | Handlers | Re-run the foundata.postfix.run role with the changed banner"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+
+
+- name: "Molecule | Verify | Handlers | Run the notified handlers (reload expected)"
+  ansible.builtin.meta: "flush_handlers"
+
+
+- name: "Molecule | Verify | Handlers | Fetch the SMTP banner after the reload"
+  ansible.builtin.expect:
+    command: >-
+      {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+    responses:
+      '(?i)220.*\r?\n': "QUIT"
+    timeout: 30
+  changed_when: false
+  failed_when: false
+  register: __testing_handlers_banner_reload
+
+
+- name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the reload"
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/systemctl"
+      - "show"
+      - "--property=ExecMainStartTimestamp"
+      - "--value"
+      - "{{ __run_postfix_postfix_servicename }}"
+  changed_when: false
+  register: __testing_handlers_ts_reload
+
+
+- name: "Molecule | Verify | Handlers | Assert the change is live and the service was not restarted"
+  ansible.builtin.assert:
+    that:
+      - (__testing_handlers_ts_before['stdout'] | ansible.builtin.trim | ansible.builtin.length) > 0
+      - "'molecule-reload-check' in __testing_handlers_banner_reload['stdout']"
+      - __testing_handlers_ts_reload['stdout'] == __testing_handlers_ts_before['stdout']
+    fail_msg: >-
+      Reconfiguring the running service did not behave as expected. Banner:
+      {{ __testing_handlers_banner_reload['stdout'] | ansible.builtin.default('') }};
+      ExecMainStartTimestamp before: '{{ __testing_handlers_ts_before['stdout'] }}',
+      after: '{{ __testing_handlers_ts_reload['stdout'] }}' (a difference means the
+      service was restarted instead of reloaded).
+    success_msg: >-
+      The changed SMTP banner is live and ExecMainStartTimestamp is unchanged:
+      the configuration change was applied via reload, not restart.
+
+
+- name: "Molecule | Verify | Handlers | Apply another banner under an unmanaged service state"
+  ansible.builtin.set_fact:
+    run_postfix_service_state: "unmanaged"
+    run_postfix_maincf_settings: >-
+      {{ __testing_handlers_saved_maincf | ansible.builtin.combine({'smtpd_banner': '$myhostname ESMTP molecule-unmanaged-check'}) }}
+
+
+- name: "Molecule | Verify | Handlers | Re-run the foundata.postfix.run role (unmanaged)"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+
+
+- name: "Molecule | Verify | Handlers | Run the notified handlers (service handlers must be gated off)"
+  ansible.builtin.meta: "flush_handlers"
+
+
+- name: "Molecule | Verify | Handlers | Fetch the SMTP banner after the unmanaged run"
+  ansible.builtin.expect:
+    command: >-
+      {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+    responses:
+      '(?i)220.*\r?\n': "QUIT"
+    timeout: 30
+  changed_when: false
+  failed_when: false
+  register: __testing_handlers_banner_unmanaged
+
+
+- name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the unmanaged run"
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/systemctl"
+      - "show"
+      - "--property=ExecMainStartTimestamp"
+      - "--value"
+      - "{{ __run_postfix_postfix_servicename }}"
+  changed_when: false
+  register: __testing_handlers_ts_unmanaged
+
+
+- name: "Molecule | Verify | Handlers | Assert the unmanaged service state keeps service handlers away"
+  ansible.builtin.assert:
+    that:
+      # runtime still serves the previously reloaded config, the service was
+      # neither reloaded nor restarted
+      - "'molecule-unmanaged-check' not in __testing_handlers_banner_unmanaged['stdout']"
+      - "'molecule-reload-check' in __testing_handlers_banner_unmanaged['stdout']"
+      - __testing_handlers_ts_unmanaged['stdout'] == __testing_handlers_ts_before['stdout']
+    fail_msg: >-
+      A configuration change under run_postfix_service_state=unmanaged reached the
+      service. Banner: {{ __testing_handlers_banner_unmanaged['stdout'] | ansible.builtin.default('') }};
+      ExecMainStartTimestamp before: '{{ __testing_handlers_ts_before['stdout'] }}',
+      after: '{{ __testing_handlers_ts_unmanaged['stdout'] }}'.
+    success_msg: "Service handlers left the unmanaged service alone (runtime configuration and start timestamp unchanged)."
+
+
+- name: "Molecule | Verify | Handlers | Restore the saved parameters"
+  ansible.builtin.set_fact:
+    run_postfix_maincf_settings: "{{ __testing_handlers_saved_maincf }}"
+    run_postfix_service_state: "{{ __testing_handlers_saved_service_state }}"
+
+
+- name: "Molecule | Verify | Handlers | Re-run the foundata.postfix.run role with the restored parameters"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+
+
+- name: "Molecule | Verify | Handlers | Run the notified handlers again (reload expected)"
+  ansible.builtin.meta: "flush_handlers"
+
+
+- name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the restore"
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/systemctl"
+      - "show"
+      - "--property=ExecMainStartTimestamp"
+      - "--value"
+      - "{{ __run_postfix_postfix_servicename }}"
+  changed_when: false
+  register: __testing_handlers_ts_restore
+
+
+- name: "Molecule | Verify | Handlers | Assert the whole sequence never restarted the service"
+  ansible.builtin.assert:
+    that:
+      - __testing_handlers_ts_restore['stdout'] == __testing_handlers_ts_before['stdout']
+    fail_msg: >-
+      The service was restarted at some point of the reconfiguration sequence
+      (ExecMainStartTimestamp changed from '{{ __testing_handlers_ts_before['stdout'] }}'
+      to '{{ __testing_handlers_ts_restore['stdout'] }}').
+    success_msg: "Two reconfigurations and one unmanaged run completed without a single service restart."

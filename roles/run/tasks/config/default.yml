@@ -101,7 +101,12 @@
           {{ __run_postfix_access_deprecatedsettings | join(', ') }}.
           Consider consolidating your access controls within "smtpd_relay_restrictions" instead.
       vars:
-        __run_postfix_access_deprecatedsettings: "{{ __run_postfix_access_deprecatedsettings_list | ansible.builtin.select('in', run_postfix_maincf_settings.keys()) | ansible.builtin.list }}"
+        __run_postfix_access_deprecatedsettings: >-
+          {{
+            __run_postfix_access_deprecatedsettings_list
+            | ansible.builtin.select('in', run_postfix_maincf_settings.keys())
+            | ansible.builtin.list
+          }}
         __run_postfix_access_deprecatedsettings_list:
           - "smtpd_client_restrictions" # exists for historic reasons (since a long time)
           - "smtpd_helo_restrictions" # exists for historic reasons (since a long time)
@@ -757,7 +762,11 @@
   notify:
     - "run_postfix: update lookup tables"
     - "run_postfix: update aliases"
-    - "run_postfix: restart postfix.service"
+    # Reload applies main.cf changes without interrupting service. Known
+    # exception (see postconf(5)): inet_interfaces and inet_protocols changes
+    # need a full stop/start, which is an operator action anyway ("postfix
+    # reload" is not enough either).
+    - "run_postfix: reload postfix.service"
 
 
 # Notes on the master.cf handling:
@@ -871,7 +880,8 @@
     - __run_postfix_config_mastercf_result['stdout'] | ansible.builtin.trim | ansible.builtin.length > 0
   register: __run_postfix_config_mastercf_result
   notify:
-    - "run_postfix: restart postfix.service"
+    # "postfix reload" also re-reads master.cf (see master(5))
+    - "run_postfix: reload postfix.service"
 
 
 - name: "Config | Default | Ensure handler runs (e.g. to create database files) before (re)starting Postfix after packages were installed."
