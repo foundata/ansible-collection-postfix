@@ -14,9 +14,9 @@
     "{{ item['key'] }}": "{{ item['value'] }}"
   loop: >-
     {{
-      (__testing_state | default({}, true))
+      (__testing_state | ansible.builtin.default({}, true))
       | ansible.builtin.dict2items
-      | ansible.builtin.selectattr('key', 'match', '^(run_postfix_|__testing_)')
+      | ansible.builtin.selectattr('key', 'ansible.builtin.match', '^(run_postfix_|__testing_)')
       | ansible.builtin.list
     }}
 
@@ -36,7 +36,7 @@
     __testing_journalctl_executable: >-
       {{
         '/bin/journalctl'
-        if (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] | int == 11)
+        if (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] | ansible.builtin.int == 11)
         else '/usr/bin/journalctl'
       }}
     __testing_sasl_auth_username_base64: "am9obmRvZQ==" # johndoe
@@ -132,7 +132,7 @@
 
 - name: "Molecule | Verify | Run SMTP tests: basic"
   ansible.builtin.include_tasks:
-    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-basic.yml"
+    file: "{{ (lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-basic.yml"
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -151,7 +151,9 @@
 
 - name: "Molecule | Verify | Run SMTP tests: STARTTLS"
   ansible.builtin.include_tasks:
-    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-starttls.yml"
+    file: >-
+      {{ (lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY')
+          | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-starttls.yml
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -164,7 +166,9 @@
 
 - name: "Molecule | Verify | Run SMTP tests: implicit TLS (smtps)"
   ansible.builtin.include_tasks:
-    file: "{{ (lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-implicit-tls.yml"
+    file: >-
+      {{ (lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY')
+          | ansible.builtin.default('../../default')) }}/tasks/verify/checks/smtp-implicit-tls.yml
   vars:
     __testing_hostdata: "{{ item }}"
   when:
@@ -717,7 +721,7 @@
   ansible.builtin.set_fact:
     __testing_missing_envvars_sendmail: "{{ __testing_missing_envvars_sendmail | ansible.builtin.default([]) + [item] }}"
   when:
-    - lookup('env', item, default='') == ''
+    - lookup('ansible.builtin.env', item, default='') == ''
   changed_when:
     - false # noqa: no-changed-when
   loop:
@@ -729,7 +733,7 @@
   ansible.builtin.debug:
     msg: >
       Tests regarding sending an email to an external address will be skipped,
-      required environment variables are missing or invalid: {{ __testing_missing_envvars_sendmail | join(', ') }}.
+      required environment variables are missing or invalid: {{ __testing_missing_envvars_sendmail | ansible.builtin.join(', ') }}.
   changed_when:
     - false # noqa: no-changed-when
   when:
@@ -739,10 +743,10 @@
 
 - name: "Molecule | Verify | Send SASL authenticated test email: gather environment variables"
   ansible.builtin.set_fact:
-    __testing_mailfrom_email: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_EMAIL') | ansible.builtin.default(omit, true) }}"
-    __testing_mailfrom_name: "{{ lookup('env', 'TEST_POSTFIX_MAILFROM_NAME', default='John Doe') }}"
-    __testing_mailto_email: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_EMAIL') | ansible.builtin.default(omit, true) }}"
-    __testing_mailto_name: "{{ lookup('env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
+    __testing_mailfrom_email: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILFROM_EMAIL') | ansible.builtin.default(omit, true) }}"
+    __testing_mailfrom_name: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILFROM_NAME', default='John Doe') }}"
+    __testing_mailto_email: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILTO_EMAIL') | ansible.builtin.default(omit, true) }}"
+    __testing_mailto_name: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
     - __testing_missing_envvars_sendmail is not ansible.builtin.defined or
       (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)

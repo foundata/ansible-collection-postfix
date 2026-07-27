@@ -22,7 +22,7 @@
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
   #    this converts dictionaries to strings objects, needing additional care.
-  loop: "{{ lookup('template', 'helper_postmap_paths.j2') }}"
+  loop: "{{ lookup('ansible.builtin.template', 'helper_postmap_paths.j2') }}"
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
@@ -58,7 +58,7 @@
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
   #    this converts dictionaries to strings objects, needing additional care.
-  loop: "{{ lookup('template', 'helper_postalias_paths.j2') }}"
+  loop: "{{ lookup('ansible.builtin.template', 'helper_postalias_paths.j2') }}"
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not

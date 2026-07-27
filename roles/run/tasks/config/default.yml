@@ -20,7 +20,7 @@
     # 1. Single-line inline templates are hard to read and maintain.
     # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
     #    this converts dictionaries to strings objects, needing additional care.
-    __run_postfix_effective_maincf_settings: "{{ lookup('template', 'helper_prepare_postconf.j2') }}"
+    __run_postfix_effective_maincf_settings: "{{ lookup('ansible.builtin.template', 'helper_prepare_postconf.j2') }}"
 
 
 - name: "Config | Default | Print config for main.cf (merged defaults with passed values, prepared for postconf)"
@@ -104,7 +104,7 @@
         __run_postfix_access_deprecatedsettings: >-
           {{
             __run_postfix_access_deprecatedsettings_list
-            | ansible.builtin.select('in', run_postfix_maincf_settings.keys())
+            | ansible.builtin.select('ansible.builtin.in', run_postfix_maincf_settings.keys())
             | ansible.builtin.list
           }}
         __run_postfix_access_deprecatedsettings_list:
@@ -218,7 +218,7 @@
       ansible.builtin.blockinfile:
         path: "{{ __run_postfix_table_aliases_file_path }}"
         marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
-        block: "{{ lookup('template', 'aliases.j2') }}"
+        block: "{{ lookup('ansible.builtin.template', 'aliases.j2') }}"
       notify:
         - "run_postfix: update aliases"
 
@@ -666,13 +666,13 @@
 
 - name: "Config | Default | Print postmap lookup table paths (extracted from main.cf settings)"
   ansible.builtin.debug:
-    msg: "{{ lookup('template', 'helper_postmap_paths.j2') }}"
+    msg: "{{ lookup('ansible.builtin.template', 'helper_postmap_paths.j2') }}"
     verbosity: 4
 
 
 - name: "Config | Default | Print postalias lookup table paths (extracted from main.cf settings)"
   ansible.builtin.debug:
-    msg: "{{ lookup('template', 'helper_postalias_paths.j2') }}"
+    msg: "{{ lookup('ansible.builtin.template', 'helper_postalias_paths.j2') }}"
     verbosity: 4
 
 
