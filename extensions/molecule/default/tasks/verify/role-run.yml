@@ -1385,3 +1385,77 @@
       (ExecMainStartTimestamp changed from '{{ __testing_handlers_ts_before['stdout'] }}'
       to '{{ __testing_handlers_ts_restore['stdout'] }}').
     success_msg: "Two reconfigurations and one unmanaged run completed without a single service restart."
+
+
+## Uninstall (state "absent") verification
+#
+# This block stays the LAST one in the verify stage: it converges the
+# instances away from the state every earlier check relies on. It is
+# deliberately not part of the cleanup stage - cleanup also runs when an
+# earlier stage fails (on arbitrary state) and has to stay assertion-free.
+
+- name: "Molecule | Verify | Uninstall: run the role with state 'absent'"
+  ansible.builtin.include_role:
+    name: "foundata.postfix.run"
+  vars:
+    run_postfix_state: "absent"
+
+
+- name: "Molecule | Verify | Uninstall: check the lookup tables and their compiled databases are gone"
+  ansible.builtin.stat:
+    path: "{{ item[0] }}{{ item[1] }}"
+  register: __testing_uninstall_tables_stat
+  failed_when:
+    - __testing_uninstall_tables_stat['stat']['exists']
+  loop: >-
+    {{
+      __run_postfix_uninstall_file_paths
+      | ansible.builtin.product(__run_postfix_uninstall_file_suffixes)
+      | ansible.builtin.list
+    }}
+  loop_control:
+    label: "{{ item[0] }}{{ item[1] }}"
+
+
+- name: "Molecule | Verify | Uninstall: check the Postfix binary and unit are gone"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: __testing_uninstall_postfix_stat
+  failed_when:
+    - __testing_uninstall_postfix_stat['stat']['exists']
+  loop:
+    - "/usr/sbin/postfix"
+    - "/usr/lib/systemd/system/postfix.service"
+
+
+- name: "Molecule | Verify | Uninstall: read the aliases file"
+  ansible.builtin.slurp:
+    src: "/etc/aliases"
+  register: __testing_uninstall_aliases
+
+
+- name: "Molecule | Verify | Uninstall: check the aliases file was reverted, not resurrected"
+  ansible.builtin.assert:
+    that:
+      # the managed block and the role's disable marker are gone
+      - "'ANSIBLE MANAGED BLOCK' not in __testing_uninstall_aliases_content"
+      - "'#ANSIBLE_DISABLED ' not in __testing_uninstall_aliases_content"
+      # the entry the role had disabled is active again, byte for byte
+      - >-
+        __testing_uninstall_aliases_content
+        is ansible.builtin.search('^molecule_preexisting: root$', multiline=true)
+      # the entry the administrator disabled beforehand stays disabled
+      - >-
+        __testing_uninstall_aliases_content
+        is ansible.builtin.search('^#molecule_predisabled: root$', multiline=true)
+    fail_msg: >-
+      The uninstall did not cleanly revert /etc/aliases (managed block or
+      disable marker left behind, a role-disabled entry not restored, or an
+      administrator-disabled entry resurrected). Content:
+      {{ __testing_uninstall_aliases_content }}
+    success_msg: >-
+      The uninstall reverted /etc/aliases: the managed block is gone, the
+      role-disabled entry is restored and the administrator-disabled entry
+      stayed disabled.
+  vars:
+    __testing_uninstall_aliases_content: "{{ __testing_uninstall_aliases['content'] | ansible.builtin.b64decode }}"
