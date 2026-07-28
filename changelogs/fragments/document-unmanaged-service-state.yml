@@ -1,0 +1,9 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The documentation of the ``unmanaged`` service state falsely
+    claimed the service "will not start at boot". The role leaves the service
+    completely alone in this state: both the running state and the boot
+    (enablement) state stay exactly as they are. The description now documents
+    the real behavior.
