@@ -1,0 +1,15 @@
+---
+
+bugfixes:
+  - >
+    ``run`` role - The nine feature flags (``run_postfix_relay_domains_manage``,
+    ``run_postfix_access_manage``, ``run_postfix_aliases_manage``,
+    ``run_postfix_canonical_manage``, ``run_postfix_generic_manage``,
+    ``run_postfix_relocated_manage``, ``run_postfix_transport_manage``,
+    ``run_postfix_virtual_manage``, ``run_postfix_smtp_sasl_password_manage``)
+    now accept string booleans such as ``"true"`` (as supplied by key/value
+    extra-vars, ``-e run_postfix_access_manage=true``). The feature gates used
+    strict identity tests against the native boolean ``true``, so a string
+    value silently skipped the requested feature - depending on the flag this
+    omitted access controls, relay domains, lookup tables, aliases, transports
+    or SMTP relay credentials without any error.

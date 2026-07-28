@@ -167,7 +167,12 @@
       #   root@ad.local: rewrite to root@example.com (via generic)
       #   root@alias1.example.com: rewrite to root@example.com (via canonical)
       #   root@alias2.example.com: rewrite to do-not-reply@example.com (via canonical)
-      run_postfix_access_manage: true
+      # Deliberately a quoted string (not a native boolean): regression coverage
+      # for the feature gates accepting string booleans (as supplied by e.g.
+      # key/value extra-vars, -e run_postfix_access_manage=true). The verify
+      # stage still has to prove the access maps are rendered, compiled and
+      # effective with this value.
+      run_postfix_access_manage: "true"
       run_postfix_access_sender_map:
         # Exercised by the verify stage: proves the sender restriction class
         # blocks by SENDER address. With the previous bare "<type>:<path>" class

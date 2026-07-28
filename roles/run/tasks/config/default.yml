@@ -33,7 +33,7 @@
 
 - name: "Config | Default | Relay domains"
   when:
-    - run_postfix_relay_domains_manage is ansible.builtin.true
+    - run_postfix_relay_domains_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Relay domains: Inform if 'relay_domains' config value will be overwritten"
@@ -88,7 +88,7 @@
 
 - name: "Config | Default | Lookup-table 'access'"
   when:
-    - run_postfix_access_manage is ansible.builtin.true
+    - run_postfix_access_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'access': Warn about deprecated Postfix settings"
@@ -163,7 +163,7 @@
 
 - name: "Config | Default | Lookup-table 'aliases'"
   when:
-    - run_postfix_aliases_manage is ansible.builtin.true
+    - run_postfix_aliases_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'aliases': Inform if 'alias_maps' config value gets extended"
@@ -243,7 +243,7 @@
 
 - name: "Config | Default | Lookup-table 'canonical'"
   when:
-    - run_postfix_canonical_manage is ansible.builtin.true
+    - run_postfix_canonical_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'canonical': Inform if 'recipient_canonical_maps' config value gets extended"
@@ -344,7 +344,7 @@
 
 - name: "Config | Default | Lookup-table 'generic'"
   when:
-    - run_postfix_generic_manage is ansible.builtin.true
+    - run_postfix_generic_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'generic': Inform if 'lmtp_generic_maps' config value gets extended"
@@ -425,7 +425,7 @@
 
 - name: "Config | Default | Lookup-table 'relocated'"
   when:
-    - run_postfix_relocated_manage is ansible.builtin.true
+    - run_postfix_relocated_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'relocated': Inform if 'relocated_maps' config value gets extended"
@@ -475,7 +475,7 @@
 
 - name: "Config | Default | Lookup-table 'transport'"
   when:
-    - run_postfix_transport_manage is ansible.builtin.true
+    - run_postfix_transport_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'transport': Inform if 'transport_maps' config value gets extended"
@@ -524,7 +524,7 @@
 
 - name: "Config | Default | Lookup-table 'virtual'"
   when:
-    - run_postfix_virtual_manage is ansible.builtin.true
+    - run_postfix_virtual_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | Lookup-table 'virtual': Inform if 'virtual_alias_maps' config value gets extended"
@@ -615,7 +615,7 @@
 
 - name: "Config | Default | SMTP SASL password credentials"
   when:
-    - run_postfix_smtp_sasl_password_manage is ansible.builtin.true
+    - run_postfix_smtp_sasl_password_manage | ansible.builtin.bool
   block:
 
     - name: "Config | Default | SMTP SASL password credentials: Inform if 'smtp_sasl_password_maps' config value gets extended"
