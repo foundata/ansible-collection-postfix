@@ -1,0 +1,319 @@
+# Curated Postfix edge/submission configuration for usage with Dovecot and LDAP.
+#
+# Required inventory variables:
+#
+# postfix_playbook_mail_hostname: "mail.example.com"
+# postfix_playbook_mail_domains: ["example.com"]
+# postfix_playbook_postmaster_recipient: "mail-admin@example.com"
+# postfix_playbook_tls_cert_file: "/etc/ssl/certs/mail.example.com/fullchain.pem"
+# postfix_playbook_tls_key_file: "/etc/ssl/private/mail.example.com/key.pem"
+# postfix_playbook_relayhost: "[customer.relay.hornetsecurity.com]:25"
+#
+# This playbook assumes an Upstream relay to send mails out into the Internet
+# and the relay authorizes by firewalling (e.g. IP address source and domain.)
+# If the contracted relay instead requires credentials, set:
+#
+# postfix_playbook_relay_auth_enabled: true
+# postfix_playbook_relay_username: "<vault-backed username>"
+# postfix_playbook_relay_password: "<vault-backed password>"
+#
+# This playbook assumes Dovecot runs on the same host and exposes:
+#
+# - private/dovecot-lmtp
+# - private/auth
+# - private/quota-status
+#
+# Certificate issuance, firewalling, DNS records, DKIM signing, monitoring,
+# backups, and tenant/network configuration remain deployment responsibilities.
+
+---
+
+- name: "Configure Postfix for Dovecot LDAP mailboxes and an upstream relay"
+  hosts: "{{ postfix_playbook_hosts | ansible.builtin.default('mailservers') }}"
+  become: true
+  gather_facts: true
+  pre_tasks:
+
+    - name: "Require the deployment-specific mail parameters"
+      ansible.builtin.assert:
+        that:
+          - "(lookup('ansible.builtin.vars', item, default='') | ansible.builtin.string | ansible.builtin.length) > 0"
+        quiet: true
+        fail_msg: "Required deployment variable '{{ item }}' is missing or empty."
+        success_msg: "All required Postfix deployment parameters are set."
+      loop:
+        - "postfix_playbook_mail_hostname"
+        - "postfix_playbook_postmaster_recipient"
+        - "postfix_playbook_tls_cert_file"
+        - "postfix_playbook_tls_key_file"
+        - "postfix_playbook_relayhost"
+
+
+    - name: "Validate the hosted mail domains"
+      ansible.builtin.assert:
+        that:
+          - postfix_playbook_mail_domains is ansible.builtin.sequence
+          - postfix_playbook_mail_domains is not ansible.builtin.string
+          - (postfix_playbook_mail_domains | ansible.builtin.length) > 0
+          - (postfix_playbook_mail_domains | ansible.builtin.unique | ansible.builtin.length)
+            == (postfix_playbook_mail_domains | ansible.builtin.length)
+          - postfix_playbook_mail_domains
+            | ansible.builtin.select('ansible.builtin.match', '^(?!-)[a-z0-9.-]+(?<!-)$')
+            | ansible.builtin.list
+            | ansible.builtin.length
+            == postfix_playbook_mail_domains | ansible.builtin.length
+        quiet: true
+        fail_msg: "postfix_playbook_mail_domains must contain unique lowercase DNS domain names."
+        success_msg: "Hosted mail domains are valid."
+
+
+    - name: "Resolve optional Postfix deployment parameters"
+      ansible.builtin.set_fact:
+        postfix_playbook_relay_auth_enabled: >-
+          {{ postfix_playbook_relay_auth_enabled | ansible.builtin.default(false) | ansible.builtin.bool }}
+        postfix_playbook_relay_username: "{{ postfix_playbook_relay_username | ansible.builtin.default('') }}"
+        postfix_playbook_relay_password: "{{ postfix_playbook_relay_password | ansible.builtin.default('') }}"
+        postfix_playbook_message_size_limit: "{{ postfix_playbook_message_size_limit | ansible.builtin.default(52428800) }}"
+        postfix_playbook_mynetworks: >-
+          {{
+            postfix_playbook_mynetworks
+            | ansible.builtin.default(['127.0.0.0/8', '[::ffff:127.0.0.0]/104', '[::1]/128'])
+          }}
+        postfix_playbook_transport_map: {}
+        postfix_playbook_virtual_alias_map: {}
+
+
+    - name: "Require both relay credentials when relay authentication is enabled"
+      ansible.builtin.assert:
+        that:
+          - (postfix_playbook_relay_username | ansible.builtin.length) > 0
+          - (postfix_playbook_relay_password | ansible.builtin.length) > 0
+        quiet: true
+        fail_msg: "Relay authentication requires both relay username and password."
+        success_msg: "Relay credentials are present."
+      when:
+        - postfix_playbook_relay_auth_enabled
+      no_log: true
+
+
+    - name: "Check the TLS certificate and key"
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ postfix_playbook_tls_cert_file }}"
+        - "{{ postfix_playbook_tls_key_file }}"
+      register: postfix_playbook_tls_files
+
+
+    - name: "Require readable TLS certificate material"
+      ansible.builtin.assert:
+        that:
+          - postfix_playbook_tls_file['stat']['exists']
+          - postfix_playbook_tls_file['stat']['isreg']
+        quiet: true
+        fail_msg: "TLS file '{{ postfix_playbook_tls_file['item'] }}' is missing or is not a regular file."
+        success_msg: "TLS file '{{ postfix_playbook_tls_file['item'] }}' exists."
+      loop: "{{ postfix_playbook_tls_files['results'] }}"
+      loop_control:
+        loop_var: "postfix_playbook_tls_file"
+        label: "{{ postfix_playbook_tls_file['item'] }}"
+
+
+    - name: "Build Dovecot LMTP transports for the hosted domains"
+      ansible.builtin.set_fact:
+        postfix_playbook_transport_map: >-
+          {{
+            postfix_playbook_transport_map
+            | ansible.builtin.combine({item: 'lmtp:unix:private/dovecot-lmtp'})
+          }}
+        postfix_playbook_virtual_alias_map: >-
+          {{
+            postfix_playbook_virtual_alias_map
+            | ansible.builtin.combine({
+                'abuse@' ~ item: [postfix_playbook_postmaster_recipient],
+                'hostmaster@' ~ item: [postfix_playbook_postmaster_recipient],
+                'mailer-daemon@' ~ item: [postfix_playbook_postmaster_recipient],
+                'postmaster@' ~ item: [postfix_playbook_postmaster_recipient]
+              })
+          }}
+      loop: "{{ postfix_playbook_mail_domains }}"
+
+  tasks:
+
+    - name: "Include the foundata.postfix.run role"
+      ansible.builtin.include_role:
+        name: "foundata.postfix.run"
+      vars:
+        run_postfix_service_state: "enabled"
+
+        run_postfix_maincf_settings:
+          myhostname: "{{ postfix_playbook_mail_hostname }}"
+          mydomain: "{{ postfix_playbook_mail_domains[0] }}"
+          myorigin: "$mydomain"
+          mydestination:
+            - "$myhostname"
+            - "localhost.$mydomain"
+            - "localhost"
+          mynetworks: "{{ postfix_playbook_mynetworks }}"
+          inet_interfaces: "all"
+          inet_protocols: "all"
+
+          # Hosted domains are relay domains, not local(8) destinations. The
+          # transport map sends them to Dovecot's local LMTP socket.
+          relayhost: "{{ postfix_playbook_relayhost }}"
+          relay_domains: "lmdb:/etc/postfix/relay_domains"
+          transport_maps: "lmdb:/etc/postfix/transport"
+          virtual_alias_maps: "lmdb:/etc/postfix/virtual"
+
+          # Dovecot rejects nonexistent recipients during Postfix address
+          # verification and reports over-quota mailboxes through the policy
+          # socket. DUNNO from quota-status continues normal Postfix checks.
+          address_verify_transport_maps: "$transport_maps"
+          unverified_recipient_reject_code: 550
+          smtpd_recipient_restrictions:
+            - "check_policy_service unix:private/quota-status"
+          smtpd_relay_restrictions:
+            - "reject_non_fqdn_sender"
+            - "reject_non_fqdn_recipient"
+            - "reject_unknown_sender_domain"
+            - "reject_unknown_recipient_domain"
+            - "reject_unknown_helo_hostname"
+            - "permit_mynetworks"
+            - "reject_unverified_recipient"
+            - "reject_unauth_destination"
+            - "reject"
+
+          # Public MX SMTP offers opportunistic TLS. Submission services below
+          # override this to mandatory TLS and authenticated clients only.
+          smtpd_tls_security_level: "may"
+          smtpd_tls_cert_file: "{{ postfix_playbook_tls_cert_file }}"
+          smtpd_tls_key_file: "{{ postfix_playbook_tls_key_file }}"
+          smtpd_tls_auth_only: "yes"
+          smtpd_tls_protocols: ">=TLSv1.2"
+          smtpd_tls_mandatory_protocols: ">=TLSv1.2"
+          smtpd_tls_ciphers: "high"
+          smtpd_tls_mandatory_ciphers: "high"
+          smtpd_tls_received_header: "yes"
+          smtpd_tls_session_cache_database: "btree:${data_directory}/smtpd_scache"
+          tls_preempt_cipherlist: "no"
+
+          # All non-local delivery goes through the contracted relay. TLS is
+          # mandatory and certificate validation uses the operating-system CA
+          # trust store. Authentication is optional because source-IP/domain
+          # authorization is common for many commercial upstream relay contracts.
+          smtp_tls_security_level: "encrypt"
+          smtp_tls_CAfile: "/etc/ssl/certs/ca-certificates.crt"
+          smtp_tls_protocols: ">=TLSv1.2"
+          smtp_tls_mandatory_protocols: ">=TLSv1.2"
+          smtp_tls_ciphers: "high"
+          smtp_tls_mandatory_ciphers: "high"
+          smtp_tls_session_cache_database: "btree:${data_directory}/smtp_scache"
+          smtp_sasl_auth_enable: "{{ postfix_playbook_relay_auth_enabled | ternary('yes', 'no') }}"
+          smtp_sasl_password_maps: >-
+            {{
+              postfix_playbook_relay_auth_enabled
+              | ansible.builtin.ternary('lmdb:/etc/postfix/smtp_sasl_password', '')
+            }}
+          smtp_sasl_security_options: "noanonymous,noplaintext"
+          smtp_sasl_tls_security_options: "noanonymous"
+
+          # Dovecot SASL is enabled globally for the submission-service
+          # overrides, while port 25 explicitly disables AUTH in master.cf.
+          smtpd_sasl_auth_enable: "yes"
+          smtpd_sasl_type: "dovecot"
+          smtpd_sasl_path: "private/auth"
+          smtpd_sasl_security_options: "noanonymous"
+          broken_sasl_auth_clients: "no"
+
+          # Protocol abuse and information-disclosure hardening.
+          disable_vrfy_command: "yes"
+          smtpd_delay_reject: "yes"
+          smtpd_helo_required: "yes"
+          smtpd_data_restrictions: "reject_unauth_pipelining"
+          smtpd_etrn_restrictions: "reject"
+          smtpd_forbid_bare_newline: "normalize"
+          smtpd_forbid_bare_newline_exclusions: "$mynetworks"
+          strict_rfc821_envelopes: "yes"
+          allow_percent_hack: "no"
+          swap_bangpath: "no"
+
+          message_size_limit: "{{ postfix_playbook_message_size_limit }}"
+          mailbox_size_limit: 0
+          header_size_limit: 4096000
+          recipient_delimiter: "+"
+          maximal_queue_lifetime: "5d"
+          bounce_queue_lifetime: "5d"
+          delay_warning_time: "4h"
+
+        run_postfix_mastercf_settings:
+          smtp:
+            type: "inet"
+            private: "n"
+            unpriv: "-"
+            chroot: "n"
+            wakeup: "-"
+            maxproc: "-"
+            command_args: "smtpd -o smtpd_sasl_auth_enable=no"
+          submission:
+            type: "inet"
+            private: "n"
+            unpriv: "-"
+            chroot: "n"
+            wakeup: "-"
+            maxproc: "-"
+            command_args: >-
+              smtpd
+              -o syslog_name=postfix/submission
+              -o smtpd_tls_security_level=encrypt
+              -o smtpd_sasl_auth_enable=yes
+              -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+              -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
+              -o smtpd_recipient_restrictions=
+              -o milter_macro_daemon_name=ORIGINATING
+          smtps:
+            type: "inet"
+            private: "n"
+            unpriv: "-"
+            chroot: "n"
+            wakeup: "-"
+            maxproc: "-"
+            command_args: >-
+              smtpd
+              -o syslog_name=postfix/smtps
+              -o smtpd_tls_wrappermode=yes
+              -o smtpd_sasl_auth_enable=yes
+              -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+              -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
+              -o smtpd_recipient_restrictions=
+              -o milter_macro_daemon_name=ORIGINATING
+
+        run_postfix_relay_domains_manage: true
+        run_postfix_relay_domains_list_tabletype: "lmdb"
+        run_postfix_relay_domains_list: "{{ postfix_playbook_mail_domains }}"
+
+        run_postfix_aliases_manage: true
+        run_postfix_aliases_map_tabletype: "lmdb"
+        run_postfix_aliases_map:
+          root: "{{ postfix_playbook_postmaster_recipient }}"
+
+        run_postfix_transport_manage: true
+        run_postfix_transport_map_tabletype: "lmdb"
+        run_postfix_transport_map: "{{ postfix_playbook_transport_map }}"
+
+        run_postfix_virtual_manage: true
+        run_postfix_virtual_aliasdomains_list_tabletype: "lmdb"
+        run_postfix_virtual_aliasdomains_list: []
+        run_postfix_virtual_alias_map_tabletype: "lmdb"
+        run_postfix_virtual_alias_map: "{{ postfix_playbook_virtual_alias_map }}"
+
+        run_postfix_smtp_sasl_password_manage: "{{ postfix_playbook_relay_auth_enabled }}"
+        run_postfix_smtp_sasl_password_map_tabletype: "lmdb"
+        run_postfix_smtp_sasl_password_map: >-
+          {{
+            {
+              postfix_playbook_relayhost:
+                postfix_playbook_relay_username ~ ':' ~ postfix_playbook_relay_password
+            }
+            if postfix_playbook_relay_auth_enabled
+            else {}
+          }}

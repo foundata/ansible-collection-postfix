@@ -1,0 +1,5 @@
+minor_changes:
+  - >-
+    Add a production-oriented Postfix playbook example for LDAP-backed Dovecot
+    mailboxes, authenticated submission, LMTP delivery, quota checks, and a
+    mandatory-TLS upstream relay.
