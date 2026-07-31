@@ -1,0 +1,7 @@
+---
+
+trivial:
+  - >
+    style only, no functional change: normalize categorical string facts
+    (``os_family``, ``distribution``) to lowercase at comparison time with
+    ``ansible.builtin.lower`` and use lowercase comparison values.
