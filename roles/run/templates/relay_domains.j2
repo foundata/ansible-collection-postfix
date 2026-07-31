@@ -10,7 +10,7 @@
 # the same host (e.g. to put Postfix in front of a service like Dovecot or Cyrus
 # which is the final destination then).
 #
-{% if run_postfix_transport_manage %}
+{% if run_postfix_transport_manage | ansible.builtin.bool %}
 # The transport map is defined in the following file:
 # {{ __run_postfix_table_transport_file_path }}
 #

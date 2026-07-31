@@ -9,7 +9,7 @@
 # by Postfix itself to prevent "Mail loops back to myself" errors. The format
 # is typically domain or email address patterns followed by their
 # transport:nexthop destination.
-{% if run_postfix_relay_domains_manage %}
+{% if run_postfix_relay_domains_manage | ansible.builtin.bool %}
 # The accepted (relayed) domains are defined in the following file:
 # {{ __run_postfix_relaydomains_file_path }}
 #
