@@ -3,4 +3,7 @@
 release_summary: |
   Release Date: 2026-07-30
 
-  Maintenance and bugfix release (with one *potentially* breaking change: Ports 465 (smtps) and 587 (submission) are no longer opened by the default; therefore requires a major version bump according to Semantic Versioning).
+  Maintenance and bugfix release (with one *potentially* breaking change:
+  Ports 465 (smtps) and 587 (submission) are no longer opened by the
+  default; therefore requires a major version bump according to Semantic
+  Versioning).
