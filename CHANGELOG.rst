@@ -4,6 +4,21 @@ foundata.postfix Ansible collection Release Notes
 
 .. contents:: Topics
 
+v2.0.1
+======
+
+Release Summary
+---------------
+
+Release Date: 2026-08-13
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- boolean role arguments are now coerced with ``ansible.builtin.bool`` in every conditional expression. String values, as delivered by ``-e var=false`` command line extra-vars, were evaluated by truthiness before, so ``"false"`` enabled the gated behavior instead of disabling it.
+
 v2.0.0
 ======
 

@@ -1,6 +1,26 @@
 ---
 ancestor: null
 releases:
+  2.0.1:
+    changes:
+      bugfixes:
+        - 'boolean role arguments are now coerced with ``ansible.builtin.bool`` in
+          every conditional expression. String values, as delivered by ``-e var=false``
+          command line extra-vars, were evaluated by truthiness before, so ``"false"``
+          enabled the gated behavior instead of disabling it.
+
+          '
+      release_summary: 'Release Date: 2026-08-13
+
+
+        Bugfix release.
+
+        '
+    fragments:
+      - 2.0.1-release.yaml
+      - bool-coercion.yml
+      - style-fact-normalization.yml
+    release_date: '2026-08-13'
   2.0.0:
     changes:
       breaking_changes:
