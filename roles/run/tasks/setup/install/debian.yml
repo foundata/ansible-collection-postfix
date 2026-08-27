@@ -8,10 +8,10 @@
 
 - name: "Setup | Install | Debian | Pre-configure packages"
   ansible.builtin.debconf:
-    name: "{{ item['package'] }}"
-    question: "{{ item['question'] }}"
-    value: "{{ item['value'] }}"
-    vtype: "{{ item['vtype'] }}"
+    name: "{{ __run_postfix_debconf_item['package'] }}"
+    question: "{{ __run_postfix_debconf_item['question'] }}"
+    value: "{{ __run_postfix_debconf_item['value'] }}"
+    vtype: "{{ __run_postfix_debconf_item['vtype'] }}"
   loop:
     # Hint for maintainers:
     # debconf-show postfix; apt install -y debconf-utils; debconf-get-selections postfix
@@ -23,6 +23,8 @@
       question: "{{ __run_postfix_debian_debconf_postfixpkgname }}/mailname"
       value: "{{ __run_postfix_effective_maincf_settings['myhostname'] }}"
       vtype: "string"
+  loop_control:
+    loop_var: "__run_postfix_debconf_item"
   when:
     - __run_postfix_debian_debconf_postfixpkgname is ansible.builtin.defined
     - (__run_postfix_debian_debconf_postfixpkgname | ansible.builtin.length) > 0

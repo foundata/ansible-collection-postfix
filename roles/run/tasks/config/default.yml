@@ -78,10 +78,12 @@
 
     - name: "Config | Default | Relay domains: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ __run_postfix_relay_removal_item }}"
         state: "absent"
       loop:
         - "/etc/postfix/relay"
+      loop_control:
+        loop_var: "__run_postfix_relay_removal_item"
 
 
 ### Lookup table: access (selectively accept, reject, or filter email based on rules with PERMIT, REJECT and DUNNO)
@@ -229,12 +231,14 @@
         # regex_escape: alias names may contain regular expression metacharacters
         # (e.g. "new.name" or "user+tag"), which would otherwise match unrelated
         # lines and miss the intended one.
-        regexp: '^({{ item | ansible.builtin.regex_escape }}:\s*.*)'
+        regexp: '^({{ __run_postfix_alias_key_item | ansible.builtin.regex_escape }}:\s*.*)'
         # The marker records that this role disabled the entry, so the uninstall
         # can restore it without touching entries the administrator disabled.
         replace: '{{ __run_postfix_table_aliases_disabled_marker }}\1'
         before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
       loop: "{{ __run_postfix_effective_aliases_map.keys() | ansible.builtin.list }}"
+      loop_control:
+        loop_var: "__run_postfix_alias_key_item"
       notify:
         - "run_postfix: update aliases"
 
@@ -334,10 +338,12 @@
 
     - name: "Config | Default | Lookup-table 'canonical': Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ __run_postfix_canonical_removal_item }}"
         state: "absent"
       loop:
         - "/etc/postfix/canonical" # File exists by default at least on Red Hat
+      loop_control:
+        loop_var: "__run_postfix_canonical_removal_item"
 
 
 ### Lookup table: generic (provides info for "user has moved to new_location" bounce messages)
@@ -786,12 +792,12 @@
   ansible.builtin.assert:
     that:
       - (__run_postfix_mastercf_service_fields
-         | ansible.builtin.difference(__run_postfix_mastercf_service['value'] | ansible.builtin.list)
+         | ansible.builtin.difference(__run_postfix_mastercf_service_item['value'] | ansible.builtin.list)
          | ansible.builtin.length) == 0
     fail_msg: >-
-      The master.cf service "{{ __run_postfix_mastercf_service['key'] }}" is missing the
+      The master.cf service "{{ __run_postfix_mastercf_service_item['key'] }}" is missing the
       field(s): {{ __run_postfix_mastercf_service_fields
-                   | ansible.builtin.difference(__run_postfix_mastercf_service['value'] | ansible.builtin.list)
+                   | ansible.builtin.difference(__run_postfix_mastercf_service_item['value'] | ansible.builtin.list)
                    | ansible.builtin.join(', ') }}.
       Every service in run_postfix_mastercf_settings needs all of:
       {{ __run_postfix_mastercf_service_fields | ansible.builtin.join(', ') }}.
@@ -799,8 +805,8 @@
     quiet: true
   loop: "{{ __run_postfix_effective_mastercf_settings | ansible.builtin.dict2items }}"
   loop_control:
-    loop_var: "__run_postfix_mastercf_service"
-    label: "{{ __run_postfix_mastercf_service['key'] }}"
+    loop_var: "__run_postfix_mastercf_service_item"
+    label: "{{ __run_postfix_mastercf_service_item['key'] }}"
 
 
 - name: "Config | Default | Update master.cf"

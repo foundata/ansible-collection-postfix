@@ -122,10 +122,12 @@
   ansible.builtin.include_vars:
     file: "{{ __run_postfix_vars_file }}"
   vars:
-    __run_postfix_vars_file: "{{ role_path }}/vars/{{ item }}"
+    __run_postfix_vars_file: "{{ role_path }}/vars/{{ __run_postfix_varsfile_item }}"
   when:
     - __run_postfix_vars_file is ansible.builtin.file
   loop: "{{ __run_postfix_platform_filenames_most_specific_last }}"
+  loop_control:
+    loop_var: "__run_postfix_varsfile_item"
 
 
 ### Postfix specific
@@ -153,7 +155,7 @@
 # in vars/main.yml.
 - name: "Init | Show effective merged variables (computed lazily in vars/main.yml)"
   ansible.builtin.debug:
-    msg: "{{ __run_postfix_effective_var }} = {{ lookup('ansible.builtin.vars', __run_postfix_effective_var) }}"
+    msg: "{{ __run_postfix_effective_var_item }} = {{ lookup('ansible.builtin.vars', __run_postfix_effective_var_item) }}"
     verbosity: 3
   loop:
     - "__run_postfix_effective_mastercf_settings"
@@ -171,8 +173,8 @@
     # __run_postfix_effective_smtp_sasl_password_map is deliberately NOT listed
     # here: its values are relay credentials. Only its keys are shown below.
   loop_control:
-    loop_var: "__run_postfix_effective_var"
-    label: "{{ __run_postfix_effective_var }}"
+    loop_var: "__run_postfix_effective_var_item"
+    label: "{{ __run_postfix_effective_var_item }}"
 
 
 # Values are relay credentials, so only the lookup keys (the relay hosts) are

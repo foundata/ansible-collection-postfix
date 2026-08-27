@@ -9,7 +9,7 @@
 # covered and which files are deliberately left alone.
 - name: "Setup | Uninstall | Remove the lookup table files created by this role and their compiled databases"
   ansible.builtin.file:
-    path: "{{ item[0] }}{{ item[1] }}"
+    path: "{{ __run_postfix_uninstall_path_item[0] }}{{ __run_postfix_uninstall_path_item[1] }}"
     state: "absent"
   loop: >-
     {{
@@ -18,7 +18,8 @@
       | ansible.builtin.list
     }}
   loop_control:
-    label: "{{ item[0] }}{{ item[1] }}"
+    loop_var: "__run_postfix_uninstall_path_item"
+    label: "{{ __run_postfix_uninstall_path_item[0] }}{{ __run_postfix_uninstall_path_item[1] }}"
 
 
 # /etc/aliases itself is a system file shared with any other local MTA, so it is

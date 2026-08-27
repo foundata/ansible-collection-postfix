@@ -17,12 +17,14 @@
   ansible.builtin.command:
     argv:
       - "{{ __run_postfix_postmap_exec_path }}"
-      - "{{ item }}"
+      - "{{ __run_postfix_postmap_item }}"
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
   #    this converts dictionaries to strings objects, needing additional care.
   loop: "{{ lookup('ansible.builtin.template', 'helper_postmap_paths.j2') }}"
+  loop_control:
+    loop_var: "__run_postfix_postmap_item"
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
@@ -53,12 +55,14 @@
     # command instead.
     argv:
       - "{{ __run_postfix_postalias_exec_path }}"
-      - "{{ item }}"
+      - "{{ __run_postfix_postalias_item }}"
   # Using an external template file because:
   # 1. Single-line inline templates are hard to read and maintain
   # 2. Inline multiline Jinja2 with block scalars (>-) are no alternative as
   #    this converts dictionaries to strings objects, needing additional care.
   loop: "{{ lookup('ansible.builtin.template', 'helper_postalias_paths.j2') }}"
+  loop_control:
+    loop_var: "__run_postfix_postalias_item"
   changed_when:
     # The command does not output anything useful to detect changes and rewrites
     # the .db file in any successful case, even if the input data was not
