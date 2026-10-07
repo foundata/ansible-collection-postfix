@@ -1,0 +1,23 @@
+---
+- name: "Molecule | Verify | Check map package detection including proxy wrappers"
+  ansible.builtin.assert:
+    that:
+      - __map_backends_actual == ['ldap', 'lmdb', 'mysql', 'pcre', 'pgsql', 'sqlite']
+    quiet: true
+  vars:
+    __map_backends_actual: >-
+      {{ lookup('ansible.builtin.template', playbook_dir ~ '/../../../../roles/run/templates/helper_list_map_backends.j2') }}
+    tpl_managed_backends: ["", "pcre", "pcre", "unavailable"]
+    tpl_package_backends:
+      ldap: ["postfix-ldap"]
+      lmdb: ["postfix-lmdb"]
+      mysql: ["postfix-mysql"]
+      pcre: ["postfix-pcre"]
+      pgsql: ["postfix-pgsql"]
+      sqlite: ["postfix-sqlite"]
+    tpl_settings:
+      virtual_mailbox_maps: "proxy:ldap:/etc/postfix/mailboxes.cf"
+      virtual_alias_maps: ["proxy:mysql:/etc/postfix/aliases.cf", "lmdb:/etc/postfix/virtual"]
+      smtpd_recipient_restrictions: "check_recipient_access proxy:pgsql:/etc/postfix/access.cf, reject_unauth_destination"
+      sender_dependent_relayhost_maps: "proxy:sqlite:/etc/postfix/relay.cf"
+      ignored: "static:OK, cidr:/etc/postfix/trusted, unknown:/etc/postfix/unknown"

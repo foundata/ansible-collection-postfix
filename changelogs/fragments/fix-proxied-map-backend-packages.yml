@@ -1,0 +1,7 @@
+---
+bugfixes:
+  - >-
+    run - Install backend packages for proxy-wrapped lookup maps such as
+    ``proxy:ldap:/etc/postfix/ldap.cf``. Previously the wrapper was retained
+    in the extracted backend name, so the required package was skipped.
+    Restart Postfix after backend package changes so existing workers load them.
