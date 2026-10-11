@@ -3,6 +3,9 @@
 # Only tasks specific to the platform and its functionality should be included
 # here. Tasks in this file will be executed before those defined in
 # install/default.yml.
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
 

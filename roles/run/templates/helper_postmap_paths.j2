@@ -6,6 +6,9 @@
    - transport_maps: "lmdb:/etc/postfix/transport"
    - smtpd_recipient_restrictions: "check_recipient_access lmdb:/etc/postfix/access-recipient, check_sender_access lmdb:/etc/postfix/access-sender, permit_mx_backup, permit"
    [...]
+
+SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+SPDX-License-Identifier: GPL-3.0-or-later
 #}
 {% set paths = [] %}
 {% for key, value in __run_postfix_effective_maincf_settings.items() %}

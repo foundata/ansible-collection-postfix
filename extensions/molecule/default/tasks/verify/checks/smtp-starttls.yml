@@ -1,4 +1,7 @@
 # Include where useful: SMTP dialog (STARTTLS)
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 - name: "Molecule | Verify | SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:

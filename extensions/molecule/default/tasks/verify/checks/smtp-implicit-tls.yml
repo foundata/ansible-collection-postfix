@@ -1,4 +1,7 @@
 # Include where useful: SMTP dialog (implicit TLS / wrapper mode, e.g. smtps 465)
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 - name: "Molecule | Verify | SMTP (implicit TLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:

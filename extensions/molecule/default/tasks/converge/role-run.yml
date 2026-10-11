@@ -1,4 +1,7 @@
 # Execute the collection role "run" against all driver-created instances.
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # The following task avoids fragile workarounds (like parsing container names)
 # if additional platform specific preparations are needed. But it prevents

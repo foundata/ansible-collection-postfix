@@ -5,6 +5,9 @@
    - alias_database: "hash:/etc/aliases"
    - alias_maps: "hash:/etc/aliases, nis:mail.aliases"
    [...]
+
+SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+SPDX-License-Identifier: GPL-3.0-or-later
 #}
 {% set paths = [] %}
 {% for key, value in __run_postfix_effective_maincf_settings.items() %}

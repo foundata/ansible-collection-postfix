@@ -1,5 +1,10 @@
 # Ansible role: `foundata.postfix.run`
 
+<!--
+SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 The `foundata.postfix.run` Ansible role (part of the `foundata.postfix` Ansible collection).
 
 It provides automated configuration management of Postfix across major platforms. It does not explain how to create a good Postfix configuration that suits your requirements; that task remains for you to accomplish. However, the [examples playbooks](#examples) may help you a bit with that.

@@ -1,4 +1,7 @@
 # Services and daemons: Manage their state, configure, or create them.
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
 

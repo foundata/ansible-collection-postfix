@@ -25,6 +25,9 @@
 #
 # Certificate issuance, firewalling, DNS records, DKIM signing, monitoring,
 # backups, and tenant/network configuration remain deployment responsibilities.
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
 
