@@ -1,3 +1,4 @@
+---
 # Include where useful: SMTP dialog (basic)
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
@@ -8,25 +9,23 @@
     command: |
       {{ __testing_telnet_executable }} {{ __testing_hostdata['host'] | ansible.builtin.quote }} {{ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
-      '(?i)220.*\r?\n': "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
-      '(?i)250 .*\r?\n': "QUIT"
-      '(?i)221.*\r?\n': ""
+      "(?i)220.*\\r?\\n": "EHLO {{ __testing_hostdata['smtp_hostname'] }}"
+      "(?i)250 .*\\r?\\n": "QUIT"
+      "(?i)221.*\\r?\\n": ""
     timeout: 5
   changed_when:
     - false
   failed_when:
     # rc is ansible.builtin.none/null on timeout
     # telnet exits with 1 when it reaches EOF without user input
-    - (__testing_run_postfix_smtp_basic_result['rc'] is ansible.builtin.none) or
-      (__testing_run_postfix_smtp_basic_result['rc'] > 1) or
-      ('Connected to ' ~ __testing_hostdata['host']) not in __testing_run_postfix_smtp_basic_result['stdout']
+    - (__testing_run_postfix_smtp_basic_result['rc'] is ansible.builtin.none) or (__testing_run_postfix_smtp_basic_result['rc'] > 1) or ('Connected to ' ~
+      __testing_hostdata['host']) not in __testing_run_postfix_smtp_basic_result['stdout']
   register: __testing_run_postfix_smtp_basic_result
-
 
 - name: "Molecule | Verify | Assert correct answers: SMTP {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
-      - __testing_run_postfix_smtp_basic_result is succeeded
+      - __testing_run_postfix_smtp_basic_result is ansible.builtin.succeeded
       - ('220 ' ~ __testing_hostdata['smtp_hostname'] ~ ' ESMTP') in __testing_run_postfix_smtp_basic_result['stdout']
       - ('250 ') in __testing_run_postfix_smtp_basic_result['stdout']
       - ('221 ') in __testing_run_postfix_smtp_basic_result['stdout']

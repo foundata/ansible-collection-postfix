@@ -1,3 +1,4 @@
+---
 # Check collection role "run" outcomes.
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
@@ -8,7 +9,6 @@
     name: "foundata.postfix.run"
     tasks_from: "init"
     public: true
-
 
 ## Preparation
 
@@ -45,15 +45,12 @@
     __testing_sasl_auth_username_base64: "am9obmRvZQ==" # johndoe
     __testing_sasl_auth_password_base64: "SGFsbG8xMjNwb3N0Zml4X18=" # Hallo123postfix__
 
-
 - name: "Molecule | Verify | Gather playbook-specific facts"
   ansible.builtin.setup:
     gather_subset:
       - "distribution"
   when:
-    - ansible_facts['distribution'] is not ansible.builtin.defined or
-      ansible_facts['os_family'] is not ansible.builtin.defined
-
+    - ansible_facts['distribution'] is not ansible.builtin.defined or ansible_facts['os_family'] is not ansible.builtin.defined
 
 - name: "Molecule | Verify | Gather service facts"
   ansible.builtin.service_facts:
@@ -63,7 +60,6 @@
   ansible.builtin.debug:
     var: ansible_facts['services']
     verbosity: 3
-
 
 ## Service state
 
@@ -86,18 +82,15 @@
       #       "status": "enabled"
       #   },
       - (ansible_facts['services'][__run_postfix_postfix_servicename] is ansible.builtin.defined and
-         ansible_facts['services'][__run_postfix_postfix_servicename]['state'] == 'running')
-        or
-        (ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')] is ansible.builtin.defined and
-         ansible_facts['services'][__run_postfix_postfix_servicename | ansible.builtin.regex_replace('\.service$', '')]['state'] == 'running')
+        ansible_facts['services'][__run_postfix_postfix_servicename]['state'] == 'running') or (ansible_facts['services'][__run_postfix_postfix_servicename |
+        ansible.builtin.regex_replace('\.service$', '')] is ansible.builtin.defined and ansible_facts['services'][__run_postfix_postfix_servicename |
+        ansible.builtin.regex_replace('\.service$', '')]['state'] == 'running')
     fail_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is not running"
     success_msg: "Postfix service '{{ __run_postfix_postfix_servicename }}' is running"
 
-
 - name: "Molecule | Verify | Set regular expression to search for postfix warnings and errors in the journal"
   ansible.builtin.set_fact:
-    __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):'
-
+    __testing_postfix_regex_searchwarningerror: "(?i)\\b(warning|error):"
 
 # Exclude OpenSSL version mismatch warnings on Enterprise Linux 9/10:
 # "run-time library vs. compile-time header version mismatch: OpenSSL <version> may not be compatible with OpenSSL 3.2.0"
@@ -106,12 +99,11 @@
 # does not resolve this issue)
 - name: "Molecule | Verify | Overwrite regular expression to search for warnings and errors in the journal for specific Red Hat-like platforms"
   ansible.builtin.set_fact:
-    __testing_postfix_regex_searchwarningerror: '(?i)\b(warning|error):(?!.*header version mismatch: OpenSSL)'
+    __testing_postfix_regex_searchwarningerror: "(?i)\\b(warning|error):(?!.*header version mismatch: OpenSSL)"
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
     - ansible_facts['distribution_major_version'] is ansible.builtin.defined
     - ansible_facts['distribution_major_version'] is ansible.builtin.version('10', '<=')
-
 
 - name: "Molecule | Verify | Check journal for warnings or errors: Postfix"
   ansible.builtin.command:
@@ -121,9 +113,8 @@
   changed_when:
     - false
   failed_when:
-    - (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
+    - (__testing_run_postfix_journalctlcheck_result['stdout'] is ansible.builtin.search(__testing_postfix_regex_searchwarningerror))
   register: __testing_run_postfix_journalctlcheck_result
-
 
 - name: "Molecule | Verify | Capture start timestamp for journal filtering before running further tests"
   ansible.builtin.set_fact:
@@ -139,7 +130,7 @@
   vars:
     __testing_hostdata: "{{ item }}"
   when:
-    __testing_hostdata is ansible.builtin.defined
+    - __testing_hostdata is ansible.builtin.defined
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_smtp'] }}"
@@ -151,7 +142,6 @@
       port: "{{ __testing_mastercf['port_smtp_unusual'] }}"
       smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
 
-
 - name: "Molecule | Verify | Run SMTP tests: STARTTLS"
   ansible.builtin.include_tasks:
     file: >-
@@ -160,12 +150,11 @@
   vars:
     __testing_hostdata: "{{ item }}"
   when:
-    __testing_hostdata is ansible.builtin.defined
+    - __testing_hostdata is ansible.builtin.defined
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_submission'] }}"
       smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
-
 
 - name: "Molecule | Verify | Run SMTP tests: implicit TLS (smtps)"
   ansible.builtin.include_tasks:
@@ -175,12 +164,11 @@
   vars:
     __testing_hostdata: "{{ item }}"
   when:
-    __testing_hostdata is ansible.builtin.defined
+    - __testing_hostdata is ansible.builtin.defined
   loop:
     - host: "127.0.0.1"
       port: "{{ __testing_mastercf['port_smtps'] }}"
       smtp_hostname: "{{ run_postfix_maincf_settings['myhostname'] }}"
-
 
 ### Lookup table results: access
 
@@ -188,12 +176,10 @@
   when:
     - run_postfix_access_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read access_recipient file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_access_recipient_file_path }}"
       register: __testing_access_recipient_file
-
 
     - name: "Molecule | Verify | Assert access_recipient file contents"
       ansible.builtin.assert:
@@ -202,7 +188,6 @@
           - "'/^do-not-reply@example.com$/im\tREJECT' in (__testing_access_recipient_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_access_recipient_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_access_recipient_file_path }}"
-
 
     - name: "Molecule | Verify | Check if access_recipient database file exists / handler worked"
       ansible.builtin.stat:
@@ -219,12 +204,10 @@
         - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
 
-
     - name: "Molecule | Verify | Read access_sender file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_access_sender_file_path }}"
       register: __testing_access_sender_file
-
 
     - name: "Molecule | Verify | Assert access_sender file contents"
       ansible.builtin.assert:
@@ -254,7 +237,6 @@
       failed_when:
         - __testing_access_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_access_db_stat
-
 
     # Behavioural probe (not just file content): a bare "<type>:<path>" in the
     # sender restriction class inherits the recipient context of
@@ -304,8 +286,8 @@
               sys.stderr.write("ACCESS PROBE FAILURES: " + "; ".join(failures) + "\n")
               sys.exit(1)
           print("ACCESS PROBE OK: sender and recipient restrictions enforced by address type")
-      changed_when: false
-
+      changed_when:
+        - false
 
 ### Lookup table results: aliases
 
@@ -313,12 +295,10 @@
   when:
     - run_postfix_aliases_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read aliases file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_aliases_file_path }}"
       register: __testing_aliases_file
-
 
     - name: "Molecule | Verify | Assert aliases file contents"
       ansible.builtin.assert:
@@ -327,7 +307,6 @@
           - "'molecule:\t\t\troot' in (__testing_aliases_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_aliases_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_aliases_file_path }}"
-
 
     # /etc/aliases is a system file: the role may only disable entries it manages,
     # and must mark them so the uninstall can tell them from the administrator's.
@@ -344,7 +323,6 @@
       vars:
         __testing_aliases_decoded: "{{ __testing_aliases_file['content'] | ansible.builtin.b64decode }}"
 
-
     - name: "Molecule | Verify | Check if aliases database file exists / handler worked"
       ansible.builtin.stat:
         path: |-
@@ -360,19 +338,16 @@
         - __testing_aliases_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_aliases_db_stat
 
-
 ### Lookup table results: canonical
 
 - name: "Molecule | Verify | Lookup-table 'canonical'"
   when:
     - run_postfix_canonical_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read canonical_recipient file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_canonical_recipient_file_path }}"
       register: __testing_canonical_recipient_file
-
 
     - name: "Molecule | Verify | Assert canonical_recipient file contents"
       ansible.builtin.assert:
@@ -381,7 +356,6 @@
           - "'@old.example.com\t\t@example.com' in (__testing_canonical_recipient_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_canonical_recipient_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_canonical_recipient_file_path }}"
-
 
     - name: "Molecule | Verify | Check if canonical_recipient database file exists / handler worked"
       ansible.builtin.stat:
@@ -398,12 +372,10 @@
         - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
 
-
     - name: "Molecule | Verify | Read canonical_sender file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_canonical_sender_file_path }}"
       register: __testing_canonical_sender_file
-
 
     - name: "Molecule | Verify | Assert canonical_sender file contents"
       ansible.builtin.assert:
@@ -412,7 +384,6 @@
           - "'/^(.+)@alias2.example.com$/im\tdo-not-reply@example.com' in (__testing_canonical_sender_file['content'] | ansible.builtin.b64decode)"
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_canonical_sender_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_canonical_sender_file_path }}"
-
 
     - name: "Molecule | Verify | Check if canonical_sender database file exists / handler worked"
       ansible.builtin.stat:
@@ -429,19 +400,16 @@
         - __testing_canonical_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_canonical_db_stat
 
-
 ### Lookup table results: relocated
 
 - name: "Molecule | Verify | Lookup-table 'relocated'"
   when:
     - run_postfix_relocated_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read relocated file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_relocated_file_path }}"
       register: __testing_relocated_file
-
 
     - name: "Molecule | Verify | Assert relocated file contents"
       ansible.builtin.assert:
@@ -452,7 +420,6 @@
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_relocated_file_path }}"
       vars:
         __testing_decoded: "{{ __testing_relocated_file['content'] | ansible.builtin.b64decode }}"
-
 
     - name: "Molecule | Verify | Check if relocated database file exists / handler worked"
       ansible.builtin.stat:
@@ -469,19 +436,16 @@
         - __testing_relocated_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_relocated_db_stat
 
-
 ### Lookup table results: generic
 
 - name: "Molecule | Verify | Lookup-table 'generic'"
   when:
     - run_postfix_generic_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read generic file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_generic_file_path }}"
       register: __testing_generic_file
-
 
     - name: "Molecule | Verify | Assert generic file contents"
       ansible.builtin.assert:
@@ -489,7 +453,6 @@
           - "'/^(.+)@ad\\.local$/im\t\t$1@example.com' in (__testing_generic_file['content'] | ansible.builtin.b64decode)"
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_generic_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_generic_file_path }}"
-
 
     - name: "Molecule | Verify | Check if generic database file exists / handler worked"
       ansible.builtin.stat:
@@ -506,19 +469,16 @@
         - __testing_generic_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_generic_db_stat
 
-
 ### Lookup table results: transport
 
 - name: "Molecule | Verify | Lookup-table 'transport'"
   when:
     - run_postfix_transport_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read transport file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_transport_file_path }}"
       register: __testing_transport_file
-
 
     - name: "Molecule | Verify | Assert transport file contents"
       ansible.builtin.assert:
@@ -529,7 +489,6 @@
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_transport_file_path }}"
       vars:
         __testing_decoded: "{{ __testing_transport_file['content'] | ansible.builtin.b64decode }}"
-
 
     - name: "Molecule | Verify | Check if transport database file exists / handler worked"
       ansible.builtin.stat:
@@ -546,28 +505,28 @@
         - __testing_transport_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_transport_db_stat
 
-
 ### Lookup table results: virtual
 
 - name: "Molecule | Verify | Lookup-table 'virtual'"
   when:
     - run_postfix_virtual_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read virtual file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_virtual_file_path }}"
       register: __testing_virtual_file
 
-
     - name: "Molecule | Verify | Assert virtual file contents"
       ansible.builtin.assert:
         that:
-          - "'distribution@example.com\tuser1@actual-destination.example.com, user2@actual-destination.example.com, user3@actual-destination.example.com, user3@actual-destination.example.com' in (__testing_virtual_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs yaml[line-length]
+          - >-
+            ('distribution@example.com\t' ~
+            'user1@actual-destination.example.com, user2@actual-destination.example.com, ' ~
+            'user3@actual-destination.example.com, user3@actual-destination.example.com')
+            in (__testing_virtual_file['content'] | ansible.builtin.b64decode)
           - "'admin@example.com\t\tadmin@actual-destination.example.com' in (__testing_virtual_file['content'] | ansible.builtin.b64decode)" # noqa: no-tabs
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_virtual_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_virtual_file_path }}"
-
 
     - name: "Molecule | Verify | Check if virtual database file exists / handler worked"
       ansible.builtin.stat:
@@ -584,12 +543,10 @@
         - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
 
-
     - name: "Molecule | Verify | Read virtual file (alias domains)"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
       register: __testing_virtual_aliasdomains_file
-
 
     - name: "Molecule | Verify | Assert virtual file (alias domains) contents"
       ansible.builtin.assert:
@@ -598,7 +555,6 @@
           - "'ad.local\t\t\tvirtual' in (__testing_virtual_aliasdomains_file['content'] | ansible.builtin.b64decode)"
         fail_msg: "Expected, formatted content not found in {{ __run_postfix_table_virtual_aliasdomains_file_path }}"
         success_msg: "Expected, formatted content found in {{ __run_postfix_table_virtual_aliasdomains_file_path }}"
-
 
     - name: "Molecule | Verify | Check if virtual database file exists / handler worked"
       ansible.builtin.stat:
@@ -615,19 +571,16 @@
         - __testing_virtual_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_virtual_db_stat
 
-
 ### SMTP SASL password credentials
 
 - name: "Molecule | Verify | SMTP SASL password credentials"
   when:
     - run_postfix_smtp_sasl_password_manage | ansible.builtin.bool
   block:
-
     - name: "Molecule | Verify | Read SMTP SASL password credentials file"
       ansible.builtin.slurp:
         src: "{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
       register: __testing_smtp_sasl_password_file
-
 
     - name: "Molecule | Verify | Assert SMTP SASL password credentials file contents"
       ansible.builtin.assert:
@@ -638,7 +591,6 @@
         success_msg: "Expected, formatted content found in {{ __run_postfix_smtpsaslpasswordmap_file_path }}"
       vars:
         __testing_decoded: "{{ __testing_smtp_sasl_password_file['content'] | ansible.builtin.b64decode }}"
-
 
     - name: "Molecule | Verify | Check if SMTP SASL password credentials database file exists / handler worked"
       ansible.builtin.stat:
@@ -654,7 +606,6 @@
       failed_when:
         - __testing_smtp_sasl_password_db_stat['stat']['exists'] is ansible.builtin.false
       register: __testing_smtp_sasl_password_db_stat
-
 
 ### Local mail delivery
 
@@ -688,7 +639,6 @@
     - __testing_sendmail_local_result['rc'] != 0
   register: __testing_sendmail_local_result
 
-
 - name: "Molecule | Verify | Send local test email: Check root mailbox for delivered mail"
   ansible.builtin.shell:
     cmd: |
@@ -709,14 +659,12 @@
     - __testing_check_root_mail['rc'] != 0
   register: __testing_check_root_mail
 
-
 - name: "Molecule | Verify | Send local test email: Assert email was delivered to root"
   ansible.builtin.assert:
     that:
-      - __testing_check_root_mail is succeeded
+      - __testing_check_root_mail is ansible.builtin.succeeded
     fail_msg: "Email was not delivered to root's mailbox"
     success_msg: "Email was successfully delivered to root's mailbox"
-
 
 ### Sending emails to a real destination via Internet works
 
@@ -731,19 +679,18 @@
     - "TEST_POSTFIX_MAILFROM_EMAIL"
     - "TEST_POSTFIX_MAILTO_EMAIL"
 
-
 - name: "Molecule | Verify | Send SASL authenticated test email: show missing environment variables (if any)"
   ansible.builtin.debug:
     msg: >
       Tests regarding sending an email to an external address will be skipped,
       required environment variables are missing or invalid: {{ __testing_missing_envvars_sendmail | ansible.builtin.join(', ') }}.
-  changed_when:
-    - false # noqa: no-changed-when
+    verbosity: 0
   when:
     - __testing_missing_envvars_sendmail is ansible.builtin.defined
     - __testing_missing_envvars_sendmail | ansible.builtin.length > 0
 
-
+  changed_when:
+    - false # noqa: no-changed-when
 - name: "Molecule | Verify | Send SASL authenticated test email: gather environment variables"
   ansible.builtin.set_fact:
     __testing_mailfrom_email: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILFROM_EMAIL') | ansible.builtin.default(omit, true) }}"
@@ -751,36 +698,36 @@
     __testing_mailto_email: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILTO_EMAIL') | ansible.builtin.default(omit, true) }}"
     __testing_mailto_name: "{{ lookup('ansible.builtin.env', 'TEST_POSTFIX_MAILTO_NAME', default='Jane Doe') }}"
   when:
-    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or
-      (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
-
+    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
 
 - name: "Molecule | Verify | Send SASL authenticated test email"
   when:
     - __testing_mailfrom_email is ansible.builtin.defined
     - __testing_mailto_email is ansible.builtin.defined
-    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or
-      (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
+    - __testing_missing_envvars_sendmail is not ansible.builtin.defined or (__testing_missing_envvars_sendmail | ansible.builtin.length <= 0)
   block:
-
     - name: "Molecule | Verify | Send SASL authenticated test email: add email to queue"
       ansible.builtin.expect:
         command: >
-            {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+          {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
         responses:
-          '(?i)220.*\r?\n': "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
-          '(?i)250 .*\r?\n':
+          "(?i)220.*\\r?\\n": "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
+          "(?i)250 .*\\r?\\n":
             - "AUTH LOGIN"
             - "RCPT TO: <{{ __testing_mailto_email }}>"
             - "DATA"
             - "QUIT"
-          '(?i)354.*\r?\n': "From: \"{{ __testing_mailfrom_name }}\" <{{ __testing_mailfrom_email }}>\r\nTo: \"{{ __testing_mailto_name }}\" <{{ __testing_mailto_email }}>\r\nSubject: Test email from Ansible ({{ inventory_hostname }})\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nThis is a test email intended to be sent with Postfix to an external address\r\n.\r\n" # noqa: yaml[line-length]
-          '(?i)334.*\r?\n':
+          "(?i)354.*\\r?\\n": "From: \"{{ __testing_mailfrom_name }}\" <{{ __testing_mailfrom_email }}>\r\n\
+            To: \"{{ __testing_mailto_name }}\" <{{ __testing_mailto_email }}>\r\n\
+            Subject: Test email from Ansible ({{ inventory_hostname }})\r\n\
+            Content-Type: text/plain; charset=UTF-8\r\n\r\n\
+            This is a test email intended to be sent with Postfix to an external address\r\n.\r\n"
+          "(?i)334.*\\r?\\n":
             - "{{ __testing_sasl_auth_username_base64 }}"
             - "{{ __testing_sasl_auth_password_base64 }}"
-          '(?i)235.*\r?\n': "MAIL FROM: <{{ __testing_mailfrom_email }}>"
-          '(?i)554.*\r?\n': "QUIT"
-          '(?i)221.*\r?\n': ""
+          "(?i)235.*\\r?\\n": "MAIL FROM: <{{ __testing_mailfrom_email }}>"
+          "(?i)554.*\\r?\\n": "QUIT"
+          "(?i)221.*\\r?\\n": ""
         timeout: 5
       changed_when:
         - false
@@ -791,7 +738,6 @@
         # in this case.
         - (__testing_run_postfix_rcpttoexternal_result['rc'] | ansible.builtin.default(2)) > 1
       register: __testing_run_postfix_rcpttoexternal_result
-
 
     - name: "Molecule | Verify | Assert correct answers: Send SASL authenticated test email"
       ansible.builtin.assert:
@@ -808,7 +754,6 @@
           - ('queued as') in __testing_run_postfix_rcpttoexternal_result['stdout']
         fail_msg: "Send SASL authenticated test email: Expected proper responses to SMTP commands"
 
-
     - name: "Molecule | Verify | Send SASL authenticated test email: Check journal for warnings or errors logged"
       ansible.builtin.command:
         argv:
@@ -823,12 +768,11 @@
         # non-static IP addresses etc. pp. and other tests here are creating NDRs:
         #  '(?i)status=(bounced|deferred)'
         #  '(?i)sender non-delivery notification'
-        - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror)) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)connection refused')) or
-          (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)relayhost configuration problem'))
+        - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or (__testing_run_postfix_journalctlcheck_result['stdout'] is
+          ansible.builtin.search(__testing_postfix_regex_searchwarningerror)) or (__testing_run_postfix_journalctlcheck_result['stdout'] is
+          ansible.builtin.search('(?i)connection refused')) or (__testing_run_postfix_journalctlcheck_result['stdout'] is ansible.builtin.search('(?i)relayhost
+          configuration problem'))
       register: __testing_run_postfix_journalctlcheck_result
-
 
     - name: "Molecule | Verify | Send SASL authenticated test email: Check mail queue for transport issues"
       ansible.builtin.command:
@@ -838,28 +782,25 @@
       changed_when:
         - false
       failed_when:
-        - (__testing_run_postfix_queuecheck_result['rc'] > 0) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)mail transport unavailable')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)connection (timed out|refused)')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)host or domain name not found')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)server certificate not verified')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)authentication failed')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)relay access denied')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)network is unreachable')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)no route to host')) or
-          (__testing_run_postfix_queuecheck_result['stdout'] is search('(?i)service unavailable'))
+        - (__testing_run_postfix_queuecheck_result['rc'] > 0) or (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)mail
+          transport unavailable')) or (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)connection (timed out|refused)')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)host or domain name not found')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)server certificate not verified')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)authentication failed')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)relay access denied')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)network is unreachable')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)no route to host')) or
+          (__testing_run_postfix_queuecheck_result['stdout'] is ansible.builtin.search('(?i)service unavailable'))
       register: __testing_run_postfix_queuecheck_result
-
 
     - name: "Molecule | Verify | Assert email is found in queue"
       ansible.builtin.assert:
         that:
-          - __testing_run_postfix_journalctlcheck_result is succeeded
-          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/qmgr.+from=<' ~ __testing_mailfrom_email ~ '>')
-          - __testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)postfix/smtp.+to=<' ~ __testing_mailto_email ~ '>')
+          - __testing_run_postfix_journalctlcheck_result is ansible.builtin.succeeded
+          - __testing_run_postfix_journalctlcheck_result['stdout'] is ansible.builtin.search('(?i)postfix/qmgr.+from=<' ~ __testing_mailfrom_email ~ '>')
+          - __testing_run_postfix_journalctlcheck_result['stdout'] is ansible.builtin.search('(?i)postfix/smtp.+to=<' ~ __testing_mailto_email ~ '>')
         fail_msg: "Test email for queue check was not found in Postfix queue"
         success_msg: "Test email for queue check was successfully found in Postfix queue"
-
 
 ### Check of logs before running tests triggering errors (like non-delivery reports (NDR))
 
@@ -872,10 +813,9 @@
   changed_when:
     - false
   failed_when:
-    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
-      (__testing_run_postfix_journalctlcheck_result['stdout'] is search(__testing_postfix_regex_searchwarningerror))
+    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or (__testing_run_postfix_journalctlcheck_result['stdout'] is
+      ansible.builtin.search(__testing_postfix_regex_searchwarningerror))
   register: __testing_run_postfix_journalctlcheck_result
-
 
 ### Check relocated non-delivery report (NDR)
 
@@ -906,7 +846,6 @@
     - __testing_sendmail_relocated_recipient_result['rc'] != 0
   register: __testing_sendmail_relocated_recipient_result
 
-
 - name: "Molecule | Verify | Send SASL authenticated test email: Check journal for 'User has moved' bounce"
   ansible.builtin.command:
     argv:
@@ -916,10 +855,9 @@
   changed_when:
     - false
   failed_when:
-    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or
-      not (__testing_run_postfix_journalctlcheck_result['stdout'] is search('(?i)status=bounced.*User has moved to'))
+    - (__testing_run_postfix_journalctlcheck_result['rc'] > 0) or not (__testing_run_postfix_journalctlcheck_result['stdout'] is
+      ansible.builtin.search('(?i)status=bounced.*User has moved to'))
   register: __testing_run_postfix_journalctlcheck_result
-
 
 - name: "Molecule | Verify | Send test email to relocated recipient(s): Check root mailbox for non-delivery report (NDR)"
   ansible.builtin.shell:
@@ -941,25 +879,24 @@
     - __testing_check_relocated_mail['rc'] != 0
   register: __testing_check_relocated_mail
 
-
 ### If relay access is denied for deny-listed or otherwise blocked recipients
 
 - name: "Molecule | Verify | Lookup-table 'access': Initiate SASL authenticated RCPT TO a deny-listed address"
   ansible.builtin.expect:
     command: >
-        {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
+      {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
     responses:
-      '(?i)220.*\r?\n': "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
-      '(?i)250 .*\r?\n':
+      "(?i)220.*\\r?\\n": "EHLO {{ run_postfix_maincf_settings['myhostname'] }}"
+      "(?i)250 .*\\r?\\n":
         - "AUTH LOGIN"
         - "RCPT TO: <burned@example.com>"
         - "QUIT"
-      '(?i)334.*\r?\n':
+      "(?i)334.*\\r?\\n":
         - "{{ __testing_sasl_auth_username_base64 }}"
         - "{{ __testing_sasl_auth_password_base64 }}"
-      '(?i)235.*\r?\n': "MAIL FROM: <root@example.com>"
-      '(?i)554.*\r?\n': "QUIT"
-      '(?i)221.*\r?\n': ""
+      "(?i)235.*\\r?\\n": "MAIL FROM: <root@example.com>"
+      "(?i)554.*\\r?\\n": "QUIT"
+      "(?i)221.*\\r?\\n": ""
     timeout: 5
   changed_when:
     - false
@@ -970,14 +907,13 @@
     - __testing_run_postfix_rcpttodeny_result['rc'] > 1
   register: __testing_run_postfix_rcpttodeny_result
 
-
 - name: "Molecule | Verify | Assert correct answers: Initiate SASL authenticated RCPT TO a deny-listed address"
   ansible.builtin.assert:
     that:
       # Most (not all) versions of telnet return exit status 1 if the
       # connection was closed by the host after QUIT which is expected
       # in this case.
-      # - __testing_run_postfix_rcpttodeny_result is succeeded
+      # - __testing_run_postfix_rcpttodeny_result is ansible.builtin.succeeded
       - ('220 ' ~ run_postfix_maincf_settings['myhostname'] ~ ' ESMTP') in __testing_run_postfix_rcpttodeny_result['stdout']
       - ('250 ') in __testing_run_postfix_rcpttodeny_result['stdout']
       - ('221 ') in __testing_run_postfix_rcpttodeny_result['stdout']
@@ -987,7 +923,6 @@
       - ('Recipient address rejected') in __testing_run_postfix_rcpttodeny_result['stdout']
       - ('Access denied') in __testing_run_postfix_rcpttodeny_result['stdout']
     fail_msg: "Initiate RCPT TO a deny-listed address: Expected proper responses to SMTP commands"
-
 
 ## Effective configuration state
 #
@@ -1029,14 +964,12 @@
       - param: "smtp_sasl_password_maps"
         expect: "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
 
-
 - name: "Molecule | Verify | Get the effective values of the managed main.cf parameters from Postfix"
   ansible.builtin.command:
     argv:
       - "{{ __run_postfix_postconf_exec_path }}"
       - "-h"
       - "{{ __testing_postconf_item['param'] }}"
-  register: __testing_postconf_results
   changed_when:
     - false
   loop: "{{ __testing_managed_maincf_params }}"
@@ -1044,12 +977,11 @@
     loop_var: "__testing_postconf_item"
     label: "{{ __testing_postconf_item['param'] }}"
 
-
+  register: __testing_postconf_results
 - name: "Molecule | Verify | Assert the managed lookup tables are active in the effective main.cf"
   ansible.builtin.assert:
     that:
-      - __testing_postconf_result['__testing_postconf_item']['expect']
-        in __testing_postconf_result['stdout']
+      - __testing_postconf_result['__testing_postconf_item']['expect'] in __testing_postconf_result['stdout']
     fail_msg: >-
       Postfix reports '{{ __testing_postconf_result['__testing_postconf_item']['param'] }} =
       {{ __testing_postconf_result['stdout'] | ansible.builtin.trim }}', which does not contain the
@@ -1063,7 +995,6 @@
     loop_var: "__testing_postconf_result"
     label: "{{ __testing_postconf_result['__testing_postconf_item']['param'] }}"
 
-
 # One representative key per compiled table, taken from the converge fixtures.
 # Querying through the table proves the handler compiled the current source: a
 # missing or stale artefact answers with nothing (or with the previous value)
@@ -1075,7 +1006,6 @@
       - "-q"
       - "{{ __testing_table_query['key'] }}"
       - "{{ __testing_table_query['table'] }}"
-  register: __testing_table_query_results
   changed_when:
     - false
   failed_when:
@@ -1107,13 +1037,12 @@
     loop_var: "__testing_table_query"
     label: "{{ __testing_table_query['table'] }} ({{ __testing_table_query['key'] }})"
 
-
+  register: __testing_table_query_results
 - name: "Molecule | Verify | Assert the compiled lookup tables answer with the configured values"
   ansible.builtin.assert:
     that:
       - __testing_table_query_result['rc'] == 0
-      - __testing_table_query_result['__testing_table_query']['expect']
-        in __testing_table_query_result['stdout']
+      - __testing_table_query_result['__testing_table_query']['expect'] in __testing_table_query_result['stdout']
     fail_msg: >-
       Looking up '{{ __testing_table_query_result['__testing_table_query']['key'] }}' in
       '{{ __testing_table_query_result['__testing_table_query']['table'] }}' returned
@@ -1128,7 +1057,6 @@
   loop_control:
     loop_var: "__testing_table_query_result"
     label: "{{ __testing_table_query_result['__testing_table_query']['table'] }}"
-
 
 ## Regression tests: init-only merged variable evaluation
 #
@@ -1146,7 +1074,6 @@
 
 - name: "Molecule | Verify | Validate effective merged variables (init-only)"
   block:
-
     # The controlled inputs replace converge-time facts, so save and restore
     # them: later stages (e.g. the handler integration checks) run the full
     # role again and must not pick up these incomplete merge-check values.
@@ -1167,13 +1094,11 @@
         run_postfix_relay_domains_list:
           - "relay.example.test"
 
-
     - name: "Molecule | Verify | Re-initialize postfix with controlled inputs"
       ansible.builtin.include_role:
         name: "foundata.postfix.run"
         tasks_from: "init"
         public: true
-
 
     - name: "Molecule | Verify | Assert effective master.cf settings merged correctly"
       ansible.builtin.assert:
@@ -1184,7 +1109,6 @@
           - __run_postfix_effective_mastercf_settings['customservice']['type'] == "unix"
         fail_msg: "__run_postfix_effective_mastercf_settings did not merge defaults and user settings as expected."
         success_msg: "__run_postfix_effective_mastercf_settings merged defaults and user settings correctly."
-
 
     - name: "Molecule | Verify | Assert effective aliases map lets user values win over defaults"
       ansible.builtin.assert:
@@ -1199,7 +1123,6 @@
         fail_msg: "__run_postfix_effective_aliases_map did not let the user value override the default."
         success_msg: "__run_postfix_effective_aliases_map let the user value override the default (defaults as fallback)."
 
-
     - name: "Molecule | Verify | Assert effective relay domains concatenated correctly"
       ansible.builtin.assert:
         that:
@@ -1208,13 +1131,11 @@
         success_msg: "__run_postfix_effective_relay_domains includes the user-supplied relay domain."
 
   always:
-
     - name: "Molecule | Verify | Restore the converge-time values of the merge check inputs"
       ansible.builtin.set_fact:
         run_postfix_mastercf_settings: "{{ __testing_merge_saved_mastercf }}"
         run_postfix_aliases_map: "{{ __testing_merge_saved_aliases }}"
         run_postfix_relay_domains_list: "{{ __testing_merge_saved_relay_domains }}"
-
 
 ## Handlers: config changes reload, never restart (integration)
 #
@@ -1234,9 +1155,9 @@
       - "--property=ExecMainStartTimestamp"
       - "--value"
       - "{{ __run_postfix_postfix_servicename }}"
-  changed_when: false
+  changed_when:
+    - false
   register: __testing_handlers_ts_before
-
 
 - name: "Molecule | Verify | Handlers | Save the current parameters and apply a changed SMTP banner"
   ansible.builtin.set_fact:
@@ -1250,22 +1171,21 @@
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
 
-
 - name: "Molecule | Verify | Handlers | Run the notified handlers (reload expected)"
   ansible.builtin.meta: "flush_handlers"
-
 
 - name: "Molecule | Verify | Handlers | Fetch the SMTP banner after the reload"
   ansible.builtin.expect:
     command: >-
       {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
     responses:
-      '(?i)220.*\r?\n': "QUIT"
+      "(?i)220.*\\r?\\n": "QUIT"
     timeout: 30
-  changed_when: false
-  failed_when: false
+  changed_when:
+    - false
+  failed_when:
+    - false
   register: __testing_handlers_banner_reload
-
 
 - name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the reload"
   ansible.builtin.command:
@@ -1275,9 +1195,9 @@
       - "--property=ExecMainStartTimestamp"
       - "--value"
       - "{{ __run_postfix_postfix_servicename }}"
-  changed_when: false
+  changed_when:
+    - false
   register: __testing_handlers_ts_reload
-
 
 - name: "Molecule | Verify | Handlers | Assert the change is live and the service was not restarted"
   ansible.builtin.assert:
@@ -1307,22 +1227,21 @@
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
 
-
 - name: "Molecule | Verify | Handlers | Run the notified handlers (service handlers must be gated off)"
   ansible.builtin.meta: "flush_handlers"
-
 
 - name: "Molecule | Verify | Handlers | Fetch the SMTP banner after the unmanaged run"
   ansible.builtin.expect:
     command: >-
       {{ __testing_telnet_executable }} 127.0.0.1 {{ __testing_mastercf['port_smtp'] | ansible.builtin.quote }}
     responses:
-      '(?i)220.*\r?\n': "QUIT"
+      "(?i)220.*\\r?\\n": "QUIT"
     timeout: 30
-  changed_when: false
-  failed_when: false
+  changed_when:
+    - false
+  failed_when:
+    - false
   register: __testing_handlers_banner_unmanaged
-
 
 - name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the unmanaged run"
   ansible.builtin.command:
@@ -1332,9 +1251,9 @@
       - "--property=ExecMainStartTimestamp"
       - "--value"
       - "{{ __run_postfix_postfix_servicename }}"
-  changed_when: false
+  changed_when:
+    - false
   register: __testing_handlers_ts_unmanaged
-
 
 - name: "Molecule | Verify | Handlers | Assert the unmanaged service state keeps service handlers away"
   ansible.builtin.assert:
@@ -1351,21 +1270,17 @@
       after: '{{ __testing_handlers_ts_unmanaged['stdout'] }}'.
     success_msg: "Service handlers left the unmanaged service alone (runtime configuration and start timestamp unchanged)."
 
-
 - name: "Molecule | Verify | Handlers | Restore the saved parameters"
   ansible.builtin.set_fact:
     run_postfix_maincf_settings: "{{ __testing_handlers_saved_maincf }}"
     run_postfix_service_state: "{{ __testing_handlers_saved_service_state }}"
 
-
 - name: "Molecule | Verify | Handlers | Re-run the foundata.postfix.run role with the restored parameters"
   ansible.builtin.include_role:
     name: "foundata.postfix.run"
 
-
 - name: "Molecule | Verify | Handlers | Run the notified handlers again (reload expected)"
   ansible.builtin.meta: "flush_handlers"
-
 
 - name: "Molecule | Verify | Handlers | Get ExecMainStartTimestamp after the restore"
   ansible.builtin.command:
@@ -1375,9 +1290,9 @@
       - "--property=ExecMainStartTimestamp"
       - "--value"
       - "{{ __run_postfix_postfix_servicename }}"
-  changed_when: false
+  changed_when:
+    - false
   register: __testing_handlers_ts_restore
-
 
 - name: "Molecule | Verify | Handlers | Assert the whole sequence never restarted the service"
   ansible.builtin.assert:
@@ -1388,7 +1303,6 @@
       (ExecMainStartTimestamp changed from '{{ __testing_handlers_ts_before['stdout'] }}'
       to '{{ __testing_handlers_ts_restore['stdout'] }}').
     success_msg: "Two reconfigurations and one unmanaged run completed without a single service restart."
-
 
 ## Uninstall (state "absent") verification
 #
@@ -1403,11 +1317,9 @@
   vars:
     run_postfix_state: "absent"
 
-
 - name: "Molecule | Verify | Uninstall: check the lookup tables and their compiled databases are gone"
   ansible.builtin.stat:
     path: "{{ item[0] }}{{ item[1] }}"
-  register: __testing_uninstall_tables_stat
   failed_when:
     - __testing_uninstall_tables_stat['stat']['exists']
   loop: >-
@@ -1419,23 +1331,21 @@
   loop_control:
     label: "{{ item[0] }}{{ item[1] }}"
 
-
+  register: __testing_uninstall_tables_stat
 - name: "Molecule | Verify | Uninstall: check the Postfix binary and unit are gone"
   ansible.builtin.stat:
     path: "{{ item }}"
-  register: __testing_uninstall_postfix_stat
   failed_when:
     - __testing_uninstall_postfix_stat['stat']['exists']
   loop:
     - "/usr/sbin/postfix"
     - "/usr/lib/systemd/system/postfix.service"
 
-
+  register: __testing_uninstall_postfix_stat
 - name: "Molecule | Verify | Uninstall: read the aliases file"
   ansible.builtin.slurp:
     src: "/etc/aliases"
   register: __testing_uninstall_aliases
-
 
 - name: "Molecule | Verify | Uninstall: check the aliases file was reverted, not resurrected"
   ansible.builtin.assert:

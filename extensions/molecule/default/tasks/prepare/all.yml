@@ -1,9 +1,9 @@
+---
 # Tasks for the Molecule prepare stage: Add resources needed for later steps
 # (e.g. verify) on all driver-created instances.
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-
 
 - name: "Molecule | Prepare | Install needed packages"
   ansible.builtin.package:
@@ -14,10 +14,8 @@
       - "telnet" # Easy communication with SMTP
     state: "present"
 
-
 # Helpful overview regarding certificate paths and tools on different OS:
 # https://github.com/millermatt/osca
-
 
 - name: "Molecule | Prepare | Certificates: Set paths (Debian)"
   ansible.builtin.set_fact:
@@ -26,7 +24,6 @@
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
-
 - name: "Molecule | Prepare | Certificates: Set paths (Red Hat)"
   ansible.builtin.set_fact:
     __testing_certs_base_dir: "/etc/pki/tls/certs"
@@ -34,11 +31,9 @@
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
-
 - name: "Molecule | Prepare | Certificates: Set dummy cert file (PEM) path"
   ansible.builtin.set_fact:
     __testing_certs_dummycert_pem: "{{ __testing_certs_base_dir }}/dummy-cert.pem"
-
 
 # Prepare different Diffie-Hellman parameter files. DH parameters are not a secret.
 # The defaults might be quite good on many systems, but using predefined values
@@ -51,17 +46,6 @@
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
-  loop:
-    - file: "dhparam_ffdhe2048"
-      content: |
-        -----BEGIN DH PARAMETERS-----
-        MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
-        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
-        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
-        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
-        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
-        ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
-        -----END DH PARAMETERS-----
   when:
     # The file is passed via smtpd_tls_dh1024_param_file to Postfix.
     # From: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
@@ -77,28 +61,27 @@
     #
     # The DH file creation tasks and smtpd_tls_dh1024_param_file parameter
     # handling can be removed if these targets are not supported anymore.
-    - ((ansible_facts['os_family']
-         | ansible.builtin.lower) == 'redhat'
-        and (ansible_facts['distribution_major_version']
-             is ansible.builtin.version('9', '<=')))
-      or
-      ((ansible_facts['distribution']
-        | ansible.builtin.lower) == 'debian'
-       and (ansible_facts['distribution_major_version']
-            is ansible.builtin.version('11', '<=')))
-      or
-      ((ansible_facts['distribution']
-        | ansible.builtin.lower) == 'ubuntu'
-       and (ansible_facts['distribution_major_version']
-            is ansible.builtin.version('22', '<=')))
+    - ((ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('9', '<=')))
+      or ((ansible_facts['distribution'] | ansible.builtin.lower) == 'debian' and (ansible_facts['distribution_major_version'] is ansible.builtin.version('11',
+      '<='))) or ((ansible_facts['distribution'] | ansible.builtin.lower) == 'ubuntu' and (ansible_facts['distribution_major_version'] is
+      ansible.builtin.version('22', '<=')))
 
-
+  loop:
+    - file: "dhparam_ffdhe2048"
+      content: |
+        -----BEGIN DH PARAMETERS-----
+        MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
+        +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+        87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+        YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+        7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+        ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
+        -----END DH PARAMETERS-----
 - name: "Molecule | Prepare | Certificates: Get info about dummy cert file"
   ansible.builtin.stat:
     path: "{{ __testing_certs_dummycert_pem }}"
     get_checksum: false
   register: __testing_dummycert_stat_result
-
 
 - name: "Molecule | Prepare | Certificates: Create dummy cert"
   ansible.builtin.shell:
@@ -130,14 +113,13 @@
 
       exit 0
     executable: "/bin/bash" # Support for other shells untested (so far)
-  register: __testing_dummycert_create_result
-  changed_when:
-    - __testing_dummycert_create_result['rc'] == 0
   when:
     - __testing_dummycert_stat_result is ansible.builtin.defined
     - not __testing_dummycert_stat_result['stat']['exists']
 
-
+  changed_when:
+    - __testing_dummycert_create_result['rc'] == 0
+  register: __testing_dummycert_create_result
 - name: "Molecule | Prepare | Certificates: Set file permissions for dummy cert"
   ansible.builtin.file:
     path: "{{ __testing_certs_dummycert_pem }}"
@@ -145,34 +127,30 @@
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
 
-
 - name: "Molecule | Prepare | Certificates: Copy dummy cert into trust anchor store"
   ansible.builtin.copy:
     src: "{{ __testing_certs_dummycert_pem }}"
     dest: "{{ __testing_certs_trustanchors_dir }}/{{ __testing_certs_dummycert_pem | ansible.builtin.basename }}"
-    remote_src: true
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
 
-
+    remote_src: true
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Debian)"
   ansible.builtin.command:
     argv:
       - "/usr/sbin/update-ca-certificates"
-  changed_when: false
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
-
+  changed_when:
+    - false
 - name: "Molecule | Prepare | Certificates: Update OS certificate store (Red Hat)"
   ansible.builtin.command:
     argv:
       - "/usr/bin/update-ca-trust"
-  changed_when: false
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
-
 
 ### SASL (Simple Authentication and Security Layer) for better testing of restrictions
 # Resources:
@@ -187,6 +165,8 @@
 #   - /etc/sasl2/smtpd.conf (Provided by Postfix)
 #   - /etc/default/saslauthd
 
+  changed_when:
+    - false
 - name: "Molecule | Prepare | Set variables for Cyrus SASL (Debian)"
   ansible.builtin.set_fact:
     __testing_run_postfix_packages_install_sasl_cyrus:
@@ -206,7 +186,6 @@
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
 
-
 - name: "Molecule | Prepare | Set variables for Cyrus SASL (Red Hat)"
   ansible.builtin.set_fact:
     __testing_run_postfix_packages_install_sasl_cyrus:
@@ -219,12 +198,10 @@
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'redhat'
 
-
 - name: "Molecule | Prepare | Install Cyrus SASL authentication packages"
   ansible.builtin.package:
     name: "{{ __testing_run_postfix_packages_install_sasl_cyrus }}"
     state: "present"
-
 
 - name: "Molecule | Prepare | Configure saslauthd"
   ansible.builtin.lineinfile:
@@ -232,8 +209,8 @@
     regexp: "{{ item['regexp'] }}"
     line: "{{ item['line'] }}"
   loop:
-    - { regexp: '^START=', line: 'START=yes' }
-    - { regexp: '^MECHANISMS=', line: 'MECHANISMS=pam' }
+    - { regexp: "^START=", line: "START=yes" }
+    - { regexp: "^MECHANISMS=", line: "MECHANISMS=pam" }
 
 
 - name: "Molecule | Prepare | Ensure existence of Cyrus SASL smtpd.conf parent directories"
@@ -245,7 +222,6 @@
     mode: "u=rwx,g=rx,o=rx" # 0755
   loop: "{{ __testing_run_sasl_smtpd_config_files }}"
 
-
 - name: "Molecule | Prepare | Create Cyrus SASL smtpd.conf"
   ansible.builtin.copy:
     dest: "{{ item }}"
@@ -253,19 +229,17 @@
       log_level: 3
       pwcheck_method: saslauthd
       mech_list: PLAIN LOGIN
-    force: true
     owner: "root"
     group: "root"
     mode: "u=rw,g=r,o=r" # 0644
+    force: true
   loop: "{{ __testing_run_sasl_smtpd_config_files }}"
-
 
 - name: "Molecule | Prepare | Ensure service state: saslauthd"
   ansible.builtin.service:
     name: "saslauthd.service"
     state: "restarted"
     enabled: true
-
 
 - name: "Molecule | Prepare | Create a local test user for SMPT authentication (SASL)"
   ansible.builtin.user:
@@ -291,7 +265,6 @@
     update_password: "always"
     umask: "0027"
 
-
 # This would be the clean way in a real world scenario:
 #
 #   - name: "Molecule | Prepare | Grant Postfix's service user access to saslauthd resources (like its socket) by adding it to the sasl group (Debian)"
@@ -312,12 +285,11 @@
   ansible.builtin.file:
     path: "/var/run/saslauthd"
     state: "directory"
-    mode: "755"
     owner: "root"
     group: "sasl"
+    mode: "u=rwx,g=rx,o=rx" # 0755
   when:
     - (ansible_facts['os_family'] | ansible.builtin.lower) == 'debian'
-
 
 ## Fixtures for the aliases handling of the foundata.postfix.run role.
 #

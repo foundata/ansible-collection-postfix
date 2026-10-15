@@ -1,3 +1,4 @@
+---
 # Execute the collection role "run" against all driver-created instances (cleanup / absent)
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
@@ -9,7 +10,6 @@
   vars:
     run_postfix_state: "absent"
 
-
 # "absent" has to take the lookup table files this role created (and any compiled
 # database built from them) off the host again; the SMTP SASL password file
 # additionally holds relay credentials.
@@ -19,13 +19,11 @@
     tasks_from: "init"
     public: true
 
-
 - name: "Molecule | Cleanup | Stat the lookup table files the role created"
   ansible.builtin.stat:
     path: "{{ item[0] }}{{ item[1] }}"
     get_attributes: false
     get_checksum: false
-  register: __testing_uninstall_leftovers
   loop: >-
     {{
       __run_postfix_uninstall_file_paths
@@ -35,13 +33,11 @@
   loop_control:
     label: "{{ item[0] }}{{ item[1] }}"
 
-
+  register: __testing_uninstall_leftovers
 - name: "Molecule | Cleanup | Check no role-created lookup table files are left behind"
   ansible.builtin.assert:
     that:
-      - (__testing_uninstall_leftovers['results']
-         | ansible.builtin.selectattr('stat.exists')
-         | ansible.builtin.list | ansible.builtin.length) == 0
+      - (__testing_uninstall_leftovers['results'] | ansible.builtin.selectattr('stat.exists') | ansible.builtin.list | ansible.builtin.length) == 0
     fail_msg: >-
       run_postfix_state=absent left role-created file(s) on the host:
       {{ __testing_uninstall_leftovers['results']
@@ -50,12 +46,10 @@
          | ansible.builtin.join(', ') }}
     success_msg: "No role-created lookup table files remain after run_postfix_state=absent"
 
-
 - name: "Molecule | Cleanup | Read the aliases file after the uninstall"
   ansible.builtin.slurp:
     src: "/etc/aliases"
   register: __testing_aliases_after_uninstall
-
 
 - name: "Molecule | Cleanup | Check the aliases file was reverted without touching foreign entries"
   ansible.builtin.assert:

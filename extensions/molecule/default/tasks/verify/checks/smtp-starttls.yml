@@ -1,3 +1,4 @@
+---
 # Include where useful: SMTP dialog (STARTTLS)
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
@@ -6,22 +7,21 @@
 - name: "Molecule | Verify | SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.expect:
     command: >
-        {{ __testing_openssl_executable }}
-          s_client -starttls smtp -crlf -quiet
-          -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] | ansible.builtin.quote }}
+      {{ __testing_openssl_executable }}
+        s_client -starttls smtp -crlf -quiet
+        -connect {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] | ansible.builtin.quote }}
     responses:
-      '(?i)250 .*\r?\n': "QUIT"
-      '(?i)221.*\r?\n': ""
+      "(?i)250 .*\\r?\\n": "QUIT"
+      "(?i)221.*\\r?\\n": ""
     timeout: 5
   changed_when:
     - false
   register: __testing_run_postfix_smtp_starttlsopenssl_result
 
-
 - name: "Molecule | Verify | Assert correct answers: SMTP (STARTTLS, OpenSSL) {{ __testing_hostdata['host'] ~ ':' ~ __testing_hostdata['port'] }}"
   ansible.builtin.assert:
     that:
-      - __testing_run_postfix_smtp_starttlsopenssl_result is succeeded
+      - __testing_run_postfix_smtp_starttlsopenssl_result is ansible.builtin.succeeded
       - ('verify return:') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
       - ('250 ') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
       - ('221 2.0.0 Bye') in __testing_run_postfix_smtp_starttlsopenssl_result['stdout']
