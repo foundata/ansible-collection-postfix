@@ -200,48 +200,50 @@ There are also tags that are generally not intended to be called directly but ar
 
 Main entry point for the foundata.postfix.run role
 
+Manage the Postfix Mail Transfer Agent (MTA)
+
 The following variables can be configured for this role:
 
-| Variable | Type | Required | Default | Description (abstract) |
-|----------|------|----------|---------|------------------------|
-| `run_postfix_state` | `str` | No | `"present"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
-| `run_postfix_autoupgrade` | `bool` | No | `false` | If set to `true`, all managed packages will be upgraded during each Ansible run (e.g., when the package provider detects a newer version than the currently installed one). |
-| `run_postfix_service_state` | `str` | No | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running`: Service is running but will […](#variable-run_postfix_service_state) |
-| `run_postfix_maincf_settings` | `dict` | No | `{}` | Additional configuration for Postfix daemon (additional config values or to overwrite defaults from `__run_postfix_maincf_settings_defaults` in `vars/main.yml`).<br><br>Use standard Postfix option names as keys with their corresponding […](#variable-run_postfix_maincf_settings) |
-| `run_postfix_mastercf_settings` | `dict` | No | `{}` | Additional configuration for Postfix master process (`master.cf`). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: http://www.postfix.org/master.5.html).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
-| `run_postfix_relay_domains_manage` | `bool` | No | `false` | Switch to control if relay domains settings are handled by this role.<br><br>When set to `true` (the default is `false`), the role will:<br><br>1. Create and manage a config file for relay domains using the `run_postfix_relay_domains_list` variable […](#variable-run_postfix_relay_domains_manage) |
-| `run_postfix_relay_domains_list_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_relay_domains_list` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relay_domains_list_tabletype) |
-| `run_postfix_relay_domains_list` | `list` | No | `[]` | Relay domains for Postfix. This list of relay domains for which Postfix will accept mail for relaying to their final destinations.<br><br>Example:<br><br>``` - "example.com" - "example.net" - "example.org" - "foo.example.org" […](#variable-run_postfix_relay_domains_list) |
-| `run_postfix_access_manage` | `bool` | No | `false` | Switch to control whether the lookup table `access` is controlled by dedicated settings and tasks of this role.<br><br>More information: - https://www.postfix.org/access.5.html - https://www.postfix.org/SMTPD_ACCESS_README.html - […](#variable-run_postfix_access_manage) |
-| `run_postfix_access_recipient_map_tabletype` | `str` | No | `"pcre"` | The lookup table type to use if for the table defined by `run_postfix_access_recipient_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_access_recipient_map_tabletype) |
-| `run_postfix_access_recipient_map` | `dict` | No | `{}` | Lookup-table `access`: Recipient address restriction rules.<br><br>The action values follow access(5): `REJECT`, `DISCARD`, a numeric reply, `DUNNO` (no decision, keep evaluating) and `OK` (accept now).<br><br>Security note on `OK`: this class is […](#variable-run_postfix_access_recipient_map) |
-| `run_postfix_access_sender_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the table defined by `run_postfix_access_sender_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_access_sender_map_tabletype) |
-| `run_postfix_access_sender_map` | `dict` | No | `{}` | Lookup-table `access`: Sender address restriction rules.<br><br>More information: - https://www.postfix.org/access.5.html - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes<br><br>Security note on `OK`: as with the recipient map, this […](#variable-run_postfix_access_sender_map) |
-| `run_postfix_aliases_manage` | `bool` | No | `false` | Switch to control whether the lookup table `aliases` is controlled by dedicated settings and tasks of this role.<br><br>`aliases` can rewrite local(!) addresses (no domain part) and redirect mails to other mailboxes, files or commands: - […](#variable-run_postfix_aliases_manage) |
-| `run_postfix_aliases_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_aliases_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. […](#variable-run_postfix_aliases_map_tabletype) |
-| `run_postfix_aliases_map` | `dict` | No | `{}` | Lookup-table `alias`: address mappings.<br><br>More information: - https://www.postfix.org/access.5.html - https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes<br><br>Examples:<br><br>``` abuse: "root" deamon123: "root, tux" foo: […](#variable-run_postfix_aliases_map) |
-| `run_postfix_canonical_manage` | `bool` | No | `false` | Switch to control whether the lookup table `canonical` is controlled by dedicated settings and tasks of this role.<br><br>`canonical` can rewrite mail addresses before mail is stored into the queue: - https://www.postfix.org/canonical.5.html - […](#variable-run_postfix_canonical_manage) |
-| `run_postfix_canonical_recipient_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_canonical_recipient_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_recipient_map_tabletype) |
-| `run_postfix_canonical_recipient_map` | `dict` | No | `{}` | Lookup-table `canonical`: Recipient address mappings / rewrite rules.<br><br>Examples:<br><br>``` "old.name@example.com": "new.name@example.com" "root": "user123@example.com" "@example.com": "@example.net" […](#variable-run_postfix_canonical_recipient_map) |
-| `run_postfix_canonical_sender_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_canonical_sender_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_sender_map_tabletype) |
-| `run_postfix_canonical_sender_map` | `dict` | No | `{}` | Lookup-table `canonical`: Sender address mappings / rewrite rules.<br><br>Examples:<br><br>``` "old.name@example.com": "new.name@example.com" "root": "user123@example.com" "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses […](#variable-run_postfix_canonical_sender_map) |
-| `run_postfix_generic_manage` | `bool` | No | `false` | Switch to control whether the lookup table `generic` is controlled by dedicated settings and tasks of this role.<br><br>`generic` is used to rewrite sender addresses in emails leaving the system via SMTP/LMTP only: - […](#variable-run_postfix_generic_manage) |
-| `run_postfix_generic_map_tabletype` | `str` | No | `"pcre"` | The lookup table type to use if for the list defined by `run_postfix_generic_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_generic_map_tabletype) |
-| `run_postfix_generic_map` | `dict` | No | `{}` | Lookup-table 'generic': Sender address mappings / rewrite rules.<br><br>Examples:<br><br>``` "john.doe@example.local": "john.doe@example.com" "@example.local": "contact@example.net" ```<br><br>Will be ignored if `run_postfix_generic_manage` is set to […](#variable-run_postfix_generic_map) |
-| `run_postfix_relocated_manage` | `bool` | No | `false` | Switch to control whether the lookup table `relocated` is controlled by dedicated settings and tasks of this role.<br><br>`relocated` is used to tell senders that a recipient's address has changed. If someone tries to send email to an old address, […](#variable-run_postfix_relocated_manage) |
-| `run_postfix_relocated_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_relocated_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relocated_map_tabletype) |
-| `run_postfix_relocated_map` | `dict` | No | `{}` | Lookup-table `relocated`: old-address new-address-info mappings / rules.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe old addresses. - Values: The new location, usually email addresses (or phone or other address or […](#variable-run_postfix_relocated_map) |
-| `run_postfix_transport_manage` | `bool` | No | `false` | Switch to control whether the lookup table `transport` is controlled by dedicated settings and tasks of this role.<br><br>`transport` defines the mail transport routes for Postfix, mapping domains or email addresses to specific mail delivery methods […](#variable-run_postfix_transport_manage) |
-| `run_postfix_transport_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_transport_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_transport_map_tabletype) |
-| `run_postfix_transport_map` | `dict` | No | `{}` | Domain transport mapping for Postfix. This defines where to send emails to for the listed domains in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe domains. - Values: Lists of destinations, usually […](#variable-run_postfix_transport_map) |
-| `run_postfix_virtual_manage` | `bool` | No | `false` | Switch to control whether the lookup table "virtual" is controlled by dedicated settings and tasks of this role.<br><br>"virtual" defines the address mappings used by Postfix to redirect email addresses in virtual alias domains to other local or […](#variable-run_postfix_virtual_manage) |
-| `run_postfix_virtual_aliasdomains_list_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_virtual_aliasdomains_list`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be […](#variable-run_postfix_virtual_aliasdomains_list_tabletype) |
-| `run_postfix_virtual_aliasdomains_list` | `list` | No | `[]` | Virtual alias domains for Postfix. This tells Postfix to accept incoming emails for a list of virtual domains. Mappings for them are defined via `run_postfix_virtual_alias_map`.<br><br>``` Example: - "example.com" - "example.net" […](#variable-run_postfix_virtual_aliasdomains_list) |
-| `run_postfix_virtual_alias_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_virtual_alias_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_virtual_alias_map_tabletype) |
-| `run_postfix_virtual_alias_map` | `dict` | No | `{}` | Virtual alias mappings for Postfix. This defines email forwarding rules in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe the virtual address(es) Attention: Do not forget to list handled domains in […](#variable-run_postfix_virtual_alias_map) |
-| `run_postfix_smtp_sasl_password_manage` | `bool` | No | `false` | Switch to control whether SMTP SASL password credentials are controlled by dedicated settings and tasks of this role.<br><br>They are used to authenticate Postfix when sending emails through a relay server that requires authentication: - […](#variable-run_postfix_smtp_sasl_password_manage) |
-| `run_postfix_smtp_sasl_password_map_tabletype` | `str` | No | `"lmdb"` | The lookup table type to use if for the list defined by `run_postfix_smtp_sasl_password_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_smtp_sasl_password_map_tabletype) |
-| `run_postfix_smtp_sasl_password_map` 🔒 | `dict` | No | `{}` | SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP server (and optionally a port) to a username and password.<br><br>Dictionary structure:<br><br>- Keys: Criterions, the destination to specify credentials for. Attention: If the […](#variable-run_postfix_smtp_sasl_password_map) |
+|                     Variable                      |  Type  | Required |   Default   | Description (abstract) |
+| ------------------------------------------------- | ------ | -------- | ----------- | ---------------------- |
+| `run_postfix_state`                               | `str`  | No       | `"present"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
+| `run_postfix_autoupgrade`                         | `bool` | No       | `false`     | If set to `true`, all managed packages will be upgraded during each Ansible run (e.g., when the package provider detects a newer version than the currently installed one). |
+| `run_postfix_service_state`                       | `str`  | No       | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running`: Service is running but will […](#variable-run_postfix_service_state) |
+| `run_postfix_maincf_settings`                     | `dict` | No       | `{}`        | Additional configuration for Postfix daemon (additional config values or to overwrite defaults from `__run_postfix_maincf_settings_defaults` in `vars/main.yml`).<br><br>Use standard Postfix option names as keys with their corresponding […](#variable-run_postfix_maincf_settings) |
+| `run_postfix_mastercf_settings`                   | `dict` | No       | `{}`        | Additional configuration for Postfix master process (`master.cf`). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: <http://www.postfix.org/master.5.html>).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
+| `run_postfix_relay_domains_manage`                | `bool` | No       | `false`     | Switch to control if relay domains settings are handled by this role.<br><br>When set to `true` (the default is `false`), the role will:<br><br>1. Create and manage a config file for relay domains using the `run_postfix_relay_domains_list` variable […](#variable-run_postfix_relay_domains_manage) |
+| `run_postfix_relay_domains_list_tabletype`        | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_relay_domains_list` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relay_domains_list_tabletype) |
+| `run_postfix_relay_domains_list`                  | `list` | No       | `[]`        | Relay domains for Postfix. This list of relay domains for which Postfix will accept mail for relaying to their final destinations.<br><br>Example:<br><br>``` - "example.com" - "example.net" - "example.org" - "foo.example.org" […](#variable-run_postfix_relay_domains_list) |
+| `run_postfix_access_manage`                       | `bool` | No       | `false`     | Switch to control whether the lookup table `access` is controlled by dedicated settings and tasks of this role.<br><br>More information: - <https://www.postfix.org/access.5.html> - <https://www.postfix.org/SMTPD_ACCESS_README.html> - […](#variable-run_postfix_access_manage) |
+| `run_postfix_access_recipient_map_tabletype`      | `str`  | No       | `"pcre"`    | The lookup table type to use if for the table defined by `run_postfix_access_recipient_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_access_recipient_map_tabletype) |
+| `run_postfix_access_recipient_map`                | `dict` | No       | `{}`        | Lookup-table `access`: Recipient address restriction rules.<br><br>The action values follow access(5): `REJECT`, `DISCARD`, a numeric reply, `DUNNO` (no decision, keep evaluating) and `OK` (accept now).<br><br>Security note on `OK`: this class is […](#variable-run_postfix_access_recipient_map) |
+| `run_postfix_access_sender_map_tabletype`         | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the table defined by `run_postfix_access_sender_map`.<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_access_sender_map_tabletype) |
+| `run_postfix_access_sender_map`                   | `dict` | No       | `{}`        | Lookup-table `access`: Sender address restriction rules.<br><br>More information: - <https://www.postfix.org/access.5.html> - <https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes><br><br>Security note on `OK`: as with the recipient map, this […](#variable-run_postfix_access_sender_map) |
+| `run_postfix_aliases_manage`                      | `bool` | No       | `false`     | Switch to control whether the lookup table `aliases` is controlled by dedicated settings and tasks of this role.<br><br>`aliases` can rewrite local(!) addresses (no domain part) and redirect mails to other mailboxes, files or commands: - […](#variable-run_postfix_aliases_manage) |
+| `run_postfix_aliases_map_tabletype`               | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_aliases_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. […](#variable-run_postfix_aliases_map_tabletype) |
+| `run_postfix_aliases_map`                         | `dict` | No       | `{}`        | Lookup-table `alias`: address mappings.<br><br>More information: - <https://www.postfix.org/access.5.html> - <https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes><br><br>Examples:<br><br>``` abuse: "root" deamon123: "root, tux" foo: […](#variable-run_postfix_aliases_map) |
+| `run_postfix_canonical_manage`                    | `bool` | No       | `false`     | Switch to control whether the lookup table `canonical` is controlled by dedicated settings and tasks of this role.<br><br>`canonical` can rewrite mail addresses before mail is stored into the queue: - <https://www.postfix.org/canonical.5.html> - […](#variable-run_postfix_canonical_manage) |
+| `run_postfix_canonical_recipient_map_tabletype`   | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_canonical_recipient_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_recipient_map_tabletype) |
+| `run_postfix_canonical_recipient_map`             | `dict` | No       | `{}`        | Lookup-table `canonical`: Recipient address mappings / rewrite rules.<br><br>Examples:<br><br>``` "<old.name@example.com>": "<new.name@example.com>" "root": "<user123@example.com>" "@example.com": "@example.net" […](#variable-run_postfix_canonical_recipient_map) |
+| `run_postfix_canonical_sender_map_tabletype`      | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_canonical_sender_map` Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_canonical_sender_map_tabletype) |
+| `run_postfix_canonical_sender_map`                | `dict` | No       | `{}`        | Lookup-table `canonical`: Sender address mappings / rewrite rules.<br><br>Examples:<br><br>``` "<old.name@example.com>": "<new.name@example.com>" "root": "<user123@example.com>" "/.+/": "<do-not-reply@example.com>" # rewrite all outgoing mail addresses […](#variable-run_postfix_canonical_sender_map) |
+| `run_postfix_generic_manage`                      | `bool` | No       | `false`     | Switch to control whether the lookup table `generic` is controlled by dedicated settings and tasks of this role.<br><br>`generic` is used to rewrite sender addresses in emails leaving the system via SMTP/LMTP only: - […](#variable-run_postfix_generic_manage) |
+| `run_postfix_generic_map_tabletype`               | `str`  | No       | `"pcre"`    | The lookup table type to use if for the list defined by `run_postfix_generic_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_generic_map_tabletype) |
+| `run_postfix_generic_map`                         | `dict` | No       | `{}`        | Lookup-table 'generic': Sender address mappings / rewrite rules.<br><br>Examples:<br><br>``` "john.doe@example.local": "john.doe@example.com" "@example.local": "contact@example.net" ```<br><br>Will be ignored if `run_postfix_generic_manage` is set to […](#variable-run_postfix_generic_map) |
+| `run_postfix_relocated_manage`                    | `bool` | No       | `false`     | Switch to control whether the lookup table `relocated` is controlled by dedicated settings and tasks of this role.<br><br>`relocated` is used to tell senders that a recipient's address has changed. If someone tries to send email to an old address, […](#variable-run_postfix_relocated_manage) |
+| `run_postfix_relocated_map_tabletype`             | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_relocated_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_relocated_map_tabletype) |
+| `run_postfix_relocated_map`                       | `dict` | No       | `{}`        | Lookup-table `relocated`: old-address new-address-info mappings / rules.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe old addresses. - Values: The new location, usually email addresses (or phone or other address or […](#variable-run_postfix_relocated_map) |
+| `run_postfix_transport_manage`                    | `bool` | No       | `false`     | Switch to control whether the lookup table `transport` is controlled by dedicated settings and tasks of this role.<br><br>`transport` defines the mail transport routes for Postfix, mapping domains or email addresses to specific mail delivery methods […](#variable-run_postfix_transport_manage) |
+| `run_postfix_transport_map_tabletype`             | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_transport_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_transport_map_tabletype) |
+| `run_postfix_transport_map`                       | `dict` | No       | `{}`        | Domain transport mapping for Postfix. This defines where to send emails to for the listed domains in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe domains. - Values: Lists of destinations, usually […](#variable-run_postfix_transport_map) |
+| `run_postfix_virtual_manage`                      | `bool` | No       | `false`     | Switch to control whether the lookup table "virtual" is controlled by dedicated settings and tasks of this role.<br><br>"virtual" defines the address mappings used by Postfix to redirect email addresses in virtual alias domains to other local or […](#variable-run_postfix_virtual_manage) |
+| `run_postfix_virtual_aliasdomains_list_tabletype` | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_virtual_aliasdomains_list`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be […](#variable-run_postfix_virtual_aliasdomains_list_tabletype) |
+| `run_postfix_virtual_aliasdomains_list`           | `list` | No       | `[]`        | Virtual alias domains for Postfix. This tells Postfix to accept incoming emails for a list of virtual domains. Mappings for them are defined via `run_postfix_virtual_alias_map`.<br><br>``` Example: - "example.com" - "example.net" […](#variable-run_postfix_virtual_aliasdomains_list) |
+| `run_postfix_virtual_alias_map_tabletype`         | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_virtual_alias_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best […](#variable-run_postfix_virtual_alias_map_tabletype) |
+| `run_postfix_virtual_alias_map`                   | `dict` | No       | `{}`        | Virtual alias mappings for Postfix. This defines email forwarding rules in a structured format.<br><br>Dictionary structure:<br><br>- Keys: Criterions / pattern to describe the virtual address(es) Attention: Do not forget to list handled domains in […](#variable-run_postfix_virtual_alias_map) |
+| `run_postfix_smtp_sasl_password_manage`           | `bool` | No       | `false`     | Switch to control whether SMTP SASL password credentials are controlled by dedicated settings and tasks of this role.<br><br>They are used to authenticate Postfix when sending emails through a relay server that requires authentication: - […](#variable-run_postfix_smtp_sasl_password_manage) |
+| `run_postfix_smtp_sasl_password_map_tabletype`    | `str`  | No       | `"lmdb"`    | The lookup table type to use if for the list defined by `run_postfix_smtp_sasl_password_map`<br><br>Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the […](#variable-run_postfix_smtp_sasl_password_map_tabletype) |
+| `run_postfix_smtp_sasl_password_map` 🔒           | `dict` | No       | `{}`        | SMTP SASL password credentials for Postfix. Each entry maps a remote SMTP server (and optionally a port) to a username and password.<br><br>Dictionary structure:<br><br>- Keys: Criterions, the destination to specify credentials for. Attention: If the […](#variable-run_postfix_smtp_sasl_password_map) |
 
 ### `run_postfix_state`<a id="variable-run_postfix_state"></a>
 
@@ -326,7 +328,8 @@ Dictionary structure:
     Postfix), it can also be passed as YAML list and will be converted into a
     comma-separated value string automatically. So all three variants are valid
     here to define a list as value:
-    ```
+
+    ```text
     mynetworks:
     - "127.0.0.0/8"
     - "[::ffff:127.0.0.0]/104"
@@ -347,7 +350,7 @@ the config for hash|btree|dbm:/path values. Just notify
 `run_postfix: update lookup tables` on changes when writing additional, own
 tasks.
 
-For a complete list of options, see https://www.postfix.org/postconf.5.html
+For a complete list of options, see <https://www.postfix.org/postconf.5.html>
 
 - **Type**: `dict`
 - **Required**: No
@@ -361,7 +364,7 @@ For a complete list of options, see https://www.postfix.org/postconf.5.html
 
 Additional configuration for Postfix master process (`master.cf`). For
 details on the syntax of the fields/values, see the master(5) manual page
-(command: `man 5 master` or online: http://www.postfix.org/master.5.html).
+(command: `man 5 master` or online: <http://www.postfix.org/master.5.html>).
 
 Dictionary structure:
 
@@ -382,7 +385,7 @@ below. Enabling `smtps` without `smtpd_tls_wrappermode=yes` leaves port
 
 Example:
 
-```
+```text
 smtp: # Service for standard SMTP (Port 25)
   type: "inet" # Network socket type
   private: "n" # Private service
@@ -441,14 +444,22 @@ When `false`, you'll need to configure these settings manually through
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-The lookup table type to use if for the list defined by `run_postfix_relay_domains_list`
-Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. "hash" and "btree" are available on systems with support for Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster than `regexp`.
-Will be ignored if `run_postfix_relay_domains_manage` is set to `false`.
+The lookup table type to use if for the list defined by
+`run_postfix_relay_domains_list` Most distributions and builds dropped support
+for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB
+database) which should be the best default. "hash" and "btree" are available on
+systems with support for Berkeley DB (and therefore deprecated / legacy now).
+`pcre` is usually faster than `regexp`. Will be ignored if
+`run_postfix_relay_domains_manage` is set to `false`.
 
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -461,7 +472,7 @@ accept mail for relaying to their final destinations.
 
 Example:
 
-```
+```text
 - "example.com"
 - "example.net"
 - "example.org"
@@ -485,9 +496,10 @@ Switch to control whether the lookup table `access` is controlled by
 dedicated settings and tasks of this role.
 
 More information:
-- https://www.postfix.org/access.5.html
-- https://www.postfix.org/SMTPD_ACCESS_README.html
-- https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+
+- <https://www.postfix.org/access.5.html>
+- <https://www.postfix.org/SMTPD_ACCESS_README.html>
+- <https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -501,10 +513,10 @@ When set to `true` (the default is `false`), the role will:
      `smtpd_relay_restrictions` rules:
       - `recipient_access: check_recipient_access {{ run_postfix_access_recipient_map_tabletype }}:/etc/postfix/access_recipient`
       - `sender_access: check_sender_access {{ run_postfix_access_sender_map_tabletype }}:/etc/postfix/access_sender`
-     The explicit `check_recipient_access` / `check_sender_access` are
-     required: a bare `<type>:<path>` in a restriction class inherits the
-     recipient context of `smtpd_relay_restrictions`, so a sender table
-     would be looked up by the recipient address and never match.
+        The explicit `check_recipient_access` / `check_sender_access` are
+        required: a bare `<type>:<path>` in a restriction class inherits the
+        recipient context of `smtpd_relay_restrictions`, so a sender table would
+        be looked up by the recipient address and never match.
 
 When `false`, you'll need to configure these settings or functionality manually
 through `run_postfix_maincf_settings` or other means.
@@ -533,7 +545,11 @@ Will be ignored if `run_postfix_access_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"pcre"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -558,7 +574,7 @@ key to the domains you actually host so it can never relay.
 
 Examples:
 
-```
+```text
 # Force-accept RFC 2142 service addresses for your OWN domains, past any
 # anti-spam checks, without relaying (note the anchored, domain-scoped
 # pattern; requires the pcre/regexp table type):
@@ -593,7 +609,11 @@ Will be ignored if `run_postfix_access_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -604,8 +624,9 @@ Will be ignored if `run_postfix_access_manage` is set to `false`.
 Lookup-table `access`: Sender address restriction rules.
 
 More information:
-- https://www.postfix.org/access.5.html
-- https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+
+- <https://www.postfix.org/access.5.html>
+- <https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes>
 
 Security note on `OK`: as with the recipient map, this class is prepended
 before `reject_unauth_destination`, so an `OK` on a sender accepts the
@@ -615,7 +636,7 @@ to bypass the relay guard.
 
 Examples:
 
-```
+```text
 "@microsoft.com": "500 Deal with it"
 "spammy@example.com": "REJECT"
 "spammy2@example.com": "DISCARD" # Attention: silent drop
@@ -639,10 +660,11 @@ dedicated settings and tasks of this role.
 
 `aliases` can rewrite local(!) addresses (no domain part) and redirect mails
 to other mailboxes, files or commands:
-- https://www.postfix.org/aliases.5.html
-- https://www.postfix.org/local.8.html
-- https://www.postfix.org/postconf.5.html#alias_database
-- https://www.postfix.org/postconf.5.html#alias_maps
+
+- <https://www.postfix.org/aliases.5.html>
+- <https://www.postfix.org/local.8.html>
+- <https://www.postfix.org/postconf.5.html#alias_database>
+- <https://www.postfix.org/postconf.5.html#alias_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -665,14 +687,22 @@ through `run_postfix_maincf_settings` or other means.
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-The lookup table type to use if for the list defined by `run_postfix_aliases_map`
-Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. "hash" and "btree" are available on systems with support for Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster than `regexp`.
-Will be ignored if `run_postfix_aliases_manage` is set to `false`.
+The lookup table type to use if for the list defined by
+`run_postfix_aliases_map` Most distributions and builds dropped support for
+Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database)
+which should be the best default. "hash" and "btree" are available on systems
+with support for Berkeley DB (and therefore deprecated / legacy now). `pcre` is
+usually faster than `regexp`. Will be ignored if `run_postfix_aliases_manage` is
+set to `false`.
 
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -683,12 +713,13 @@ Will be ignored if `run_postfix_aliases_manage` is set to `false`.
 Lookup-table `alias`: address mappings.
 
 More information:
-- https://www.postfix.org/access.5.html
-- https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes
+
+- <https://www.postfix.org/access.5.html>
+- <https://en.wikipedia.org/wiki/List_of_SMTP_server_return_codes>
 
 Examples:
 
-```
+```text
 abuse: "root"
 deamon123: "root, tux"
 foo: "/var/spool/mail/foo"
@@ -714,8 +745,9 @@ Switch to control whether the lookup table `canonical` is controlled by
 dedicated settings and tasks of this role.
 
 `canonical` can rewrite mail addresses before mail is stored into the queue:
-- https://www.postfix.org/canonical.5.html
-- https://www.postfix.org/postconf.5.html#sender_canonical_maps
+
+- <https://www.postfix.org/canonical.5.html>
+- <https://www.postfix.org/postconf.5.html#sender_canonical_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -740,14 +772,22 @@ through `run_postfix_maincf_settings` or other means.
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-The lookup table type to use if for the list defined by `run_postfix_canonical_recipient_map`
-Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. "hash" and "btree" are available on systems with support for Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster than `regexp`.
-Will be ignored if `run_postfix_canonical_manage` is set to `false`.
+The lookup table type to use if for the list defined by
+`run_postfix_canonical_recipient_map` Most distributions and builds dropped
+support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB
+database) which should be the best default. "hash" and "btree" are available on
+systems with support for Berkeley DB (and therefore deprecated / legacy now).
+`pcre` is usually faster than `regexp`. Will be ignored if
+`run_postfix_canonical_manage` is set to `false`.
 
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -759,7 +799,7 @@ Lookup-table `canonical`: Recipient address mappings / rewrite rules.
 
 Examples:
 
-```
+```text
 "old.name@example.com": "new.name@example.com"
 "root": "user123@example.com"
 "@example.com": "@example.net"
@@ -777,14 +817,22 @@ Will be ignored if `run_postfix_canonical_manage` is set to `false`.
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-The lookup table type to use if for the list defined by `run_postfix_canonical_sender_map`
-Most distributions and builds dropped support for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB database) which should be the best default. "hash" and "btree" are available on systems with support for Berkeley DB (and therefore deprecated / legacy now). `pcre` is usually faster than `regexp`.
-Will be ignored if `run_postfix_canonical_manage` is set to `false`.
+The lookup table type to use if for the list defined by
+`run_postfix_canonical_sender_map` Most distributions and builds dropped support
+for Berkeley DB with Postfix ≥ 3.9 and switched to `lmdb` (OpenLDAP LMDB
+database) which should be the best default. "hash" and "btree" are available on
+systems with support for Berkeley DB (and therefore deprecated / legacy now).
+`pcre` is usually faster than `regexp`. Will be ignored if
+`run_postfix_canonical_manage` is set to `false`.
 
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -796,7 +844,7 @@ Lookup-table `canonical`: Sender address mappings / rewrite rules.
 
 Examples:
 
-```
+```text
 "old.name@example.com": "new.name@example.com"
 "root": "user123@example.com"
 "/.+/": "do-not-reply@example.com" # rewrite all outgoing mail addresses
@@ -820,9 +868,10 @@ dedicated settings and tasks of this role.
 
 `generic` is used to rewrite sender addresses in emails leaving the system
 via SMTP/LMTP only:
-- https://www.postfix.org/generic.5.html
-- https://www.postfix.org/postconf.5.html#lmtp_generic_maps
-- https://www.postfix.org/postconf.5.html#smtp_generic_maps
+
+- <https://www.postfix.org/generic.5.html>
+- <https://www.postfix.org/postconf.5.html#lmtp_generic_maps>
+- <https://www.postfix.org/postconf.5.html#smtp_generic_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -860,7 +909,11 @@ Will be ignored if `run_postfix_generic_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"pcre"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -872,7 +925,7 @@ Lookup-table 'generic': Sender address mappings / rewrite rules.
 
 Examples:
 
-```
+```text
 "john.doe@example.local": "john.doe@example.com"
 "@example.local": "contact@example.net"
 ```
@@ -896,8 +949,9 @@ dedicated settings and tasks of this role.
 If someone tries to send email to an old address, Postfix generates a
 non-delivery report (NDR) with the new address ("user has moved to
 <new_location>" bounce messages):
-- https://www.postfix.org/relocated.5.html
-- https://www.postfix.org/postconf.5.html#relocated_maps
+
+- <https://www.postfix.org/relocated.5.html>
+- <https://www.postfix.org/postconf.5.html#relocated_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -934,7 +988,11 @@ Will be ignored if `run_postfix_relocated_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -948,11 +1006,11 @@ Dictionary structure:
 
 - Keys: Criterions / pattern to describe old addresses.
 - Values: The new location, usually email addresses (or phone or other
-          address or location strings; Postfix's default template starts with
-          "User has moved to " so use a fitting string).
+  address or location strings; Postfix's default template starts with
+  "User has moved to " so use a fitting string).
 Example:
 
-```
+```text
 "user@example.com": "new@example.net"
 "@example.com": "Sorry, all mail has to be sent to example.net"
 ```
@@ -974,8 +1032,9 @@ dedicated settings and tasks of this role.
 
 `transport` defines the mail transport routes for Postfix, mapping domains
 or email addresses to specific mail delivery methods and destinations:
-- https://www.postfix.org/transport.5.html
-- https://www.postfix.org/postconf.5.html#transport_maps
+
+- <https://www.postfix.org/transport.5.html>
+- <https://www.postfix.org/postconf.5.html#transport_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -1012,7 +1071,11 @@ Will be ignored if `run_postfix_transport_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -1028,10 +1091,10 @@ Dictionary structure:
 - Keys: Criterions / pattern to describe domains.
 - Values: Lists of destinations, usually email servers or relays.
   Attention: Do not forget to use square brackets to force DNS A record
-             instead of MX record lookups.
+  instead of MX record lookups.
 Examples:
 
-```
+```text
 "example.com": "lmtp:unix:/var/spool/postfix/private/lmtp-dovecot"
 "example.net": "lmtp:127.0.0.1:24"
 "example.org": "[192.168.0.1]"
@@ -1058,11 +1121,11 @@ dedicated settings and tasks of this role.
 "virtual" defines the address mappings used by Postfix to redirect email
 addresses in virtual alias domains to other local or remote addresses:
 
-- http://www.postfix.org/VIRTUAL_README.html
-- https://www.postfix.org/virtual.5.html
-- https://www.postfix.org/postconf.5.html#virtual_alias_domains
-- https://www.postfix.org/postconf.5.html#virtual_alias_maps
-- https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
+- <http://www.postfix.org/VIRTUAL_README.html>
+- <https://www.postfix.org/virtual.5.html>
+- <https://www.postfix.org/postconf.5.html#virtual_alias_domains>
+- <https://www.postfix.org/postconf.5.html#virtual_alias_maps>
+- <https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -1101,7 +1164,11 @@ Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -1113,7 +1180,7 @@ Virtual alias domains for Postfix. This tells Postfix to accept incoming
 emails for a list of virtual domains. Mappings for them are defined via
 `run_postfix_virtual_alias_map`.
 
-```
+```text
 Example:
   - "example.com"
   - "example.net"
@@ -1146,7 +1213,11 @@ Will be ignored if `run_postfix_virtual_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -1161,12 +1232,12 @@ Dictionary structure:
 
 - Keys: Criterions / pattern to describe the virtual address(es)
   Attention: Do not forget to list handled domains in
-             `run_postfix_virtual_aliasdomains_list`
+  `run_postfix_virtual_aliasdomains_list`
 - Values: Lists of destinations, usually email addresses
 
 Example:
 
-```
+```text
 "admin@example.com":
   - "admin@actual-destination.example.com"
 "distribution@example.com":
@@ -1197,8 +1268,9 @@ dedicated settings and tasks of this role.
 
 They are used to authenticate Postfix when sending emails through a relay
 server that requires authentication:
-- https://www.postfix.org/SASL_README.html#client_sasl
-- https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
+
+- <https://www.postfix.org/SASL_README.html#client_sasl>
+- <https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps>
 
 When set to `true` (the default is `false`), the role will:
 
@@ -1235,7 +1307,11 @@ Will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
 - **Type**: `str`
 - **Required**: No
 - **Default**: `"lmdb"`
-- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`, `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`, `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`, `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`, `unionmap`, `unix`
+- **Choices**: `btree`, `cdb`, `cidr`, `dbm`, `environ`, `fail`, `hash`,
+  `inline`, `internal`, `lmdb`, `ldap`, `memcache`, `mongodb`, `mysql`,
+  `netinfo`, `nis`, `nisplus`, `pcre`, `pipemap`, `pgsql`, `proxy`, `randmap`,
+  `regexp`, `sdbm`, `socketmap`, `sqlite`, `static`, `tcp`, `texthash`,
+  `unionmap`, `unix`
 
 
 
@@ -1250,7 +1326,7 @@ Dictionary structure:
 
 - Keys: Criterions, the destination to specify credentials for.
   Attention: If the relayhost destination is enclosed in `[` and `]`,
-             then you must use the same form here.
+  then you must use the same form here.
 - Values: The credentials in the `username:password` format.
   Note: The main.cf setting `smtp_sasl_password_result_delimiter` (which
   defaults to `:`) can be used to specify an alternative separator between
@@ -1258,7 +1334,7 @@ Dictionary structure:
 
 Example:
 
-```
+```text
 "[relay.example.com]": "user:password_superSecret-c0e-400a-b683-7ae5"
 "[relay.example.com]:587": "johndoe:password-69f7d34-4c-123"
 ```
@@ -1269,7 +1345,6 @@ will be ignored if `run_postfix_smtp_sasl_password_manage` is set to `false`.
 - **Required**: No
 - **Sensitive**: Yes (`no_log`, values are masked in logs)
 - **Default**: `{}`
-
 
 
 

@@ -13,6 +13,8 @@ argument_specs:
   # foundata.postfix/roles/run/tasks/main.yml entry point
   main:
     short_description: "Main entry point for the foundata.postfix.run role"
+    description: |
+      Manage the Postfix Mail Transfer Agent (MTA)
     options:
 
       run_postfix_state:
