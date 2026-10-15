@@ -30,13 +30,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: "Configure Postfix for Dovecot LDAP mailboxes and an upstream relay"
   hosts: "{{ postfix_playbook_hosts | ansible.builtin.default('mailservers') }}"
   become: true
   gather_facts: true
   pre_tasks:
-
     - name: "Require the deployment-specific mail parameters"
       ansible.builtin.assert:
         that:
@@ -51,24 +49,18 @@
         - "postfix_playbook_tls_key_file"
         - "postfix_playbook_relayhost"
 
-
     - name: "Validate the hosted mail domains"
       ansible.builtin.assert:
         that:
           - postfix_playbook_mail_domains is ansible.builtin.sequence
           - postfix_playbook_mail_domains is not ansible.builtin.string
           - (postfix_playbook_mail_domains | ansible.builtin.length) > 0
-          - (postfix_playbook_mail_domains | ansible.builtin.unique | ansible.builtin.length)
-            == (postfix_playbook_mail_domains | ansible.builtin.length)
-          - postfix_playbook_mail_domains
-            | ansible.builtin.select('ansible.builtin.match', '^(?!-)[a-z0-9.-]+(?<!-)$')
-            | ansible.builtin.list
-            | ansible.builtin.length
-            == postfix_playbook_mail_domains | ansible.builtin.length
+          - (postfix_playbook_mail_domains | ansible.builtin.unique | ansible.builtin.length) == (postfix_playbook_mail_domains | ansible.builtin.length)
+          - postfix_playbook_mail_domains | ansible.builtin.select('ansible.builtin.match', '^(?!-)[a-z0-9.-]+(?<!-)$') | ansible.builtin.list |
+            ansible.builtin.length == postfix_playbook_mail_domains | ansible.builtin.length
         quiet: true
         fail_msg: "postfix_playbook_mail_domains must contain unique lowercase DNS domain names."
         success_msg: "Hosted mail domains are valid."
-
 
     - name: "Resolve optional Postfix deployment parameters"
       ansible.builtin.set_fact:
@@ -98,7 +90,6 @@
         - postfix_playbook_relay_auth_enabled
       no_log: true
 
-
     - name: "Check the TLS certificate and key"
       ansible.builtin.stat:
         path: "{{ item }}"
@@ -106,7 +97,6 @@
         - "{{ postfix_playbook_tls_cert_file }}"
         - "{{ postfix_playbook_tls_key_file }}"
       register: postfix_playbook_tls_files
-
 
     - name: "Require readable TLS certificate material"
       ansible.builtin.assert:
@@ -120,7 +110,6 @@
       loop_control:
         loop_var: "postfix_playbook_tls_file"
         label: "{{ postfix_playbook_tls_file['item'] }}"
-
 
     - name: "Build Dovecot LMTP transports for the hosted domains"
       ansible.builtin.set_fact:
@@ -142,7 +131,6 @@
       loop: "{{ postfix_playbook_mail_domains }}"
 
   tasks:
-
     - name: "Include the foundata.postfix.run role"
       ansible.builtin.include_role:
         name: "foundata.postfix.run"
@@ -211,7 +199,7 @@
           smtp_tls_ciphers: "high"
           smtp_tls_mandatory_ciphers: "high"
           smtp_tls_session_cache_database: "btree:${data_directory}/smtp_scache"
-          smtp_sasl_auth_enable: "{{ postfix_playbook_relay_auth_enabled | ternary('yes', 'no') }}"
+          smtp_sasl_auth_enable: "{{ postfix_playbook_relay_auth_enabled | ansible.builtin.ternary('yes', 'no') }}"
           smtp_sasl_password_maps: >-
             {{
               postfix_playbook_relay_auth_enabled
