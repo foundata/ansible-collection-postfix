@@ -1,3 +1,4 @@
+{% set _ = none -%}
 {#
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
@@ -5,7 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 {# Convert values in main.cf settings to postconf compatible strings (if
    needed), for example YAML lists to strings. #}
 {% set result = {} %}
-{% for key, value in __run_postfix_effective_maincf_settings.items() %}
+{% for key, value in tpl_effective_maincf_settings.items() %}
 {%   if (value is ansible.builtin.iterable) and (value is not ansible.builtin.string) and (value is not ansible.builtin.mapping) %}
 {#     Postfix allows list values to be separated by whitspace or comma. Both
        are valid and can be even mixed. We prefer comma as separator. #}

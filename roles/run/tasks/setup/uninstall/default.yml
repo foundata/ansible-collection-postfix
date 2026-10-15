@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 # Done before the packages are removed so the paths are still the ones this role
 # managed. Leaving these behind would contradict "revert as much as possible",
 # and the SMTP SASL password file additionally holds relay credentials in clear
@@ -24,7 +23,6 @@
     loop_var: "__run_postfix_uninstall_path_item"
     label: "{{ __run_postfix_uninstall_path_item[0] }}{{ __run_postfix_uninstall_path_item[1] }}"
 
-
 # /etc/aliases itself is a system file shared with any other local MTA, so it is
 # not removed. Only what this role added to it is reverted: first the entries it
 # disabled (identified by the marker, never a "#" the administrator put there),
@@ -33,16 +31,14 @@
 - name: "Setup | Uninstall | Restore the aliases entries this role disabled"
   ansible.builtin.replace:
     path: "{{ __run_postfix_table_aliases_file_path }}"
-    regexp: '^{{ __run_postfix_table_aliases_disabled_marker | ansible.builtin.regex_escape }}(.*)$'
-    replace: '\1'
-
+    regexp: "^{{ __run_postfix_table_aliases_disabled_marker | ansible.builtin.regex_escape }}(.*)$"
+    replace: "\\1"
 
 - name: "Setup | Uninstall | Remove the managed block from the aliases file"
   ansible.builtin.blockinfile:
     path: "{{ __run_postfix_table_aliases_file_path }}"
     marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
     state: "absent"
-
 
 - name: "Setup | Uninstall | Remove packages"
   ansible.builtin.package:

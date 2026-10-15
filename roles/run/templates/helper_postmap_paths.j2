@@ -1,3 +1,4 @@
+{% set _ = none -%}
 {# Get all paths of lookup table files from main.cf settings needed to be
    processed with the "postmap" command.
 
@@ -11,7 +12,7 @@ SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
 {% set paths = [] %}
-{% for key, value in __run_postfix_effective_maincf_settings.items() %}
+{% for key, value in tpl_effective_maincf_settings.items() %}
 {#   Keys referencing files where other commands have to be used ("newaliases" or
      "postalias") are excluded. #}
 {%   if (key not in ['alias_database', 'alias_maps']) and (value is ansible.builtin.string) %}

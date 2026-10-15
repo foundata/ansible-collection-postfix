@@ -5,9 +5,13 @@ SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
-The `foundata.postfix.run` Ansible role (part of the `foundata.postfix` Ansible collection).
+The `foundata.postfix.run` Ansible role (part of the `foundata.postfix` Ansible
+collection).
 
-It provides automated configuration management of Postfix across major platforms. It does not explain how to create a good Postfix configuration that suits your requirements; that task remains for you to accomplish. However, the [examples playbooks](#examples) may help you a bit with that.
+It provides automated configuration management of Postfix across major
+platforms. It does not explain how to create a good Postfix configuration that
+suits your requirements; that task remains for you to accomplish. However, the
+[examples playbooks](#examples) may help you a bit with that.
 
 
 
@@ -66,13 +70,18 @@ It provides automated configuration management of Postfix across major platforms
 
 Main features:
 
-* Full support for managing all `main.cf` and `master.cf` settings.
-* Automatic detection and installation of required backend packages for map types (e.g., LMDB, MySQL, PostgreSQL) based on your configuration.
-* Specialized parameters for simplified management of commonly needed Postfix settings, such as:
-  * Lookup tables for `virtual`, `transport`, and other mappings.
-  * Management of `relay_domains` for fine-grained control over relaying behavior.
-* Provides sensible, production-ready defaults, tuned for recent Postfix versions, including support for modern map types like LMDB.
-* Designed for cross-platform compatibility, working seamlessly across major Linux distributions.
+- Full support for managing all `main.cf` and `master.cf` settings.
+- Automatic detection and installation of required backend packages for map
+  types (e.g., LMDB, MySQL, PostgreSQL) based on your configuration.
+- Specialized parameters for simplified management of commonly needed Postfix
+  settings, such as:
+  - Lookup tables for `virtual`, `transport`, and other mappings.
+  - Management of `relay_domains` for fine-grained control over relaying
+    behavior.
+- Provides sensible, production-ready defaults, tuned for recent Postfix
+  versions, including support for modern map types like LMDB.
+- Designed for cross-platform compatibility, working seamlessly across major
+  Linux distributions.
 
 
 
@@ -185,13 +194,18 @@ Uninstall:
 
 It might be useful and faster to only call parts of the role by using tags:
 
-- `run_postfix_setup`: Manage basic resources, such as packages or service users.
-- `run_postfix_config`: Manage settings, such as adapting or creating configuration files.
-- `run_postfix_service`: Manage services and daemons, such as running states and service boot configurations.
+- `run_postfix_setup`: Manage basic resources, such as packages or service
+  users.
+- `run_postfix_config`: Manage settings, such as adapting or creating
+  configuration files.
+- `run_postfix_service`: Manage services and daemons, such as running states and
+  service boot configurations.
 
-There are also tags that are generally not intended to be called directly but are included for completeness and to cover edge cases:
+There are also tags that are generally not intended to be called directly but
+are included for completeness and to cover edge cases:
 
-- `run_postfix_always`, `always`: Tasks needed by the role itself for internal role setup and the Ansible environment.
+- `run_postfix_always`, `always`: Tasks needed by the role itself for internal
+  role setup and the Ansible environment.
 
 
 <!-- ANSIBLE DOCSMITH MAIN START -->
@@ -347,7 +361,7 @@ Reference commands:
 Please note that you do not need own handler for postmap when using
 `hash|btree|dbm:` somewhere. The role's handler is intelligent enough to scan
 the config for hash|btree|dbm:/path values. Just notify
-`run_postfix: update lookup tables` on changes when writing additional, own
+`run_postfix_update_lookup_tables` on changes when writing additional, own
 tasks.
 
 For a complete list of options, see <https://www.postfix.org/postconf.5.html>
@@ -1359,7 +1373,8 @@ See `dependencies` in [`meta/main.yml`](./meta/main.yml).
 
 ## Compatibility<a id="compatibility"></a>
 
-See `min_ansible_version` in [`meta/main.yml`](./meta/main.yml) and `__run_postfix_supported_platforms` in [`vars/main.yml`](./vars/main.yml).
+See `min_ansible_version` in [`meta/main.yml`](./meta/main.yml) and
+`__run_postfix_supported_platforms` in [`vars/main.yml`](./vars/main.yml).
 
 
 

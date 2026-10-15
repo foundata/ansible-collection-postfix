@@ -32,7 +32,6 @@ __run_postfix_used_facts:
   platform:
     - "fqdn"
 
-
 # List of platforms this role supports and was designed for.
 #
 # A warning will be issued if the list contains values and the role is executed
@@ -70,7 +69,6 @@ __run_postfix_supported_platforms:
       - "24.04"
       - "26.04"
 
-
 # List of package names to be installed when run_postfix_state is
 # set to "present".
 __run_postfix_packages_install:
@@ -79,7 +77,6 @@ __run_postfix_packages_install:
   # names across both supported platforms and unsupported, best-effort
   # platforms.
   - "postfix"
-
 
 # Dictionary proving additional packages lists, to be installed for different
 # Postfix map backends when run_postfix_state is set to "present".
@@ -114,7 +111,6 @@ __run_postfix_packages_install_map_backends:
   sqlite:
     - "postfix-sqlite"
 
-
 # List of package names to be uninstalled when run_postfix_state is
 # set to "absent". This variable is useful when __run_postfix_packages_install
 # contains packages that are required for the managed software to function but
@@ -136,7 +132,6 @@ __run_postfix_packages_uninstall: >-
 # (e.g., to prevent conflicts or resolve incompatibilities).
 __run_postfix_packages_removal: []
 
-
 # List of paths of files and directories to be removed unconditionally after
 # installation. This is useful for removing default configuration resources
 # that would otherwise create confusion or conflict with custom configurations
@@ -150,7 +145,6 @@ __run_postfix_paths_removal:
   - "/etc/postfix/main.cf.proto" # Exists by default at least on Debian, Red Hat
   - "/etc/postfix/master.cf.proto" # Exists by default at least on Debian, Red Hat
 
-
 # Dictionary of files to be overwritten with a managed comment instead of being
 # deleted. Keys are file paths; values are the single-line comment characters to
 # use. This is needed on platforms where the package manager reinstalls deleted
@@ -158,7 +152,6 @@ __run_postfix_paths_removal:
 # configuration, while modified files are preserved. For example, RPM with
 # %config(noreplace) restores missing files but preserves modified ones.
 __run_postfix_paths_neutralize: {}
-
 
 # Additional default configuration for Postfix daemon. Use standard Postfix
 # option names as keys with their corresponding values.
@@ -194,7 +187,7 @@ __run_postfix_maincf_settings_defaults:
   smtpd_client_recipient_rate_limit: 60 # Mails for receiver per anvil_rate_time_unit; 0 == unlimited; default is 0
   smtpd_soft_error_limit: 5 # default is 10
   smtpd_error_sleep_time: "2s" # default is 1s; http://www.postfix.org/TUNING_README.html#speedup
-  smtpd_hard_error_limit: '${stress?{1}:{15}}' # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
+  smtpd_hard_error_limit: "${stress?{1}:{15}}" # default is ${stress?{1}:{20}}; http://www.postfix.org/STRESS_README.html#adapt
   smtpd_helo_required: "yes" # SMTP client needs to introduces itself with HELO or EHLO before sending MAIL and related commands
   alias_maps: "lmdb:/etc/aliases"
   delay_warning_time: "4h"
@@ -317,7 +310,6 @@ __run_postfix_maincf_settings_defaults:
   smtpd_forbid_bare_newline_exclusions: "$mynetworks"
   smtpd_recipient_restrictions: ""
 
-
 # Additional default configuration for Postfix master process (master.cf)
 #
 # Only the standard SMTP receiving service (port 25) and the anvil helper are
@@ -346,7 +338,6 @@ __run_postfix_mastercf_service_fields:
   - "maxproc"
   - "command_args"
 
-
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_mastercf_settings_defaults:
@@ -367,13 +358,11 @@ __run_postfix_mastercf_settings_defaults:
     maxproc: "1"
     command_args: "anvil"
 
-
 # Default relay domains for Postfix.
 #
 # See in run_postfix_relay_domains_list in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_relay_domains_list_defaults: []
-
 
 # Default access recipient mappings for Postfix.
 #
@@ -381,13 +370,11 @@ __run_postfix_relay_domains_list_defaults: []
 # description of the structure (as this variable is using the same).
 __run_postfix_access_recipient_map_defaults: {}
 
-
 # Default access sender mappings for Postfix.
 #
 # See in run_postfix_access_sender_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_access_sender_map_defaults: {}
-
 
 # Default aliases mappings for Postfix.
 #
@@ -398,13 +385,11 @@ __run_postfix_aliases_map_defaults:
   postmaster: "root"
   mailer-daemon: "postmaster"
 
-
 # Default canonical recipient mappings for Postfix.
 #
 # See in run_postfix_canonical_recipient_map in defaults/main.yml for a
 # detailed description of the structure (as this variable is using the same).
 __run_postfix_canonical_recipient_map_defaults: {}
-
 
 # Default canonical sender mappings for Postfix.
 #
@@ -412,13 +397,11 @@ __run_postfix_canonical_recipient_map_defaults: {}
 # description of the structure (as this variable is using the same).
 __run_postfix_canonical_sender_map_defaults: {}
 
-
 # Default generic mapping for Postfix.
 #
 # See in run_postfix_generic_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_generic_map_defaults: {}
-
 
 # Default domain relocated mapping for Postfix.
 #
@@ -426,13 +409,11 @@ __run_postfix_generic_map_defaults: {}
 # description of the structure (as this variable is using the same).
 __run_postfix_relocated_map_defaults: {}
 
-
 # Default domain transport mapping for Postfix.
 #
 # See in run_postfix_transport_map in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_transport_map_defaults: {}
-
 
 # Default virtual aliases domains for Postfix.
 #
@@ -440,20 +421,17 @@ __run_postfix_transport_map_defaults: {}
 # detailed description of the structure (as this variable is using the same).
 __run_postfix_virtual_aliasdomains_list_defaults: []
 
-
 # Default virtual aliases mappings for Postfix.
 #
 # See in run_postfix_virtual_aliases in defaults/main.yml for a detailed
 # description of the structure (as this variable is using the same).
 __run_postfix_virtual_alias_map_defaults: {}
 
-
 # Default SMTP SASL password mapping for Postfix.
 #
 # See in run_postfix_smtp_sasl_password_map in defaults/main.yml for a
 # detailed description of the structure (as this variable is using the same).
 __run_postfix_smtp_sasl_password_map_defaults: {}
-
 
 # Effective (merged) values derived from the *_defaults above and the matching
 # public run_postfix_* user variables. Postfix parameter names are
@@ -624,7 +602,6 @@ __run_postfix_table_virtual_aliasdomains_file_owner: "root"
 __run_postfix_table_virtual_aliasdomains_file_group: "root"
 __run_postfix_table_virtual_aliasdomains_file_mode: "u=rw,g=r,o=r" # 0644
 
-
 # Lookup table files created by this role, removed again when run_postfix_state
 # is "absent" so the role reverts what it added.
 #
@@ -649,7 +626,6 @@ __run_postfix_uninstall_file_paths:
   - "{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
   - "{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
 
-
 # Suffixes of the compiled databases "postmap" may have created next to a lookup
 # table file. All of them are covered on removal because the configured table
 # type may have changed since a file was last written.
@@ -661,7 +637,6 @@ __run_postfix_uninstall_file_suffixes:
   - ".lmdb" # lmdb
   - ".cdb" # cdb
 
-
 # Daemon service name and paths of executables for management and validation.
 __run_postfix_postfix_servicename: "postfix.service"
 __run_postfix_postfix_exec_path: "/usr/sbin/postfix"
@@ -669,13 +644,11 @@ __run_postfix_postconf_exec_path: "/usr/sbin/postconf"
 __run_postfix_postmap_exec_path: "/usr/sbin/postmap"
 __run_postfix_postalias_exec_path: "/usr/sbin/postalias"
 
-
 # Paths of other executables and resources.
 __run_postfix_sha1sum_exec_path: "/usr/bin/sha1sum"
 __run_postfix_touch_exec_path: "/usr/bin/touch"
 __run_postfix_chmod_exec_path: "/usr/bin/chmod"
 __run_postfix_chown_exec_path: "/usr/bin/chown"
-
 
 ### Override defaults of dependencies used by this role (if any).
 

@@ -4,18 +4,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: "Config | Default | Print config for master.cf (merged defaults with passed values)"
   ansible.builtin.debug:
     var: __run_postfix_effective_mastercf_settings
     verbosity: 4
 
-
 - name: "Config | Default | Print config for main.cf (merged defaults with passed values)"
   ansible.builtin.debug:
     var: __run_postfix_effective_maincf_settings
     verbosity: 4
-
 
 - name: "Config | Default | Convert values in main.cf settings to postconf compatible strings (if needed)"
   ansible.builtin.set_fact:
@@ -25,12 +22,12 @@
     #    this converts dictionaries to strings objects, needing additional care.
     __run_postfix_effective_maincf_settings: "{{ lookup('ansible.builtin.template', 'helper_prepare_postconf.j2') }}"
 
-
+  vars:
+    tpl_effective_maincf_settings: "{{ __run_postfix_effective_maincf_settings }}"
 - name: "Config | Default | Print config for main.cf (merged defaults with passed values, prepared for postconf)"
   ansible.builtin.debug:
     var: __run_postfix_effective_maincf_settings
     verbosity: 4
-
 
 ### Relay domains
 
@@ -38,7 +35,6 @@
   when:
     - run_postfix_relay_domains_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Relay domains: Inform if 'relay_domains' config value will be overwritten"
       ansible.builtin.debug:
         msg: |
@@ -47,14 +43,12 @@
           "{{ run_postfix_relay_domains_list_tabletype }}:{{ __run_postfix_relaydomains_file_path }}"
           as "run_postfix_relay_domains_manage" is true. Please add your domains
           to "run_postfix_maincf_settings['relay_domains']".
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['relay_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relay_domains'] | ansible.builtin.length > 0
-        - (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
-          not in (run_postfix_maincf_settings['relay_domains'].split(', ')
-                  if run_postfix_maincf_settings['relay_domains'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['relay_domains'])
-
+        - (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path) not in (run_postfix_maincf_settings['relay_domains'].split(',
+          ') if run_postfix_maincf_settings['relay_domains'] is ansible.builtin.string else run_postfix_maincf_settings['relay_domains'])
 
     - name: "Config | Default | Relay domains: Set 'relay_domains' config value"
       ansible.builtin.set_fact:
@@ -63,10 +57,8 @@
             'relay_domains': (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
           }) }}
       when:
-        - run_postfix_maincf_settings['relay_domains'] is not ansible.builtin.defined or
-          (run_postfix_relay_domains_list_tabletype ~ ':' ~ __run_postfix_relaydomains_file_path)
-          not in __run_postfix_effective_maincf_settings['relay_domains'].split(', ')
-
+        - run_postfix_maincf_settings['relay_domains'] is not ansible.builtin.defined or (run_postfix_relay_domains_list_tabletype ~ ':' ~
+          __run_postfix_relaydomains_file_path) not in __run_postfix_effective_maincf_settings['relay_domains'].split(', ')
 
     - name: "Config | Default | Relay domains: Write table file"
       ansible.builtin.template:
@@ -75,9 +67,13 @@
         owner: "{{ __run_postfix_relaydomains_file_owner }}"
         group: "{{ __run_postfix_relaydomains_file_group }}"
         mode: "{{ __run_postfix_relaydomains_file_mode }}"
+      vars:
+        tpl_effective_relay_domains: "{{ __run_postfix_effective_relay_domains }}"
+        tpl_table_transport_file_path: "{{ __run_postfix_table_transport_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
+        tpl_transport_manage: "{{ run_postfix_transport_manage }}"
       notify:
-        - "run_postfix: update lookup tables"
-
+        - "run_postfix_update_lookup_tables"
 
     - name: "Config | Default | Relay domains: Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
       ansible.builtin.file:
@@ -88,14 +84,12 @@
       loop_control:
         loop_var: "__run_postfix_relay_removal_item"
 
-
 ### Lookup table: access (selectively accept, reject, or filter email based on rules with PERMIT, REJECT and DUNNO)
 
 - name: "Config | Default | Lookup-table 'access'"
   when:
     - run_postfix_access_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'access': Warn about deprecated Postfix settings"
       ansible.builtin.debug:
         msg: >-
@@ -105,6 +99,7 @@
           a deep understanding of the side effects:
           {{ __run_postfix_access_deprecatedsettings | ansible.builtin.join(', ') }}.
           Consider consolidating your access controls within "smtpd_relay_restrictions" instead.
+        verbosity: 0
       vars:
         __run_postfix_access_deprecatedsettings: >-
           {{
@@ -121,7 +116,6 @@
           - "smtpd_end_of_data_restrictions"
       when:
         - __run_postfix_access_deprecatedsettings | ansible.builtin.length > 0
-
 
     - name: "Config | Default | Lookup-table 'access': Ensure managed restriction classes are defined and added to 'smtpd_relay_restrictions'"
       ansible.builtin.set_fact:
@@ -147,10 +141,12 @@
         owner: "{{ __run_postfix_table_access_recipient_file_owner }}"
         group: "{{ __run_postfix_table_access_recipient_file_group }}"
         mode: "{{ __run_postfix_table_access_recipient_file_mode }}"
+      vars:
+        tpl_effective_access_recipient_map: "{{ __run_postfix_effective_access_recipient_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'access': Write table file (sender)"
       ansible.builtin.template:
@@ -159,10 +155,12 @@
         owner: "{{ __run_postfix_table_access_sender_file_owner }}"
         group: "{{ __run_postfix_table_access_sender_file_group }}"
         mode: "{{ __run_postfix_table_access_sender_file_mode }}"
+      vars:
+        tpl_effective_access_sender_map: "{{ __run_postfix_effective_access_sender_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
 ### Lookup table: aliases (selectively accept, reject, or filter email based on rules with PERMIT, REJECT and DUNNO)
 
@@ -170,7 +168,6 @@
   when:
     - run_postfix_aliases_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'aliases': Inform if 'alias_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -178,14 +175,12 @@
           value "{{ run_postfix_maincf_settings['alias_maps'] }}" with
           "{{ run_postfix_aliases_map_tabletype }}:{{ __run_postfix_table_aliases_file_path }}"
           at the first position as "run_postfix_aliases_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['alias_maps'] | ansible.builtin.length > 0
-        - (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path)
-          not in (run_postfix_maincf_settings['alias_maps'].split(', ')
-                  if run_postfix_maincf_settings['alias_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['alias_maps'])
-
+        - (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path) not in (run_postfix_maincf_settings['alias_maps'].split(', ') if
+          run_postfix_maincf_settings['alias_maps'] is ansible.builtin.string else run_postfix_maincf_settings['alias_maps'])
 
     - name: "Config | Default | Lookup-table 'aliases': Set 'alias_maps' setting"
       ansible.builtin.set_fact:
@@ -197,10 +192,8 @@
                               (__run_postfix_effective_maincf_settings['alias_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['alias_maps'] is not ansible.builtin.defined or
-          (run_postfix_aliases_map_tabletype ~ ':' ~ __run_postfix_table_aliases_file_path)
-          not in __run_postfix_effective_maincf_settings['alias_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['alias_maps'] is not ansible.builtin.defined or (run_postfix_aliases_map_tabletype ~ ':' ~
+          __run_postfix_table_aliases_file_path) not in __run_postfix_effective_maincf_settings['alias_maps'].split(', ')
 
     # The file existence is checked and "ansible.builtin.blockinfile" instead of
     # "ansible.builtin.template" used as the aliases file usually exists and
@@ -212,21 +205,22 @@
         owner: "{{ __run_postfix_table_aliases_file_owner }}"
         group: "{{ __run_postfix_table_aliases_file_group }}"
         mode: "{{ __run_postfix_table_aliases_file_mode }}"
-        modification_time: "preserve"
         access_time: "preserve"
+        modification_time: "preserve"
       notify:
         # prevent warning: database /etc/aliases[...] is older than source file /etc/aliases
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'aliases': update {{ __run_postfix_table_aliases_file_path }}"
       ansible.builtin.blockinfile:
         path: "{{ __run_postfix_table_aliases_file_path }}"
         marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
         block: "{{ lookup('ansible.builtin.template', 'aliases.j2') }}"
+      vars:
+        tpl_effective_aliases_map: "{{ __run_postfix_effective_aliases_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'aliases': Comment out existing aliases before Ansible managed block"
       ansible.builtin.replace:
@@ -234,17 +228,16 @@
         # regex_escape: alias names may contain regular expression metacharacters
         # (e.g. "new.name" or "user+tag"), which would otherwise match unrelated
         # lines and miss the intended one.
-        regexp: '^({{ __run_postfix_alias_key_item | ansible.builtin.regex_escape }}:\s*.*)'
+        regexp: "^({{ __run_postfix_alias_key_item | ansible.builtin.regex_escape }}:\\s*.*)"
         # The marker records that this role disabled the entry, so the uninstall
         # can restore it without touching entries the administrator disabled.
-        replace: '{{ __run_postfix_table_aliases_disabled_marker }}\1'
+        replace: "{{ __run_postfix_table_aliases_disabled_marker }}\\1"
         before: "### BEGIN ANSIBLE MANAGED BLOCK ###"
       loop: "{{ __run_postfix_effective_aliases_map.keys() | ansible.builtin.list }}"
       loop_control:
         loop_var: "__run_postfix_alias_key_item"
       notify:
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_aliases"
 
 ### Lookup table: canonical (rewrites mail addresses before mail is stored into the queue)
 
@@ -252,7 +245,6 @@
   when:
     - run_postfix_canonical_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'canonical': Inform if 'recipient_canonical_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -260,14 +252,13 @@
           value "{{ run_postfix_maincf_settings['recipient_canonical_maps'] }}" with
           "{{ run_postfix_canonical_recipient_map_tabletype }}:{{ __run_postfix_table_canonical_recipient_file_path }}"
           at the first position as "run_postfix_canonical_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['recipient_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0
-        - (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path)
-          not in (run_postfix_maincf_settings['recipient_canonical_maps'].split(', ')
-                  if run_postfix_maincf_settings['recipient_canonical_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['recipient_canonical_maps'])
-
+        - (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path) not in
+          (run_postfix_maincf_settings['recipient_canonical_maps'].split(', ') if run_postfix_maincf_settings['recipient_canonical_maps'] is
+          ansible.builtin.string else run_postfix_maincf_settings['recipient_canonical_maps'])
 
     - name: "Config | Default | Lookup-table 'canonical': Set 'recipient_canonical_maps' setting"
       ansible.builtin.set_fact:
@@ -279,10 +270,8 @@
                                             (__run_postfix_effective_maincf_settings['recipient_canonical_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['recipient_canonical_maps'] is not ansible.builtin.defined or
-          (run_postfix_canonical_recipient_map_tabletype ~ ':' ~ __run_postfix_table_canonical_recipient_file_path)
-          not in __run_postfix_effective_maincf_settings['recipient_canonical_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['recipient_canonical_maps'] is not ansible.builtin.defined or (run_postfix_canonical_recipient_map_tabletype ~
+          ':' ~ __run_postfix_table_canonical_recipient_file_path) not in __run_postfix_effective_maincf_settings['recipient_canonical_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'canonical': Write table file (recipient)"
       ansible.builtin.template:
@@ -291,10 +280,13 @@
         owner: "{{ __run_postfix_table_canonical_recipient_file_owner }}"
         group: "{{ __run_postfix_table_canonical_recipient_file_group }}"
         mode: "{{ __run_postfix_table_canonical_recipient_file_mode }}"
+      vars:
+        tpl_effective_canonical_recipient_map: "{{ __run_postfix_effective_canonical_recipient_map }}"
+        tpl_table_canonical_sender_file_path: "{{ __run_postfix_table_canonical_sender_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'canonical': Inform if 'sender_canonical_maps' config value gets extended"
       ansible.builtin.debug:
@@ -303,14 +295,13 @@
           value "{{ run_postfix_maincf_settings['sender_canonical_maps'] }}" with
           "{{ run_postfix_canonical_sender_map_tabletype }}:{{ __run_postfix_table_canonical_sender_file_path }}"
           at the first position as "run_postfix_canonical_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0
-        - (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path)
-          not in (run_postfix_maincf_settings['sender_canonical_maps'].split(', ')
-                  if run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['sender_canonical_maps'])
-
+        - (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path) not in
+          (run_postfix_maincf_settings['sender_canonical_maps'].split(', ') if run_postfix_maincf_settings['sender_canonical_maps'] is ansible.builtin.string
+          else run_postfix_maincf_settings['sender_canonical_maps'])
 
     - name: "Config | Default | Lookup-table 'canonical': Set 'sender_canonical_maps' config value"
       ansible.builtin.set_fact:
@@ -322,10 +313,8 @@
                                         (__run_postfix_effective_maincf_settings['sender_canonical_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['sender_canonical_maps'] is not ansible.builtin.defined or
-          (run_postfix_canonical_sender_map_tabletype ~ ':' ~ __run_postfix_table_canonical_sender_file_path)
-          not in __run_postfix_effective_maincf_settings['sender_canonical_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['sender_canonical_maps'] is not ansible.builtin.defined or (run_postfix_canonical_sender_map_tabletype ~ ':' ~
+          __run_postfix_table_canonical_sender_file_path) not in __run_postfix_effective_maincf_settings['sender_canonical_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'canonical': Write table file (sender)"
       ansible.builtin.template:
@@ -334,10 +323,13 @@
         owner: "{{ __run_postfix_table_canonical_sender_file_owner }}"
         group: "{{ __run_postfix_table_canonical_sender_file_group }}"
         mode: "{{ __run_postfix_table_canonical_sender_file_mode }}"
+      vars:
+        tpl_effective_canonical_sender_map: "{{ __run_postfix_effective_canonical_sender_map }}"
+        tpl_table_canonical_recipient_file_path: "{{ __run_postfix_table_canonical_recipient_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'canonical': Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
       ansible.builtin.file:
@@ -348,14 +340,12 @@
       loop_control:
         loop_var: "__run_postfix_canonical_removal_item"
 
-
 ### Lookup table: generic (provides info for "user has moved to new_location" bounce messages)
 
 - name: "Config | Default | Lookup-table 'generic'"
   when:
     - run_postfix_generic_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'generic': Inform if 'lmtp_generic_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -363,14 +353,12 @@
           value "{{ run_postfix_maincf_settings['lmtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
           at the first position as "run_postfix_generic_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0
-        - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in (run_postfix_maincf_settings['lmtp_generic_maps'].split(', ')
-                  if run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['lmtp_generic_maps'])
-
+        - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path) not in (run_postfix_maincf_settings['lmtp_generic_maps'].split(', ')
+          if run_postfix_maincf_settings['lmtp_generic_maps'] is ansible.builtin.string else run_postfix_maincf_settings['lmtp_generic_maps'])
 
     - name: "Config | Default | Lookup-table 'generic': Set 'lmtp_generic_maps' setting"
       ansible.builtin.set_fact:
@@ -382,10 +370,8 @@
                                     (__run_postfix_effective_maincf_settings['lmtp_generic_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['lmtp_generic_maps'] is not ansible.builtin.defined or
-          (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in __run_postfix_effective_maincf_settings['lmtp_generic_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['lmtp_generic_maps'] is not ansible.builtin.defined or (run_postfix_generic_map_tabletype ~ ':' ~
+          __run_postfix_table_generic_file_path) not in __run_postfix_effective_maincf_settings['lmtp_generic_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'generic': Inform if 'smtp_generic_maps' config value gets extended"
       ansible.builtin.debug:
@@ -394,14 +380,12 @@
           value "{{ run_postfix_maincf_settings['smtp_generic_maps'] }}" with
           "{{ run_postfix_generic_map_tabletype }}:{{ __run_postfix_table_generic_file_path }}"
           at the first position as "run_postfix_generic_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0
-        - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in (run_postfix_maincf_settings['smtp_generic_maps'].split(', ')
-                  if run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['smtp_generic_maps'])
-
+        - (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path) not in (run_postfix_maincf_settings['smtp_generic_maps'].split(', ')
+          if run_postfix_maincf_settings['smtp_generic_maps'] is ansible.builtin.string else run_postfix_maincf_settings['smtp_generic_maps'])
 
     - name: "Config | Default | Lookup-table 'generic': Set 'smtp_generic_maps' setting"
       ansible.builtin.set_fact:
@@ -413,10 +397,8 @@
                                     (__run_postfix_effective_maincf_settings['smtp_generic_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['smtp_generic_maps'] is not ansible.builtin.defined or
-          (run_postfix_generic_map_tabletype ~ ':' ~ __run_postfix_table_generic_file_path)
-          not in __run_postfix_effective_maincf_settings['smtp_generic_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['smtp_generic_maps'] is not ansible.builtin.defined or (run_postfix_generic_map_tabletype ~ ':' ~
+          __run_postfix_table_generic_file_path) not in __run_postfix_effective_maincf_settings['smtp_generic_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'generic': Write table file"
       ansible.builtin.template:
@@ -425,10 +407,12 @@
         owner: "{{ __run_postfix_table_generic_file_owner }}"
         group: "{{ __run_postfix_table_generic_file_group }}"
         mode: "{{ __run_postfix_table_generic_file_mode }}"
+      vars:
+        tpl_effective_generic_map: "{{ __run_postfix_effective_generic_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
 ### Lookup table: relocated (provides info for "user has moved to new_location" bounce messages)
 
@@ -436,7 +420,6 @@
   when:
     - run_postfix_relocated_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'relocated': Inform if 'relocated_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -444,14 +427,12 @@
           value "{{ run_postfix_maincf_settings['relocated_maps'] }}" with
           "{{ run_postfix_relocated_map_tabletype }}:{{ __run_postfix_table_relocated_file_path }}"
           at the first position as "run_postfix_relocated_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['relocated_maps'] | ansible.builtin.length > 0
-        - (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path)
-          not in (run_postfix_maincf_settings['relocated_maps'].split(', ')
-                  if run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['relocated_maps'])
-
+        - (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path) not in (run_postfix_maincf_settings['relocated_maps'].split(',
+          ') if run_postfix_maincf_settings['relocated_maps'] is ansible.builtin.string else run_postfix_maincf_settings['relocated_maps'])
 
     - name: "Config | Default | Lookup-table 'relocated': Set 'relocated_maps' setting"
       ansible.builtin.set_fact:
@@ -463,10 +444,8 @@
                                   (__run_postfix_effective_maincf_settings['relocated_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['relocated_maps'] is not ansible.builtin.defined or
-          (run_postfix_relocated_map_tabletype ~ ':' ~ __run_postfix_table_relocated_file_path)
-          not in __run_postfix_effective_maincf_settings['relocated_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['relocated_maps'] is not ansible.builtin.defined or (run_postfix_relocated_map_tabletype ~ ':' ~
+          __run_postfix_table_relocated_file_path) not in __run_postfix_effective_maincf_settings['relocated_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'relocated': Write table file"
       ansible.builtin.template:
@@ -475,10 +454,12 @@
         owner: "{{ __run_postfix_table_relocated_file_owner }}"
         group: "{{ __run_postfix_table_relocated_file_group }}"
         mode: "{{ __run_postfix_table_relocated_file_mode }}"
+      vars:
+        tpl_effective_relocated_map: "{{ __run_postfix_effective_relocated_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
 ### Lookup table: transport (maps domains or addresses to specific mail delivery methods and destinations)
 
@@ -486,7 +467,6 @@
   when:
     - run_postfix_transport_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'transport': Inform if 'transport_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -494,14 +474,12 @@
           value "{{ run_postfix_maincf_settings['transport_maps'] }}" with
           "{{ run_postfix_transport_map_tabletype }}:{{ __run_postfix_table_transport_file_path }}"
           at the first position as "run_postfix_transport_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['transport_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['transport_maps'] | ansible.builtin.length > 0
-        - (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path)
-          not in (run_postfix_maincf_settings['transport_maps'].split(', ')
-                  if run_postfix_maincf_settings['transport_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['transport_maps'])
-
+        - (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path) not in (run_postfix_maincf_settings['transport_maps'].split(',
+          ') if run_postfix_maincf_settings['transport_maps'] is ansible.builtin.string else run_postfix_maincf_settings['transport_maps'])
 
     - name: "Config | Default | Lookup-table 'transport': Set 'transport_maps' setting"
       ansible.builtin.set_fact:
@@ -513,10 +491,8 @@
                                   (__run_postfix_effective_maincf_settings['transport_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['transport_maps'] is not ansible.builtin.defined or
-          (run_postfix_transport_map_tabletype ~ ':' ~ __run_postfix_table_transport_file_path)
-          not in __run_postfix_effective_maincf_settings['transport_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['transport_maps'] is not ansible.builtin.defined or (run_postfix_transport_map_tabletype ~ ':' ~
+          __run_postfix_table_transport_file_path) not in __run_postfix_effective_maincf_settings['transport_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'transport': Write table file"
       ansible.builtin.template:
@@ -525,9 +501,13 @@
         owner: "{{ __run_postfix_table_transport_file_owner }}"
         group: "{{ __run_postfix_table_transport_file_group }}"
         mode: "{{ __run_postfix_table_transport_file_mode }}"
+      vars:
+        tpl_effective_transport_map: "{{ __run_postfix_effective_transport_map }}"
+        tpl_relaydomains_file_path: "{{ __run_postfix_relaydomains_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
+        tpl_relay_domains_manage: "{{ run_postfix_relay_domains_manage }}"
       notify:
-        - "run_postfix: update lookup tables"
-
+        - "run_postfix_update_lookup_tables"
 
 ### Lookup table: virtual (mail)
 
@@ -535,7 +515,6 @@
   when:
     - run_postfix_virtual_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | Lookup-table 'virtual': Inform if 'virtual_alias_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -543,14 +522,13 @@
           value "{{ run_postfix_maincf_settings['virtual_alias_maps'] }}" with
           "{{ run_postfix_virtual_alias_map_tabletype }}:{{ __run_postfix_table_virtual_file_path }}"
           at the first position as "run_postfix_virtual_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0
-        - (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path)
-          not in (run_postfix_maincf_settings['virtual_alias_maps'].split(', ')
-                  if run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['virtual_alias_maps'])
-
+        - (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path) not in
+          (run_postfix_maincf_settings['virtual_alias_maps'].split(', ') if run_postfix_maincf_settings['virtual_alias_maps'] is ansible.builtin.string else
+          run_postfix_maincf_settings['virtual_alias_maps'])
 
     - name: "Config | Default | Lookup-table 'virtual': Set 'virtual_alias_maps' setting"
       ansible.builtin.set_fact:
@@ -562,10 +540,8 @@
                                       (__run_postfix_effective_maincf_settings['virtual_alias_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['virtual_alias_maps'] is not ansible.builtin.defined or
-          (run_postfix_virtual_alias_map_tabletype ~ ':' ~ __run_postfix_table_virtual_file_path)
-          not in __run_postfix_effective_maincf_settings['virtual_alias_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['virtual_alias_maps'] is not ansible.builtin.defined or (run_postfix_virtual_alias_map_tabletype ~ ':' ~
+          __run_postfix_table_virtual_file_path) not in __run_postfix_effective_maincf_settings['virtual_alias_maps'].split(', ')
 
     - name: "Config | Default | Lookup-table 'virtual': Write table file"
       ansible.builtin.template:
@@ -574,10 +550,13 @@
         owner: "{{ __run_postfix_table_virtual_file_owner }}"
         group: "{{ __run_postfix_table_virtual_file_group }}"
         mode: "{{ __run_postfix_table_virtual_file_mode }}"
+      vars:
+        tpl_effective_virtual_alias_map: "{{ __run_postfix_effective_virtual_alias_map }}"
+        tpl_table_virtual_aliasdomains_file_path: "{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
     - name: "Config | Default | Lookup-table 'virtual': Inform if 'virtual_alias_domains' config value will be overwritten"
       ansible.builtin.debug:
@@ -587,14 +566,13 @@
           "{{ run_postfix_virtual_aliasdomains_list_tabletype }}:{{ __run_postfix_table_virtual_aliasdomains_file_path }}"
           as "run_postfix_virtual_manage" is true. Please add your domains
           to "run_postfix_maincf_settings['virtual_alias_domains']".
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.defined
         - run_postfix_maincf_settings['virtual_alias_domains'] | ansible.builtin.length > 0
-        - (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path)
-          not in (run_postfix_maincf_settings['virtual_alias_domains'].split(', ')
-                  if run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['virtual_alias_domains'])
-
+        - (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path) not in
+          (run_postfix_maincf_settings['virtual_alias_domains'].split(', ') if run_postfix_maincf_settings['virtual_alias_domains'] is ansible.builtin.string
+          else run_postfix_maincf_settings['virtual_alias_domains'])
 
     - name: "Config | Default | Lookup-table 'virtual': Set 'virtual_alias_domains' config value"
       ansible.builtin.set_fact:
@@ -603,10 +581,8 @@
             'virtual_alias_domains': (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path)
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['virtual_alias_domains'] is not ansible.builtin.defined or
-          (run_postfix_virtual_aliasdomains_list_tabletype ~ ':' ~ __run_postfix_table_virtual_aliasdomains_file_path)
-          not in __run_postfix_effective_maincf_settings['virtual_alias_domains'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['virtual_alias_domains'] is not ansible.builtin.defined or (run_postfix_virtual_aliasdomains_list_tabletype ~
+          ':' ~ __run_postfix_table_virtual_aliasdomains_file_path) not in __run_postfix_effective_maincf_settings['virtual_alias_domains'].split(', ')
 
     - name: "Config | Default | Lookup-table 'virtual': Write table file (alias domains)"
       ansible.builtin.template:
@@ -615,10 +591,13 @@
         owner: "{{ __run_postfix_table_virtual_aliasdomains_file_owner }}"
         group: "{{ __run_postfix_table_virtual_aliasdomains_file_group }}"
         mode: "{{ __run_postfix_table_virtual_aliasdomains_file_mode }}"
+      vars:
+        tpl_effective_virtual_alias_domains: "{{ __run_postfix_effective_virtual_alias_domains }}"
+        tpl_table_virtual_file_path: "{{ __run_postfix_table_virtual_file_path }}"
+        tpl_managed: "{{ ansible_managed }}"
       notify:
-        - "run_postfix: update lookup tables"
-        - "run_postfix: update aliases"
-
+        - "run_postfix_update_lookup_tables"
+        - "run_postfix_update_aliases"
 
 ### SMTP SASL password credentials
 
@@ -626,7 +605,6 @@
   when:
     - run_postfix_smtp_sasl_password_manage | ansible.builtin.bool
   block:
-
     - name: "Config | Default | SMTP SASL password credentials: Inform if 'smtp_sasl_password_maps' config value gets extended"
       ansible.builtin.debug:
         msg: |
@@ -634,14 +612,13 @@
           value "{{ run_postfix_maincf_settings['smtp_sasl_password_maps'] }}" with
           "{{ run_postfix_smtp_sasl_password_map_tabletype }}:{{ __run_postfix_smtpsaslpasswordmap_file_path }}"
           at the first position as "run_postfix_smtp_sasl_password_manage" is true.
+        verbosity: 0
       when:
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.defined
         - run_postfix_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0
-        - (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path)
-          not in (run_postfix_maincf_settings['smtp_sasl_password_maps'].split(', ')
-                  if run_postfix_maincf_settings['smtp_sasl_password_maps'] is ansible.builtin.string
-                  else run_postfix_maincf_settings['smtp_sasl_password_maps'])
-
+        - (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path) not in
+          (run_postfix_maincf_settings['smtp_sasl_password_maps'].split(', ') if run_postfix_maincf_settings['smtp_sasl_password_maps'] is
+          ansible.builtin.string else run_postfix_maincf_settings['smtp_sasl_password_maps'])
 
     - name: "Config | Default | SMTP SASL password credentials: Set 'smtp_sasl_password_maps' setting"
       ansible.builtin.set_fact:
@@ -653,10 +630,8 @@
                                            (__run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] | ansible.builtin.length > 0))
           }) }}
       when:
-        - __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is not ansible.builtin.defined or
-          (run_postfix_smtp_sasl_password_map_tabletype ~ ':' ~ __run_postfix_smtpsaslpasswordmap_file_path)
-          not in __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'].split(', ')
-
+        - __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'] is not ansible.builtin.defined or (run_postfix_smtp_sasl_password_map_tabletype ~
+          ':' ~ __run_postfix_smtpsaslpasswordmap_file_path) not in __run_postfix_effective_maincf_settings['smtp_sasl_password_maps'].split(', ')
 
     - name: "Config | Default | SMTP SASL password credentials: Handle mapping configuration"
       ansible.builtin.template:
@@ -666,10 +641,12 @@
         group: "{{ __run_postfix_smtpsaslpasswordmap_file_group }}"
         mode: "{{ __run_postfix_smtpsaslpasswordmap_file_mode }}"
       # The rendered file contains the relay credentials
+      vars:
+        tpl_effective_smtp_sasl_password_map: "{{ __run_postfix_effective_smtp_sasl_password_map }}"
+        tpl_managed: "{{ ansible_managed }}"
       no_log: true
       notify:
-        - "run_postfix: update lookup tables"
-
+        - "run_postfix_update_lookup_tables"
 
 ### Main configuration files (handled last as the previous task may changed settings)
 
@@ -678,18 +655,19 @@
     msg: "{{ lookup('ansible.builtin.template', 'helper_postmap_paths.j2') }}"
     verbosity: 4
 
-
+  vars:
+    tpl_effective_maincf_settings: "{{ __run_postfix_effective_maincf_settings }}"
 - name: "Config | Default | Print postalias lookup table paths (extracted from main.cf settings)"
   ansible.builtin.debug:
     msg: "{{ lookup('ansible.builtin.template', 'helper_postalias_paths.j2') }}"
     verbosity: 4
 
-
+  vars:
+    tpl_effective_maincf_settings: "{{ __run_postfix_effective_maincf_settings }}"
 - name: "Config | Default | Print config for main.cf (after all optional adaptions ran)"
   ansible.builtin.debug:
     var: __run_postfix_effective_maincf_settings
     verbosity: 4
-
 
 # Notes on the main.cf handling:
 #
@@ -769,14 +747,13 @@
     - __run_postfix_config_maincf_result['stdout'] | ansible.builtin.trim | ansible.builtin.length > 0
   register: __run_postfix_config_maincf_result
   notify:
-    - "run_postfix: update lookup tables"
-    - "run_postfix: update aliases"
+    - "run_postfix_update_lookup_tables"
+    - "run_postfix_update_aliases"
     # Reload applies main.cf changes without interrupting service. Known
     # exception (see postconf(5)): inet_interfaces and inet_protocols changes
     # need a full stop/start, which is an operator action anyway ("postfix
     # reload" is not enough either).
-    - "run_postfix: reload postfix.service"
-
+    - "run_postfix_reload_postfix"
 
 # Notes on the master.cf handling:
 #
@@ -794,9 +771,8 @@
 - name: "Config | Default | Check master.cf service definitions are complete and fail if unmet"
   ansible.builtin.assert:
     that:
-      - (__run_postfix_mastercf_service_fields
-         | ansible.builtin.difference(__run_postfix_mastercf_service_item['value'] | ansible.builtin.list)
-         | ansible.builtin.length) == 0
+      - (__run_postfix_mastercf_service_fields | ansible.builtin.difference(__run_postfix_mastercf_service_item['value'] | ansible.builtin.list) |
+        ansible.builtin.length) == 0
     fail_msg: >-
       The master.cf service "{{ __run_postfix_mastercf_service_item['key'] }}" is missing the
       field(s): {{ __run_postfix_mastercf_service_fields
@@ -810,7 +786,6 @@
   loop_control:
     loop_var: "__run_postfix_mastercf_service_item"
     label: "{{ __run_postfix_mastercf_service_item['key'] }}"
-
 
 - name: "Config | Default | Update master.cf"
   # The command or shell module is used here. This approach is justified:
@@ -890,14 +865,12 @@
   register: __run_postfix_config_mastercf_result
   notify:
     # "postfix reload" also re-reads master.cf (see master(5))
-    - "run_postfix: reload postfix.service"
-
+    - "run_postfix_reload_postfix"
 
 - name: "Config | Default | Ensure handler runs (e.g. to create database files) before (re)starting Postfix after packages were installed."
   ansible.builtin.meta: "flush_handlers"
   when:
     - run_postfix_service_state in ['enabled', 'running']
-    - (__run_postfix_package_install_result is ansible.builtin.defined and
-       __run_postfix_package_install_result is ansible.builtin.changed) or
-      (__run_postfix_package_install_map_backends_result is ansible.builtin.defined and
-       __run_postfix_package_install_map_backends_result is ansible.builtin.changed)
+    - (__run_postfix_package_install_result is ansible.builtin.defined and __run_postfix_package_install_result is ansible.builtin.changed) or
+      (__run_postfix_package_install_map_backends_result is ansible.builtin.defined and __run_postfix_package_install_map_backends_result is
+      ansible.builtin.changed)

@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
-# {{ ansible_managed }}
+# {{ tpl_managed }}
 
 # This file defines a list of virtual alias domains Postfix is the final
 # destination for. Virtual domains (or hosted domains) are those for which all
@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # mappings, for example, a local UNIX system account or a remote address.
 #
 # These mappings are defined in the following file:
-# {{ __run_postfix_table_virtual_file_path }}
+# {{ tpl_table_virtual_file_path }}
 #
 # See the following resources for more information:
 #
@@ -21,6 +21,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # - https://www.postfix.org/postconf.5.html#virtual_alias_maps
 # - https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
 
-{% for domain in __run_postfix_effective_virtual_alias_domains %}
+{% for domain in tpl_effective_virtual_alias_domains %}
 {{ domain }}{% if domain|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif domain|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}virtual
 {% endfor %}

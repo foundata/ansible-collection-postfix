@@ -8,13 +8,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: "Setup | Install | Debian | Pre-configure packages"
   ansible.builtin.debconf:
     name: "{{ __run_postfix_debconf_item['package'] }}"
     question: "{{ __run_postfix_debconf_item['question'] }}"
     value: "{{ __run_postfix_debconf_item['value'] }}"
     vtype: "{{ __run_postfix_debconf_item['vtype'] }}"
+  when:
+    - __run_postfix_debian_debconf_postfixpkgname is ansible.builtin.defined
+    - (__run_postfix_debian_debconf_postfixpkgname | ansible.builtin.length) > 0
   loop:
     # Hint for maintainers:
     # debconf-show postfix; apt install -y debconf-utils; debconf-get-selections postfix
@@ -28,10 +30,7 @@
       vtype: "string"
   loop_control:
     loop_var: "__run_postfix_debconf_item"
-  when:
-    - __run_postfix_debian_debconf_postfixpkgname is ansible.builtin.defined
-    - (__run_postfix_debian_debconf_postfixpkgname | ansible.builtin.length) > 0
   notify:
-    - "run_postfix: restart postfix.service"
-    - "run_postfix: update aliases"
-    - "run_postfix: update lookup tables"
+    - "run_postfix_restart_postfix"
+    - "run_postfix_update_aliases"
+    - "run_postfix_update_lookup_tables"

@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
-# {{ ansible_managed }}
+# {{ tpl_managed }}
 
 # This file defines the mail transport routes for Postfix, mapping domains
 # or email addresses to specific mail delivery methods and destinations.
@@ -13,9 +13,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # by Postfix itself to prevent "Mail loops back to myself" errors. The format
 # is typically domain or email address patterns followed by their
 # transport:nexthop destination.
-{% if run_postfix_relay_domains_manage | ansible.builtin.bool %}
+{% if tpl_relay_domains_manage | ansible.builtin.bool %}
 # The accepted (relayed) domains are defined in the following file:
-# {{ __run_postfix_relaydomains_file_path }}
+# {{ tpl_relaydomains_file_path }}
 #
 {% endif %}
 #
@@ -24,6 +24,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # - https://www.postfix.org/transport.5.html
 # - https://www.postfix.org/postconf.5.html#transport_maps
 
-{% for key, value in __run_postfix_effective_transport_map.items() %}
+{% for key, value in tpl_effective_transport_map.items() %}
 {{ key }}{% if key|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif key|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}

@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: "Setup | Install | Default | Remove unwanted packages (e.g., to prevent conflicts or resolve incompatibilities)"
   ansible.builtin.package:
     name: "{{ __run_postfix_packages_removal }}"
@@ -12,7 +11,6 @@
   when:
     - __run_postfix_packages_removal is ansible.builtin.defined
     - (__run_postfix_packages_removal | ansible.builtin.length) > 0
-
 
 - name: "Setup | Install | Default | Install or upgrade packages"
   ansible.builtin.package:
@@ -25,8 +23,7 @@
   notify:
     # new or upgraded binaries only take effect with a full restart (a restart
     # of a stopped service is a start, so this is also safe on fresh installs)
-    - "run_postfix: restart postfix.service"
-
+    - "run_postfix_restart_postfix"
 
 - name: "Setup | Install | Default | Determine additional map backends"
   ansible.builtin.set_fact:
@@ -47,26 +44,23 @@
       - "{{ (run_postfix_virtual_manage | ansible.builtin.bool) | ansible.builtin.ternary(run_postfix_virtual_aliasdomains_list_tabletype, '') }}"
       - "{{ (run_postfix_virtual_manage | ansible.builtin.bool) | ansible.builtin.ternary(run_postfix_virtual_alias_map_tabletype, '') }}"
 
-
 - name: "Setup | Install | Default | Print additional map backends (extracted from main.cf and default settings)"
   ansible.builtin.debug:
     var: __run_postfix_required_map_backends
     verbosity: 4
 
-
 - name: "Setup | Install | Default | Install or upgrade additional packages for used map backends"
   ansible.builtin.package:
     name: "{{ __run_postfix_packages_install_map_backends[__run_postfix_map_backend_item] }}"
     state: "{{ 'latest' if (run_postfix_autoupgrade | ansible.builtin.bool) else 'present' }}"
+  when:
+    - __run_postfix_packages_install_map_backends[__run_postfix_map_backend_item] | ansible.builtin.length > 0
   loop: "{{ __run_postfix_required_map_backends }}"
   loop_control:
     loop_var: "__run_postfix_map_backend_item"
-  when:
-    - __run_postfix_packages_install_map_backends[__run_postfix_map_backend_item] | ansible.builtin.length > 0
   register: __run_postfix_package_install_map_backends_result # to decide if a handler flush (config/default.yml) is necessary
   notify:
-    - "run_postfix: restart postfix.service"
-
+    - "run_postfix_restart_postfix"
 
 - name: "Setup | Install | Default | Remove unwanted files and directories (e.g., to prevent conflicts or resolve incompatibilities)"
   ansible.builtin.file:
@@ -78,7 +72,6 @@
   loop: "{{ __run_postfix_paths_removal }}"
   loop_control:
     loop_var: "__run_postfix_removal_path_item"
-
 
 - name: "Setup | Install | Default | Neutralize distribution config files (overwrite to survive package updates)"
   ansible.builtin.copy:

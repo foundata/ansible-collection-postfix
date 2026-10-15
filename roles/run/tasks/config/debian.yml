@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 # May be used for EHELO/HELO on Debian systems, see https://wiki.debian.org/EtcMailName
 - name: "Config | Debian | Update mailname file: {{ __run_postfix_mailname_file_path }}"
   ansible.builtin.copy:
@@ -18,4 +17,4 @@
     group: "{{ __run_postfix_mailname_file_group }}"
     mode: "{{ __run_postfix_mailname_file_mode }}"
   notify:
-    - "run_postfix: reload postfix.service"
+    - "run_postfix_reload_postfix"

@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
-# {{ ansible_managed }}
+# {{ tpl_managed }}
 
 # This file defines the list of relay domains for which Postfix will accept
 # mail for relaying to their final destinations.
@@ -14,9 +14,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # the same host (e.g. to put Postfix in front of a service like Dovecot or Cyrus
 # which is the final destination then).
 #
-{% if run_postfix_transport_manage | ansible.builtin.bool %}
+{% if tpl_transport_manage | ansible.builtin.bool %}
 # The transport map is defined in the following file:
-# {{ __run_postfix_table_transport_file_path }}
+# {{ tpl_table_transport_file_path }}
 #
 {% endif %}
 #
@@ -26,6 +26,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # - https://www.postfix.org/SMTPD_ACCESS_README.html
 # - https://www.postfix.org/ADDRESS_CLASS_README.html#relay_domain_class
 
-{% for domain in __run_postfix_effective_relay_domains %}
+{% for domain in tpl_effective_relay_domains %}
 {{ domain }}{% if domain|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif domain|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}relay
 {% endfor %}

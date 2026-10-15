@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
-# {{ ansible_managed }}
+# {{ tpl_managed }}
 
 # This file defines address rules used by Postfix to rewrite sender email
 # addresses. Unlike "canonical" maps, "generic" maps only affect emails when
@@ -18,6 +18,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # - https://www.postfix.org/postconf.5.html#lmtp_generic_maps
 # - https://www.postfix.org/postconf.5.html#smtp_generic_maps
 
-{% for key, value in __run_postfix_effective_generic_map.items() %}
+{% for key, value in tpl_effective_generic_map.items() %}
 {{ key }}{% if key|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif key|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}

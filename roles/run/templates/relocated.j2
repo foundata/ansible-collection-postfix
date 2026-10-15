@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 #}
-# {{ ansible_managed }}
+# {{ tpl_managed }}
 
 # This file defines relocated address mappings for Postfix. It is used to tell
 # senders that a recipient's address has changed. If someone tries to send email
@@ -13,6 +13,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # - https://www.postfix.org/relocated.5.html
 # - https://www.postfix.org/postconf.5.html#relocated_maps
 
-{% for key, value in __run_postfix_effective_relocated_map.items() %}
+{% for key, value in tpl_effective_relocated_map.items() %}
 {{ key }}{% if key|ansible.builtin.length < 16 %}{{ "\t\t\t" }}{% elif key|ansible.builtin.length < 24 %}{{ "\t\t" }}{% else %}{{ "\t" }}{% endif %}{{ value }}
 {% endfor %}

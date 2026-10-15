@@ -104,7 +104,7 @@ argument_specs:
           Please note that you do not need own handler for postmap when using
           `hash|btree|dbm:` somewhere. The role's handler is intelligent enough to scan
           the config for hash|btree|dbm:/path values. Just notify
-          `run_postfix: update lookup tables` on changes when writing additional, own
+          `run_postfix_update_lookup_tables` on changes when writing additional, own
           tasks.
 
           For a complete list of options, see https://www.postfix.org/postconf.5.html

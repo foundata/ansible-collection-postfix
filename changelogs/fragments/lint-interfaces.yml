@@ -1,0 +1,17 @@
+---
+minor_changes:
+  - >-
+    Add role-prefixed handler topics and use them for internal notifications.
+    Retain the previous topics as migration aliases until version 3.0.0.
+  - >-
+    Add the handler topic run_postfix_update_lookup_tables
+    as the replacement for "run_postfix: update lookup tables".
+  - >-
+    Add the handler topic run_postfix_update_aliases
+    as the replacement for "run_postfix: update aliases".
+  - >-
+    Add the handler topic run_postfix_restart_postfix
+    as the replacement for "run_postfix: restart postfix.service".
+  - >-
+    Add the handler topic run_postfix_reload_postfix
+    as the replacement for "run_postfix: reload postfix.service".
