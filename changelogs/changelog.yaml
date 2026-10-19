@@ -1,6 +1,48 @@
 ---
 ancestor: null
 releases:
+  2.2.0:
+    changes:
+      bugfixes:
+        - Check the minimum ansible-core version before gathering role facts so unsupported
+          versions fail with the intended diagnostic.
+        - Limit automatic fact gathering to each role's declared subsets while retaining
+          missing-fact recovery and reuse of cached facts.
+        - 'The declared ansible-core minimum is corrected from 2.16 to 2.19. The roles
+          write Jinja''s own filters and tests as ``ansible.builtin.<name>``, which
+          ansible-core resolves from 2.19 only; on 2.16 to 2.18 every run failed at
+          the first such expression, so no working installation is affected.
+
+          '
+        - run - Install backend packages for proxy-wrapped lookup maps such as ``proxy:ldap:/etc/postfix/ldap.cf``.
+          Previously the wrapper was retained in the extracted backend name, so the
+          required package was skipped. Restart Postfix after backend package changes
+          so existing workers load them.
+      minor_changes:
+        - Add role-prefixed handler topics and use them for internal notifications.
+          Retain the previous topics as migration aliases until version 3.0.0.
+        - 'Add the handler topic run_postfix_reload_postfix as the replacement for
+          "run_postfix: reload postfix.service".'
+        - 'Add the handler topic run_postfix_restart_postfix as the replacement for
+          "run_postfix: restart postfix.service".'
+        - 'Add the handler topic run_postfix_update_aliases as the replacement for
+          "run_postfix: update aliases".'
+        - 'Add the handler topic run_postfix_update_lookup_tables as the replacement
+          for "run_postfix: update lookup tables".'
+      release_summary: 'Release Date: 2026-10-19
+
+
+        Maintenance release.
+
+        '
+    fragments:
+      - 2.2.0-release.yaml
+      - ansible-core-floor-2.19.yml
+      - ansible-version-guard.yml
+      - bounded-role-facts.yml
+      - fix-proxied-map-backend-packages.yml
+      - lint-interfaces.yml
+    release_date: '2026-10-19'
   2.1.0:
     changes:
       minor_changes:

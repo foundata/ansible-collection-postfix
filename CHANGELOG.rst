@@ -4,6 +4,33 @@ foundata.postfix Ansible collection Release Notes
 
 .. contents:: Topics
 
+v2.2.0
+======
+
+Release Summary
+---------------
+
+Release Date: 2026-10-19
+
+Maintenance release.
+
+Minor Changes
+-------------
+
+- Add role-prefixed handler topics and use them for internal notifications. Retain the previous topics as migration aliases until version 3.0.0.
+- Add the handler topic run_postfix_reload_postfix as the replacement for "run_postfix: reload postfix.service".
+- Add the handler topic run_postfix_restart_postfix as the replacement for "run_postfix: restart postfix.service".
+- Add the handler topic run_postfix_update_aliases as the replacement for "run_postfix: update aliases".
+- Add the handler topic run_postfix_update_lookup_tables as the replacement for "run_postfix: update lookup tables".
+
+Bugfixes
+--------
+
+- Check the minimum ansible-core version before gathering role facts so unsupported versions fail with the intended diagnostic.
+- Limit automatic fact gathering to each role's declared subsets while retaining missing-fact recovery and reuse of cached facts.
+- The declared ansible-core minimum is corrected from 2.16 to 2.19. The roles write Jinja's own filters and tests as ``ansible.builtin.<name>``, which ansible-core resolves from 2.19 only; on 2.16 to 2.18 every run failed at the first such expression, so no working installation is affected.
+- run - Install backend packages for proxy-wrapped lookup maps such as ``proxy:ldap:/etc/postfix/ldap.cf``. Previously the wrapper was retained in the extracted backend name, so the required package was skipped. Restart Postfix after backend package changes so existing workers load them.
+
 v2.1.0
 ======
 
