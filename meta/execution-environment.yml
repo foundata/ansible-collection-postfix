@@ -1,4 +1,5 @@
-# Execution Environment dependencies for the foundata.postfix collection
+# Execution Environment (EE) dependencies for the collection:
+# foundata.postfix
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
