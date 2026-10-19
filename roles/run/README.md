@@ -212,7 +212,7 @@ are included for completeness and to cover edge cases:
 
 ## Role variables<a id="variables"></a>
 
-Main entry point for the foundata.postfix.run role
+Main entry point for the foundata.postfix.run role.
 
 Manage the Postfix Mail Transfer Agent (MTA)
 
@@ -221,7 +221,7 @@ The following variables can be configured for this role:
 |                     Variable                      |  Type  | Required |   Default   | Description (abstract) |
 | ------------------------------------------------- | ------ | -------- | ----------- | ---------------------- |
 | `run_postfix_state`                               | `str`  | No       | `"present"` | Determines whether the managed resources should be `present` or `absent`.<br><br>`present` ensures that required components, such as software packages, are installed and configured.<br><br>`absent` reverts changes as much as possible, such as […](#variable-run_postfix_state) |
-| `run_postfix_autoupgrade`                         | `bool` | No       | `false`     | If set to `true`, all managed packages will be upgraded during each Ansible run (e.g., when the package provider detects a newer version than the currently installed one). |
+| `run_postfix_autoupgrade`                         | `bool` | No       | `false`     | If set to `true`, each Ansible run upgrades the managed packages to the newest version the package provider offers. |
 | `run_postfix_service_state`                       | `str`  | No       | `"enabled"` | Defines the status of the service(s). Possible values:<br><br>- `enabled`: Service is running and will start automatically at boot. - `disabled`: Service is stopped and will not start automatically at boot. - `running`: Service is running but will […](#variable-run_postfix_service_state) |
 | `run_postfix_maincf_settings`                     | `dict` | No       | `{}`        | Additional configuration for Postfix daemon (additional config values or to overwrite defaults from `__run_postfix_maincf_settings_defaults` in `vars/main.yml`).<br><br>Use standard Postfix option names as keys with their corresponding […](#variable-run_postfix_maincf_settings) |
 | `run_postfix_mastercf_settings`                   | `dict` | No       | `{}`        | Additional configuration for Postfix master process (`master.cf`). For details on the syntax of the fields/values, see the master(5) manual page (command: `man 5 master` or online: <http://www.postfix.org/master.5.html>).<br><br>Dictionary […](#variable-run_postfix_mastercf_settings) |
@@ -269,7 +269,7 @@ Determines whether the managed resources should be `present` or `absent`.
 installed and configured.
 
 `absent` reverts changes as much as possible, such as removing packages,
-deleting created users, stopping services, restoring modified settings, …
+deleting created users, stopping services and restoring modified settings.
 
 - **Type**: `str`
 - **Required**: No
@@ -282,9 +282,8 @@ deleting created users, stopping services, restoring modified settings, …
 
 [*⇑ Back to ToC ⇑*](#toc)
 
-If set to `true`, all managed packages will be upgraded during each Ansible
-run (e.g., when the package provider detects a newer version than the
-currently installed one).
+If set to `true`, each Ansible run upgrades the managed packages to the
+newest version the package provider offers.
 
 - **Type**: `bool`
 - **Required**: No
@@ -304,12 +303,11 @@ Defines the status of the service(s). Possible values:
   This can be used to start a service on the first Ansible run without
   enabling it for boot.
 - `unmanaged`: Ansible does not manage the service at all: both the
-  running state and the boot (enablement) state are left exactly as
-  they are. This is primarily useful when services are monitored and
-  managed by systems other than Ansible.
+  running state and the boot (enablement) state are left exactly as they
+  are. This is primarily useful when services are monitored and managed
+  by systems other than Ansible.
 
-The singular form ("service") is used for simplicity. However, the defined
-status applies to all services if multiple are being managed by this role.
+The defined status applies to all services if the role manages several.
 
 - **Type**: `str`
 - **Required**: No
