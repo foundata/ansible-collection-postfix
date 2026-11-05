@@ -46,9 +46,8 @@ mail transfer agent (MTA) that routes and delivers electronic mail (email) via
 ### Role: `foundata.postfix.run`
 
 The primary role in this collection to configure and maintain Postfix, including
-core service, mail routing, domains, relays, TLS, and related settings.
-[Its `README.md`](./roles/run/README.md) covers configuration, usage examples,
-and more:
+core service, mail routing, domains, relays, TLS, and related settings. [Its
+`README.md`](./roles/run/README.md) covers configuration and usage examples.
 
 <!-- ANSIBLE DOCSMITH TOC-FULL run START -->
 - [Ansible role: `foundata.postfix.run`](./roles/run/README.md#ansible-role-foundatapostfixrun)
