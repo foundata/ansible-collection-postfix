@@ -39,8 +39,6 @@
   register: __run_postfix_postmap_result
   listen:
     - "run_postfix_update_lookup_tables"
-    # Migration alias; remove in 3.0.0.
-    - "run_postfix: update lookup tables"
 - name: "Handlers | Update aliases for smtpd (postalias)"
   # The command or shell module is used here. This approach is justified:
   #
@@ -79,8 +77,6 @@
   register: __run_postfix_postalias_result
   listen:
     - "run_postfix_update_aliases"
-    # Migration alias; remove in 3.0.0.
-    - "run_postfix: update aliases"
 - name: "Handlers | Postfix service restart"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
@@ -89,16 +85,12 @@
     - run_postfix_service_state in ['enabled', 'running']
   listen:
     - "run_postfix_restart_postfix"
-    # Migration alias; remove in 3.0.0.
-    - "run_postfix: restart postfix.service"
 - name: "Handlers | Gather service facts (reload pre-check)"
   ansible.builtin.service_facts:
   when:
     - run_postfix_service_state in ['enabled', 'running']
   listen:
     - "run_postfix_reload_postfix"
-    # Migration alias; remove in 3.0.0.
-    - "run_postfix: reload postfix.service"
 - name: "Handlers | Postfix service reload"
   ansible.builtin.systemd_service:
     name: "{{ __run_postfix_postfix_servicename }}"
@@ -108,5 +100,3 @@
     - (ansible_facts['services'][__run_postfix_postfix_servicename]['state'] | ansible.builtin.default('')) == 'running'
   listen:
     - "run_postfix_reload_postfix"
-    # Migration alias; remove in 3.0.0.
-    - "run_postfix: reload postfix.service"

@@ -1,0 +1,9 @@
+---
+minor_changes:
+  - >-
+    Remove the previous handler topics ahead of the announced version 3.0.0:
+    "run_postfix: update lookup tables", "run_postfix: update aliases",
+    "run_postfix: restart postfix.service" and "run_postfix: reload
+    postfix.service". Notify the role-prefixed topics instead. We decided
+    that this is a non-breaking change: the topics are role internals, and
+    their use by third parties is very unlikely.
