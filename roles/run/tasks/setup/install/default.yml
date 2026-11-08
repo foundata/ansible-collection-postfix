@@ -19,7 +19,7 @@
   when:
     - __run_postfix_packages_install is ansible.builtin.defined
     - (__run_postfix_packages_install | ansible.builtin.length) > 0
-  register: __run_postfix_package_install_result # to decide if a handler flush (config/default.yml) is necessary
+  register: __run_postfix_package_install_result # to decide if database files need creating before the service starts (config/default.yml)
   notify:
     # new or upgraded binaries only take effect with a full restart (a restart
     # of a stopped service is a start, so this is also safe on fresh installs)
@@ -58,7 +58,7 @@
   loop: "{{ __run_postfix_required_map_backends }}"
   loop_control:
     loop_var: "__run_postfix_map_backend_item"
-  register: __run_postfix_package_install_map_backends_result # to decide if a handler flush (config/default.yml) is necessary
+  register: __run_postfix_package_install_map_backends_result # to decide if database files need creating before the service starts (config/default.yml)
   notify:
     - "run_postfix_restart_postfix"
 

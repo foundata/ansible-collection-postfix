@@ -867,10 +867,44 @@
     # "postfix reload" also re-reads master.cf (see master(5))
     - "run_postfix_reload_postfix"
 
-- name: "Config | Default | Ensure handler runs (e.g. to create database files) before (re)starting Postfix after packages were installed."
-  ansible.builtin.meta: "flush_handlers"
+# After package installation, the service tasks start Postfix before the
+# notified handlers run at the end of the play: create the database files now
+# so it starts with them. Directly, not by flushing the handlers: that would
+# also run the calling play's unrelated ones. The handlers still run later.
+- name: "Config | Default | Create the lookup table database files before starting Postfix after packages were installed (postmap)"
+  ansible.builtin.command:
+    argv:
+      - "{{ __run_postfix_postmap_exec_path }}"
+      - "{{ __run_postfix_postmap_item }}"
+  vars:
+    tpl_effective_maincf_settings: "{{ __run_postfix_effective_maincf_settings }}"
   when:
     - run_postfix_service_state in ['enabled', 'running']
     - (__run_postfix_package_install_result is ansible.builtin.defined and __run_postfix_package_install_result is ansible.builtin.changed) or
       (__run_postfix_package_install_map_backends_result is ansible.builtin.defined and __run_postfix_package_install_map_backends_result is
       ansible.builtin.changed)
+  changed_when:
+    - __run_postfix_postmap_initial_result['rc'] == 0
+  loop: "{{ lookup('ansible.builtin.template', 'helper_postmap_paths.j2') }}"
+  loop_control:
+    loop_var: "__run_postfix_postmap_item"
+  register: __run_postfix_postmap_initial_result
+
+- name: "Config | Default | Create the alias database files before starting Postfix after packages were installed (postalias)"
+  ansible.builtin.command:
+    argv:
+      - "{{ __run_postfix_postalias_exec_path }}"
+      - "{{ __run_postfix_postalias_item }}"
+  vars:
+    tpl_effective_maincf_settings: "{{ __run_postfix_effective_maincf_settings }}"
+  when:
+    - run_postfix_service_state in ['enabled', 'running']
+    - (__run_postfix_package_install_result is ansible.builtin.defined and __run_postfix_package_install_result is ansible.builtin.changed) or
+      (__run_postfix_package_install_map_backends_result is ansible.builtin.defined and __run_postfix_package_install_map_backends_result is
+      ansible.builtin.changed)
+  changed_when:
+    - __run_postfix_postalias_initial_result['rc'] == 0
+  loop: "{{ lookup('ansible.builtin.template', 'helper_postalias_paths.j2') }}"
+  loop_control:
+    loop_var: "__run_postfix_postalias_item"
+  register: __run_postfix_postalias_initial_result

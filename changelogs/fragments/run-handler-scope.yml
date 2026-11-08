@@ -1,0 +1,7 @@
+---
+bugfixes:
+  - >-
+    run role - Create the lookup table and alias database files directly
+    before Postfix starts after a package installation instead of flushing
+    all pending play handlers, preserving the order of unrelated handlers of
+    the calling play.
