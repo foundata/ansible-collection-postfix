@@ -4,6 +4,19 @@ foundata.postfix Ansible collection Release Notes
 
 .. contents:: Topics
 
+v2.2.1
+======
+
+Minor Changes
+-------------
+
+- Remove the previous handler topics ahead of the announced version 3.0.0: "run_postfix: update lookup tables", "run_postfix: update aliases", "run_postfix: restart postfix.service" and "run_postfix: reload postfix.service". Notify the role-prefixed topics instead. We decided that this is a non-breaking change: the topics are role internals, and their use by third parties is very unlikely.
+
+Bugfixes
+--------
+
+- run role - Create the lookup table and alias database files directly before Postfix starts after a package installation instead of flushing all pending play handlers, preserving the order of unrelated handlers of the calling play.
+
 v2.2.0
 ======
 
